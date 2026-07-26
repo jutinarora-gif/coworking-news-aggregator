@@ -40,7 +40,7 @@ export default async function CountryPage({
         articles={articles ?? []}
         kicker="City File"
         heading={<>{place}</>}
-        description={`Local news aggregated for ${place}.`}
+        description={`Coworking and remote-work news aggregated for ${place}.`}
         showFilters={false}
       />
     </main>

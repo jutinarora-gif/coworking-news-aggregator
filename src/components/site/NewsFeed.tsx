@@ -19,7 +19,7 @@ export function NewsFeed({
       <em className="italic font-light">from a desk near you.</em>
     </>
   ),
-  description = "Local news aggregated per destination — the things a remote worker actually needs to know about a country.",
+  description = "Coworking and remote-work news aggregated per destination — space openings, community trends, and what's changing where remote workers sit down.",
   showFilters = true,
 }: {
   articles: ArticleWithMeta[];

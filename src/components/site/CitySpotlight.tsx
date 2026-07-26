@@ -23,7 +23,7 @@ export function CitySpotlight({ locations }: { locations: LocationWithCount[] })
         </div>
         <div className="lg:col-span-4 px-6 sm:px-10 lg:px-14 py-14 flex items-end">
           <p className="font-sans text-base font-light text-graphite leading-relaxed">
-            Each file aggregates live local news for the destination — no
+            Each file aggregates live coworking news for the destination — no
             algorithms, no affiliate links.
           </p>
         </div>

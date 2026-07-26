@@ -8,8 +8,8 @@ export function Footer() {
           </span>
           <p className="mt-4 max-w-md font-sans text-base font-light text-graphite leading-relaxed">
             An independent aggregator of coworking, cities, and the borderless
-            life — local news by destination, published for wherever you work
-            from next.
+            life — coworking news by destination, published for wherever you
+            work from next.
           </p>
         </div>
 

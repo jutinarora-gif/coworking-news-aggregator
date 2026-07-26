@@ -18,11 +18,13 @@ insert into locations (country, country_code, city, slug) values
   ('United Arab Emirates', 'AE', 'Dubai', 'uae-dubai')
 on conflict (slug) do nothing;
 
--- Local news feeds: Google News RSS search per country
+-- Local coworking/remote-work news feeds: Google News RSS search scoped to
+-- "coworking" (or "digital nomad") mentions in that destination, NOT general
+-- local news. This site aggregates coworking news, not general news by country.
 insert into feed_sources (name, url, category, location_id)
 select
-  l.country || ' local news',
-  'https://news.google.com/rss/search?q=' || replace(coalesce(l.city, l.country), ' ', '+') || '&hl=en-US&gl=US&ceid=US:en',
+  l.country || ' coworking news',
+  'https://news.google.com/rss/search?q=%22coworking%22+' || replace(coalesce(l.city, l.country), ' ', '+') || '&hl=en-US&gl=US&ceid=US:en',
   'local',
   l.id
 from locations l
