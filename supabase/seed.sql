@@ -15,7 +15,11 @@ insert into locations (country, country_code, city, slug) values
   ('Brazil', 'BR', null, 'brazil'),
   ('Argentina', 'AR', null, 'argentina'),
   ('Turkey', 'TR', null, 'turkey'),
-  ('United Arab Emirates', 'AE', 'Dubai', 'uae-dubai')
+  ('United Arab Emirates', 'AE', 'Dubai', 'uae-dubai'),
+  ('India', 'IN', 'Bangalore', 'india-bangalore'),
+  ('India', 'IN', 'Goa', 'india-goa'),
+  ('India', 'IN', 'Delhi', 'india-delhi'),
+  ('India', 'IN', 'Mumbai', 'india-mumbai')
 on conflict (slug) do nothing;
 
 -- Local coworking/remote-work news feeds: Google News RSS search scoped to

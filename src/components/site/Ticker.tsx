@@ -3,6 +3,9 @@ import type { ArticleWithMeta } from "@/lib/queries";
 export function Ticker({ articles }: { articles: ArticleWithMeta[] }) {
   if (articles.length === 0) return null;
   const items = [...articles, ...articles];
+  // Scale duration with content so speed (not total loop time) stays
+  // constant and readable regardless of how many headlines are in the wire.
+  const duration = `${articles.length * 12}s`;
 
   return (
     <div className="border-b border-ink/15 bg-cream overflow-hidden">
@@ -11,7 +14,10 @@ export function Ticker({ articles }: { articles: ArticleWithMeta[] }) {
           Live wire
         </span>
         <div className="flex-1 overflow-hidden">
-          <div className="ticker-track inline-flex whitespace-nowrap py-2">
+          <div
+            className="ticker-track inline-flex whitespace-nowrap py-2"
+            style={{ "--ticker-duration": duration } as React.CSSProperties}
+          >
             {items.map((a, idx) => (
               <span
                 key={`${a.id}-${idx}`}
