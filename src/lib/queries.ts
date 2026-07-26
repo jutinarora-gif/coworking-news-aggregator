@@ -7,12 +7,12 @@ export type ArticleWithMeta = {
   summary: string | null;
   image_url: string | null;
   published_at: string | null;
-  locations: { country: string; city: string | null; slug: string } | null;
+  locations: { country: string; city: string | null; slug: string; image_url: string | null } | null;
   feed_sources: { category: "local" | "coworking_industry"; name: string } | null;
 };
 
-const ARTICLE_SELECT = "id, title, link, summary, image_url, published_at, locations(country, city, slug), feed_sources(category, name)";
-const ARTICLE_SELECT_INNER = "id, title, link, summary, image_url, published_at, locations(country, city, slug), feed_sources!inner(category, name)";
+const ARTICLE_SELECT = "id, title, link, summary, image_url, published_at, locations(country, city, slug, image_url), feed_sources(category, name)";
+const ARTICLE_SELECT_INNER = "id, title, link, summary, image_url, published_at, locations(country, city, slug, image_url), feed_sources!inner(category, name)";
 
 export async function getFeaturedArticle() {
   const { data } = await supabase
@@ -57,13 +57,14 @@ export async function getCoworkingArticles(limit = 30) {
 }
 
 export async function getLocationArticleCounts() {
-  const { data } = await supabase.from("locations").select("id, country, city, slug, articles(count)");
+  const { data } = await supabase.from("locations").select("id, country, city, slug, image_url, articles(count)");
   return (
     (data as unknown as {
       id: string;
       country: string;
       city: string | null;
       slug: string;
+      image_url: string | null;
       articles: { count: number }[];
     }[]) ?? []
   ).map((loc) => ({ ...loc, articleCount: loc.articles?.[0]?.count ?? 0 }));

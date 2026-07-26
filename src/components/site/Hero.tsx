@@ -100,14 +100,22 @@ export function Hero({
         </div>
 
         <div className="lg:col-span-5 relative bg-ink min-h-[400px] lg:min-h-[720px] overflow-hidden flex items-center justify-center">
-          <span className="font-serif text-[10rem] leading-none text-paper/10 select-none">
-            CD
-          </span>
-          <div className="absolute top-6 left-6 right-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-paper">
+          {featured?.locations?.image_url ? (
+            <img
+              src={featured.locations.image_url}
+              alt={place}
+              className="absolute inset-0 w-full h-full object-cover grayscale-hover"
+            />
+          ) : (
+            <span className="font-serif text-[10rem] leading-none text-paper/10 select-none">
+              CD
+            </span>
+          )}
+          <div className="absolute top-6 left-6 right-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
             <span>Plate No.01</span>
             <span>{place}</span>
           </div>
-          <div className="absolute bottom-6 left-6 right-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-paper">
+          <div className="absolute bottom-6 left-6 right-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
             <span>Aggregated dispatch</span>
             <span>© {new Date().getFullYear()}</span>
           </div>

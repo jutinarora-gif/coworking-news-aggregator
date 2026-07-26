@@ -5,6 +5,7 @@ type LocationWithCount = {
   country: string;
   city: string | null;
   slug: string;
+  image_url: string | null;
   articleCount: number;
 };
 
@@ -38,11 +39,21 @@ export function CitySpotlight({ locations }: { locations: LocationWithCount[] })
               idx % 3 !== 2 ? "lg:border-r" : ""
             } ${idx % 2 === 0 ? "sm:border-r lg:border-r" : ""} border-b`}
           >
-            <div className="relative aspect-[3/4] overflow-hidden bg-ink mb-6 flex items-center justify-center">
-              <span className="font-serif text-6xl text-paper/20 select-none">
-                {(loc.city ?? loc.country).slice(0, 2).toUpperCase()}
-              </span>
-              <span className="absolute top-4 left-4 font-mono text-[10px] uppercase tracking-[0.28em] text-paper">
+            <div className="relative aspect-[3/4] overflow-hidden bg-ink mb-6">
+              {loc.image_url ? (
+                <img
+                  src={loc.image_url}
+                  alt={`${loc.city ?? loc.country}, ${loc.country}`}
+                  className="w-full h-full object-cover grayscale-hover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="font-serif text-6xl text-paper/20 select-none">
+                    {(loc.city ?? loc.country).slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <span className="absolute top-4 left-4 font-mono text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
                 N°{String(idx + 1).padStart(2, "0")}
               </span>
             </div>

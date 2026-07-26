@@ -4,6 +4,7 @@ export type Location = {
   country_code: string;
   city: string | null;
   slug: string;
+  image_url: string | null;
 };
 
 export type FeedSource = {

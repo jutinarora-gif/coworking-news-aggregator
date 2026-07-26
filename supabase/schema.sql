@@ -6,6 +6,7 @@ create table if not exists locations (
   country_code text not null,
   city text,
   slug text not null unique,
+  image_url text,
   created_at timestamptz not null default now()
 );
 
