@@ -5,7 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
-const GA_MEASUREMENT_ID = "G-6EJT7RQT3F";
+const GA_MEASUREMENT_ID = "G-GEGYHX6D2H";
 
 const serif = Work_Sans({
   variable: "--font-serif",
