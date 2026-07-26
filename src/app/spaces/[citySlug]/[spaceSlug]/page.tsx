@@ -60,6 +60,12 @@ export default async function SpaceDetailPage({
         )}
       </div>
 
+      {space.image_url && (
+        <div className="relative aspect-[16/7] overflow-hidden bg-ink border-b border-ink/15">
+          <img src={space.image_url} alt={space.name} className="w-full h-full object-cover" />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 border-b border-ink/15">
         <div className="lg:col-span-2 lg:border-r border-ink/15 px-6 sm:px-10 lg:px-14 py-10">
           <h2 className="font-sans text-[10px] uppercase tracking-[0.22em] text-graphite mb-3">

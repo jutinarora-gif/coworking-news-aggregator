@@ -25,8 +25,26 @@ export function SpaceCard({
   onToggle?: (id: string) => void;
 }) {
   return (
-    <div className="border border-ink/15 p-6 flex flex-col gap-4">
-      <div>
+    <div className="border border-ink/15 flex flex-col gap-4">
+      <Link href={`/spaces/${citySlug}/${space.slug}`} className="block">
+        <div className="relative aspect-[4/3] overflow-hidden bg-ink">
+          {space.image_url ? (
+            <img
+              src={space.image_url}
+              alt={space.name}
+              className="w-full h-full object-cover grayscale-hover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="font-serif text-4xl text-paper/20 select-none">
+                {space.name.slice(0, 2).toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+      </Link>
+
+      <div className="px-6">
         <Link href={`/spaces/${citySlug}/${space.slug}`}>
           <h3 className="font-serif text-2xl leading-tight text-ink hover:text-terracotta transition-colors duration-300">
             {space.name}
@@ -37,10 +55,10 @@ export function SpaceCard({
         )}
       </div>
 
-      <div className="font-sans text-sm text-ink">{formatPrice(space)}</div>
+      <div className="px-6 font-sans text-sm text-ink">{formatPrice(space)}</div>
 
       {space.amenities && space.amenities.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="px-6 flex flex-wrap gap-2">
           {space.amenities.slice(0, 3).map((a) => (
             <span
               key={a}
@@ -52,7 +70,7 @@ export function SpaceCard({
         </div>
       )}
 
-      <div className="mt-auto flex items-center justify-between pt-3 border-t border-ink/15">
+      <div className="mt-auto flex items-center justify-between px-6 pb-6 pt-3 border-t border-ink/15">
         <Link
           href={`/spaces/${citySlug}/${space.slug}`}
           className="editorial-link font-sans text-[11px] uppercase tracking-[0.22em] text-ink"

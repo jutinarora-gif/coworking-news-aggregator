@@ -34,6 +34,7 @@ export type CoworkingSpace = {
   slug: string;
   address: string | null;
   website: string | null;
+  image_url: string | null;
   price_min: number | null;
   price_max: number | null;
   price_unit: string | null;

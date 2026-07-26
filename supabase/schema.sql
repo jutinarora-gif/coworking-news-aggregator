@@ -38,6 +38,7 @@ create table if not exists coworking_spaces (
   slug text not null unique,
   address text,
   website text,
+  image_url text,
   price_min numeric,
   price_max numeric,
   price_unit text,
