@@ -12,6 +12,7 @@ export type ArticleWithMeta = {
 };
 
 const ARTICLE_SELECT = "id, title, link, summary, image_url, published_at, locations(country, city, slug), feed_sources(category, name)";
+const ARTICLE_SELECT_INNER = "id, title, link, summary, image_url, published_at, locations(country, city, slug), feed_sources!inner(category, name)";
 
 export async function getFeaturedArticle() {
   const { data } = await supabase
@@ -36,7 +37,7 @@ export async function getTickerArticles(limit = 12) {
 export async function getLocalArticles(limit = 20) {
   const { data } = await supabase
     .from("articles")
-    .select(ARTICLE_SELECT + ", feed_sources!inner(category, name)")
+    .select(ARTICLE_SELECT_INNER)
     .eq("feed_sources.category", "local")
     .order("published_at", { ascending: false })
     .limit(limit)
@@ -47,7 +48,7 @@ export async function getLocalArticles(limit = 20) {
 export async function getCoworkingArticles(limit = 30) {
   const { data } = await supabase
     .from("articles")
-    .select(ARTICLE_SELECT + ", feed_sources!inner(category, name)")
+    .select(ARTICLE_SELECT_INNER)
     .eq("feed_sources.category", "coworking_industry")
     .order("published_at", { ascending: false })
     .limit(limit)
