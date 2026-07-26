@@ -18,7 +18,7 @@ const sans = Bitter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.coworkingdispatch.com"),
+  metadataBase: new URL("https://coworkingdispatch.com"),
   title: {
     default: "Coworking Dispatch — Local & Industry News for Remote Workers",
     template: "%s — Coworking Dispatch",
