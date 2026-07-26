@@ -29,8 +29,9 @@ from locations l
 on conflict (url) do nothing;
 
 -- Coworking industry news (global, no location)
+-- Note: Allwork.Space is deliberately excluded — its feed sits behind bot
+-- protection (Cloudflare) that blocks the ingest job with a 403.
 insert into feed_sources (name, url, category, location_id) values
-  ('Allwork.Space', 'https://allwork.space/feed/', 'coworking_industry', null),
   ('Coworking Insights', 'https://coworkinginsights.com/feed/', 'coworking_industry', null),
   ('Google News: coworking spaces', 'https://news.google.com/rss/search?q=coworking+space&hl=en-US&gl=US&ceid=US:en', 'coworking_industry', null),
   ('Google News: remote work trends', 'https://news.google.com/rss/search?q=remote+work+trends&hl=en-US&gl=US&ceid=US:en', 'coworking_industry', null)
