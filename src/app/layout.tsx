@@ -18,7 +18,11 @@ const sans = Bitter({
 });
 
 export const metadata: Metadata = {
-  title: "Coworking Dispatch — Local & Industry News for Remote Workers",
+  metadataBase: new URL("https://www.coworkingdispatch.com"),
+  title: {
+    default: "Coworking Dispatch — Local & Industry News for Remote Workers",
+    template: "%s — Coworking Dispatch",
+  },
   description:
     "An editorial dispatch on coworking, cities, and the borderless life — coworking and remote-work news by destination, plus coworking industry news, for remote workers deciding where to be.",
 };

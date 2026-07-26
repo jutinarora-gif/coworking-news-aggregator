@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
 import {
   getFeaturedArticle,
@@ -14,6 +15,10 @@ import { RemoteWorkTips } from "@/components/site/RemoteWorkTips";
 import { Subscribe } from "@/components/site/Subscribe";
 
 export const revalidate = 1800;
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function Home() {
   const [featured, ticker, local, coworking, locations, { count: totalArticles }] = await Promise.all([

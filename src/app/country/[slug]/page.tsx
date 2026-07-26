@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { ArticleWithMeta } from "@/lib/queries";
@@ -9,18 +10,35 @@ export const revalidate = 1800;
 const ARTICLE_SELECT =
   "id, title, link, summary, image_url, published_at, locations(country, city, slug), feed_sources(category, name)";
 
+async function getLocation(slug: string) {
+  const { data } = await supabase.from("locations").select("*").eq("slug", slug).single<Location>();
+  return data;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const location = await getLocation(slug);
+  if (!location) return {};
+
+  const place = location.city ? `${location.city}, ${location.country}` : location.country;
+  return {
+    title: `${place} Coworking News`,
+    description: `Coworking and remote-work news aggregated for ${place} — space openings, community trends, and what's changing where remote workers sit down.`,
+    alternates: { canonical: `/country/${location.slug}` },
+  };
+}
+
 export default async function CountryPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  const { data: location } = await supabase
-    .from("locations")
-    .select("*")
-    .eq("slug", slug)
-    .single<Location>();
+  const location = await getLocation(slug);
 
   if (!location) notFound();
 
