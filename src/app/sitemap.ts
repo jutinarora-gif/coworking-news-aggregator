@@ -5,6 +5,9 @@ const BASE_URL = "https://www.coworkingdispatch.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: locations } = await supabase.from("locations").select("slug");
+  const { data: spaces } = await supabase
+    .from("coworking_spaces")
+    .select("slug, locations(slug)");
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -19,6 +22,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "hourly",
       priority: 0.9,
     },
+    {
+      url: `${BASE_URL}/spaces`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
   ];
 
   const countryRoutes: MetadataRoute.Sitemap = (locations ?? []).map((loc) => ({
@@ -28,5 +37,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...countryRoutes];
+  const citySpaceSlugs = new Set(
+    (spaces ?? [])
+      .map((s) => (s.locations as unknown as { slug: string } | null)?.slug)
+      .filter(Boolean) as string[]
+  );
+  const citySpaceRoutes: MetadataRoute.Sitemap = Array.from(citySpaceSlugs).map((slug) => ({
+    url: `${BASE_URL}/spaces/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 0.85,
+  }));
+
+  const spaceRoutes: MetadataRoute.Sitemap = (spaces ?? [])
+    .filter((s) => (s.locations as unknown as { slug: string } | null)?.slug)
+    .map((s) => ({
+      url: `${BASE_URL}/spaces/${(s.locations as unknown as { slug: string }).slug}/${s.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+
+  return [...staticRoutes, ...countryRoutes, ...citySpaceRoutes, ...spaceRoutes];
 }

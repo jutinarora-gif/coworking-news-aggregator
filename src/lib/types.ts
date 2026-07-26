@@ -26,3 +26,22 @@ export type Article = {
   published_at: string | null;
   fetched_at: string;
 };
+
+export type CoworkingSpace = {
+  id: string;
+  location_id: string | null;
+  name: string;
+  slug: string;
+  address: string | null;
+  website: string | null;
+  price_min: number | null;
+  price_max: number | null;
+  price_unit: string | null;
+  currency: string;
+  plan_types: string[] | null;
+  amenities: string[] | null;
+  capacity_seats: number | null;
+  source_url: string | null;
+  verified_at: string | null;
+  notes: string | null;
+};
