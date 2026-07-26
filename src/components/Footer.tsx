@@ -52,7 +52,7 @@ export function Footer() {
           © {new Date().getFullYear()} Coworking Dispatch
         </span>
         <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-graphite">
-          Set in Fraunces &amp; IBM Plex Sans
+          Set in Work Sans &amp; Bitter
         </span>
       </div>
     </footer>

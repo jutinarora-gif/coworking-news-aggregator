@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Sans } from "next/font/google";
+import { Work_Sans, Bitter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
-const serif = Fraunces({
+const serif = Work_Sans({
   variable: "--font-serif",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   style: ["normal"],
 });
 
-const sans = IBM_Plex_Sans({
+const sans = Bitter({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
