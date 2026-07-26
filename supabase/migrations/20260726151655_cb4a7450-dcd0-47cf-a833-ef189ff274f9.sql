@@ -1,0 +1,2 @@
+UPDATE public.spaces SET name='91springboard Madhapur', slug='91springboard-madhapur', address='Cyber Gateway, Madhapur, Hyderabad', website_url='https://91springboard.com' WHERE name='myCube Madhapur';
+UPDATE public.sales_questions SET text='What is the noise policy, are calls allowed at the hot desk?' WHERE text LIKE '%noise policy%';
