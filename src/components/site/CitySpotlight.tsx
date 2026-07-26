@@ -14,11 +14,11 @@ export function CitySpotlight({ locations }: { locations: LocationWithCount[] })
     <section id="cities" className="border-b border-ink/15 bg-paper">
       <div className="grid grid-cols-1 lg:grid-cols-12 border-b border-ink/15">
         <div className="lg:col-span-8 lg:border-r border-ink/15 px-6 sm:px-10 lg:px-14 py-14">
-          <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-terracotta">
+          <span className="font-sans text-[11px] uppercase tracking-[0.28em] text-terracotta">
             Section III — City Files
           </span>
           <h2 className="mt-6 font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1] tracking-tight text-ink">
-            Destinations <em className="italic font-light">worth</em> <br />
+            Destinations worth <br />
             packing a carry-on for.
           </h2>
         </div>
@@ -53,7 +53,7 @@ export function CitySpotlight({ locations }: { locations: LocationWithCount[] })
                   </span>
                 </div>
               )}
-              <span className="absolute top-4 left-4 font-mono text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
+              <span className="absolute top-4 left-4 font-sans text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
                 N°{String(idx + 1).padStart(2, "0")}
               </span>
             </div>
@@ -62,21 +62,21 @@ export function CitySpotlight({ locations }: { locations: LocationWithCount[] })
               <h3 className="font-serif text-3xl leading-none tracking-tight text-ink group-hover:text-terracotta transition-colors duration-300">
                 {loc.city ?? loc.country}
               </h3>
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-graphite">
+              <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-graphite">
                 {loc.city ? loc.country : ""}
               </span>
             </div>
 
             <dl className="mt-6 grid grid-cols-1 gap-3 border-t border-ink/15 pt-4">
               <div>
-                <dt className="font-mono text-[9px] uppercase tracking-[0.22em] text-graphite">
+                <dt className="font-sans text-[9px] uppercase tracking-[0.22em] text-graphite">
                   Dispatches
                 </dt>
-                <dd className="mt-1 font-mono text-xs text-ink">{loc.articleCount}</dd>
+                <dd className="mt-1 font-sans text-xs text-ink">{loc.articleCount}</dd>
               </div>
             </dl>
 
-            <span className="mt-6 inline-flex items-center editorial-link font-mono text-[11px] uppercase tracking-[0.22em] text-ink">
+            <span className="mt-6 inline-flex items-center editorial-link font-sans text-[11px] uppercase tracking-[0.22em] text-ink">
               Open the file →
             </span>
           </Link>

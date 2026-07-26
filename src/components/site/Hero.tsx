@@ -38,11 +38,11 @@ export function Hero({
         <div className="lg:col-span-7 lg:border-r border-ink/15 px-6 sm:px-10 lg:px-14 py-14 lg:py-20 flex flex-col justify-between rise-in">
           <div>
             <div className="flex items-center gap-4 mb-10">
-              <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-terracotta">
+              <span className="font-sans text-[11px] uppercase tracking-[0.28em] text-terracotta">
                 Latest Dispatch
               </span>
               <span className="h-px flex-1 bg-ink/20 max-w-[160px]" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-graphite">
+              <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-graphite">
                 {formatDateline(featured?.published_at ?? null)}
               </span>
             </div>
@@ -51,9 +51,7 @@ export function Hero({
               {featured ? (
                 featured.title
               ) : (
-                <>
-                  Aggregating the world, <em className="italic font-light text-terracotta">one desk at a time.</em>
-                </>
+                "Aggregating the world, one desk at a time."
               )}
             </h1>
 
@@ -69,7 +67,7 @@ export function Hero({
                   href={featured.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 px-6 py-3 border border-ink bg-ink text-paper font-mono text-[11px] uppercase tracking-[0.22em] hover:bg-paper hover:text-ink transition-colors duration-300"
+                  className="group inline-flex items-center gap-3 px-6 py-3 border border-ink bg-ink text-paper font-sans text-[11px] uppercase tracking-[0.22em] hover:bg-paper hover:text-ink transition-colors duration-300"
                 >
                   Read the dispatch
                   <ArrowUpRight
@@ -80,7 +78,7 @@ export function Hero({
               )}
               <a
                 href="#cities"
-                className="editorial-link font-mono text-[11px] uppercase tracking-[0.22em] text-ink"
+                className="editorial-link font-sans text-[11px] uppercase tracking-[0.22em] text-ink"
               >
                 Or explore this month&apos;s destinations →
               </a>
@@ -88,11 +86,11 @@ export function Hero({
           </div>
 
           <div className="mt-14 flex flex-wrap gap-8 pt-10 border-t border-ink/15">
-            <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-graphite">
+            <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-graphite">
               Dateline · {place}
             </span>
             {featured?.feed_sources?.name && (
-              <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-graphite">
+              <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-graphite">
                 Source · {featured.feed_sources.name}
               </span>
             )}
@@ -111,11 +109,11 @@ export function Hero({
               CD
             </span>
           )}
-          <div className="absolute top-6 left-6 right-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
+          <div className="absolute top-6 left-6 right-6 flex justify-between font-sans text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
             <span>Plate No.01</span>
             <span>{place}</span>
           </div>
-          <div className="absolute bottom-6 left-6 right-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
+          <div className="absolute bottom-6 left-6 right-6 flex justify-between font-sans text-[10px] uppercase tracking-[0.28em] text-paper mix-blend-difference">
             <span>Aggregated dispatch</span>
             <span>© {new Date().getFullYear()}</span>
           </div>
@@ -133,7 +131,7 @@ export function Hero({
             <div className="font-serif text-4xl sm:text-5xl font-light text-ink leading-none">
               {s.value}
             </div>
-            <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.22em] text-graphite">
+            <div className="mt-3 font-sans text-[10px] uppercase tracking-[0.22em] text-graphite">
               {s.label}
             </div>
           </div>

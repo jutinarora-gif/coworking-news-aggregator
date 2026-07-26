@@ -16,7 +16,7 @@ export function NewsFeed({
   heading = (
     <>
       The world, <br />
-      <em className="italic font-light">from a desk near you.</em>
+      from a desk near you.
     </>
   ),
   description = "Coworking and remote-work news aggregated per destination — space openings, community trends, and what's changing where remote workers sit down.",
@@ -44,7 +44,7 @@ export function NewsFeed({
     <section id="news" className="border-b border-ink/15">
       <div className="grid grid-cols-1 lg:grid-cols-12 border-b border-ink/15">
         <div className="lg:col-span-4 px-6 sm:px-10 lg:px-14 py-14 lg:border-r border-ink/15">
-          <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-terracotta">
+          <span className="font-sans text-[11px] uppercase tracking-[0.28em] text-terracotta">
             {kicker}
           </span>
           <h2 className="mt-6 font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1] tracking-tight text-ink">
@@ -64,7 +64,7 @@ export function NewsFeed({
                   <button
                     key={c}
                     onClick={() => setCountry(c)}
-                    className={`px-4 py-2 border font-mono text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${
+                    className={`px-4 py-2 border font-sans text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${
                       active
                         ? "bg-ink text-paper border-ink"
                         : "bg-transparent text-ink border-ink/30 hover:border-ink"
@@ -90,10 +90,10 @@ export function NewsFeed({
             </div>
 
             <div className="lg:col-span-2 flex flex-col gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-graphite">
+              <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-graphite">
                 {a.locations?.city ? `${a.locations.city}, ${a.locations.country}` : a.locations?.country ?? "Global"}
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-graphite">
+              <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-graphite">
                 {formatDate(a.published_at)}
               </span>
             </div>
@@ -110,7 +110,7 @@ export function NewsFeed({
                 </p>
               )}
               {a.feed_sources?.name && (
-                <span className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-graphite">
+                <span className="mt-4 font-sans text-[10px] uppercase tracking-[0.22em] text-graphite">
                   Source · {a.feed_sources.name}
                 </span>
               )}
@@ -119,14 +119,14 @@ export function NewsFeed({
         ))}
 
         {filtered.length === 0 && (
-          <li className="px-6 sm:px-10 lg:px-14 py-16 text-center font-mono text-xs uppercase tracking-[0.22em] text-graphite">
+          <li className="px-6 sm:px-10 lg:px-14 py-16 text-center font-sans text-xs uppercase tracking-[0.22em] text-graphite">
             No dispatches yet — run the ingest job to populate this destination.
           </li>
         )}
       </ul>
 
       <div className="px-6 sm:px-10 lg:px-14 py-10 flex items-center justify-between border-t border-ink/15">
-        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-graphite">
+        <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-graphite">
           Showing {filtered.length} of {articles.length} dispatches
         </span>
       </div>

@@ -23,13 +23,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 bg-paper border-b border-ink/15">
       <div className="hidden md:flex items-center justify-between px-8 py-3 border-b border-ink/10">
-        <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-graphite">
+        <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-graphite">
           {today}
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-graphite">
+        <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-graphite">
           A dispatch for the location-independent
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-graphite">
+        <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-graphite">
           UTC · Anywhere
         </span>
       </div>
@@ -39,7 +39,7 @@ export function Header() {
           <span className="font-serif text-3xl sm:text-4xl leading-none tracking-tight text-ink group-hover:text-terracotta transition-colors duration-300">
             Coworking Dispatch
           </span>
-          <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-[0.28em] text-graphite">
+          <span className="hidden sm:inline font-sans text-[10px] uppercase tracking-[0.28em] text-graphite">
             / news for the borderless life
           </span>
         </Link>
@@ -49,7 +49,7 @@ export function Header() {
             <a
               key={link.href}
               href={link.href}
-              className="editorial-link font-mono text-[11px] uppercase tracking-[0.22em] text-ink"
+              className="editorial-link font-sans text-[11px] uppercase tracking-[0.22em] text-ink"
             >
               {link.label}
             </a>
@@ -73,7 +73,7 @@ export function Header() {
                 <a
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="font-mono text-xs uppercase tracking-[0.22em] text-ink hover:text-terracotta"
+                  className="font-sans text-xs uppercase tracking-[0.22em] text-ink hover:text-terracotta"
                 >
                   {link.label}
                 </a>

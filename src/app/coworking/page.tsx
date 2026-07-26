@@ -14,7 +14,7 @@ export default async function CoworkingPage() {
         heading={
           <>
             The business <br />
-            <em className="italic font-light">of working anywhere.</em>
+            of working anywhere.
           </>
         }
         description="Coworking industry news — space openings, community trends, and the market shaping where remote workers sit down."
