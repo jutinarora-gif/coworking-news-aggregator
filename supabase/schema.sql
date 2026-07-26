@@ -39,6 +39,7 @@ create table if not exists coworking_spaces (
   address text,
   website text,
   image_url text,
+  is_featured boolean default false,
   price_min numeric,
   price_max numeric,
   price_unit text,

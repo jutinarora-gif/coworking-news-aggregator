@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/spaces", label: "Compare Spaces" },
   { href: "/#news", label: "Dispatches" },
   { href: "/#cities", label: "City Files" },
   { href: "/coworking", label: "Coworking Industry" },
