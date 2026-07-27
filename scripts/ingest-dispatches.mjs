@@ -33,6 +33,19 @@ function isRelevant(title, contentSnippet) {
   return RELEVANCE_KEYWORDS.some((kw) => text.includes(kw));
 }
 
+function isGoogleNewsFeed(url) {
+  return url.includes("news.google.com/rss/search");
+}
+
+// Google News RSS titles always end in " - Publisher Name". Split that off
+// so the dispatch card can credit the real outlet instead of "Google News".
+function parseGoogleNewsItem(item) {
+  const raw = item.title?.trim() || "Untitled";
+  const idx = raw.lastIndexOf(" - ");
+  if (idx === -1) return { title: raw, publisher: "Google News" };
+  return { title: raw.slice(0, idx).trim(), publisher: raw.slice(idx + 3).trim() };
+}
+
 // Most RSS feeds don't include a usable cover image, so we pin a random
 // coworking-relevant stock photo per article rather than ship a text-only card.
 const FALLBACK_COVERS = [
@@ -77,11 +90,15 @@ async function ingestFeed(feed) {
     let inserted = 0;
     let skipped = 0;
 
+    const isGoogleNews = isGoogleNewsFeed(feed.url);
+
     for (const item of items) {
       const guid = item.guid || item.link;
       if (!guid) continue;
 
-      if (!isRelevant(item.title, item.contentSnippet)) {
+      // Google News search feeds are already scoped to the query terms, so
+      // only apply the keyword filter to fixed publisher feeds.
+      if (!isGoogleNews && !isRelevant(item.title, item.contentSnippet)) {
         skipped++;
         continue;
       }
@@ -94,9 +111,14 @@ async function ingestFeed(feed) {
         .maybeSingle();
       if (existing) continue;
 
-      const title = item.title?.trim() || "Untitled";
-      const slug = slugify(`${title}-${feed.source_site}`);
-      const excerpt = (item.contentSnippet || item.summary || "").slice(0, 280);
+      const stripEmDash = (s) => s.replace(/\s*—\s*/g, ", ");
+      const { title: rawTitle, publisher } = isGoogleNews
+        ? parseGoogleNewsItem(item)
+        : { title: item.title?.trim() || "Untitled", publisher: feed.name };
+      const title = stripEmDash(rawTitle);
+      const sourceName = isGoogleNews ? publisher : feed.name;
+      const slug = slugify(`${title}-${publisher}`);
+      const excerpt = stripEmDash((item.contentSnippet || item.summary || "").slice(0, 280));
 
       const { error: insErr } = await supabase.from("dispatches").insert({
         slug,
@@ -108,7 +130,7 @@ async function ingestFeed(feed) {
         body_md: null,
         cover_url: pickCover(item),
         source_url: item.link || null,
-        source_name: feed.name,
+        source_name: sourceName,
         region: feed.region,
         published_at: item.isoDate || item.pubDate || new Date().toISOString(),
         ingested_at: new Date().toISOString(),
