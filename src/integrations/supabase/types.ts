@@ -713,7 +713,14 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      space_review_stats: {
+        Row: {
+          space_id: string | null
+          avg_rating: number | null
+          review_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {

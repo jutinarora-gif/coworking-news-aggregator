@@ -74,14 +74,44 @@ export type SpaceCard = {
 export const getHomeData = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
 
-  const { data: dispatchRows } = await supabase
-    .from("dispatches")
-    .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,feed_id,tags,published_at,ingested_at,is_featured")
-    .eq("is_hidden", false)
-    .order("ingested_at", { ascending: false })
-    .limit(60);
+  // These five queries don't depend on each other, so fire them together
+  // instead of paying for round-trip latency five times in a row.
+  const [
+    { data: dispatchRows },
+    feedCategory,
+    { data: sotwRows },
+    { data: allWinners },
+    { data: cities },
+    { data: salesQs },
+  ] = await Promise.all([
+    supabase
+      .from("dispatches")
+      .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,feed_id,tags,published_at,ingested_at,is_featured")
+      .eq("is_hidden", false)
+      .order("ingested_at", { ascending: false })
+      .limit(60),
+    fetchFeedCategories(supabase),
+    supabase
+      .from("space_of_week")
+      .select("space_id,editorial_note,week_start")
+      .order("week_start", { ascending: false })
+      .limit(1),
+    supabase
+      .from("weekly_winners")
+      .select("space_id,rank,score,week_start")
+      .order("week_start", { ascending: false })
+      .order("rank", { ascending: true })
+      .limit(20),
+    supabase.from("cities").select("id,name,region"),
+    supabase
+      .from("sales_questions")
+      .select("id,text,category")
+      .eq("approved", true)
+      .eq("is_global", true)
+      .order("upvotes_denorm", { ascending: false })
+      .limit(8),
+  ]);
 
-  const feedCategory = await fetchFeedCategories(supabase);
   const list = (dispatchRows ?? []).map((d) => ({ ...d, category: feedCategory.get(d.feed_id ?? "") ?? "blog" })) as Dispatch[];
 
   // First enforce an 80:20 real-news:blog mix, then re-balance 7:3 india:global on top.
@@ -93,19 +123,7 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
   const global = categoryMixed.filter((d) => d.region === "global");
   const mixed = interleave(india, global, 7, 3);
 
-  const { data: sotwRows } = await supabase
-    .from("space_of_week")
-    .select("space_id,editorial_note,week_start")
-    .order("week_start", { ascending: false })
-    .limit(1);
   const sotwSpaceId = sotwRows?.[0]?.space_id ?? null;
-
-  const { data: allWinners } = await supabase
-    .from("weekly_winners")
-    .select("space_id,rank,score,week_start")
-    .order("week_start", { ascending: false })
-    .order("rank", { ascending: true })
-    .limit(20);
 
   const spaceIds = Array.from(
     new Set([
@@ -113,12 +131,18 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
       ...((allWinners ?? []).map((w) => w.space_id)),
     ]),
   );
-  const { data: spaces } = await supabase
-    .from("spaces")
-    .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id")
-    .in("id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]);
 
-  const { data: cities } = await supabase.from("cities").select("id,name,region");
+  const [{ data: spaces }, { data: reviewAgg }] = await Promise.all([
+    supabase
+      .from("spaces")
+      .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id")
+      .in("id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]),
+    supabase
+      .from("reviews")
+      .select("space_id,rating_overall")
+      .in("space_id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]),
+  ]);
+
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
   const cityRegionMap = new Map((cities ?? []).map((c) => [c.id, c.region]));
 
@@ -130,10 +154,6 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     })
     .slice(0, 5);
 
-  const { data: reviewAgg } = await supabase
-    .from("reviews")
-    .select("space_id,rating_overall")
-    .in("space_id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]);
   const aggMap = new Map<string, { sum: number; n: number }>();
   (reviewAgg ?? []).forEach((r) => {
     const cur = aggMap.get(r.space_id) ?? { sum: 0, n: 0 };
@@ -160,14 +180,6 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
       return [s.id, card];
     }),
   );
-
-  const { data: salesQs } = await supabase
-    .from("sales_questions")
-    .select("id,text,category")
-    .eq("approved", true)
-    .eq("is_global", true)
-    .order("upvotes_denorm", { ascending: false })
-    .limit(8);
 
   return {
     dispatches: mixed.slice(0, 15),
@@ -219,19 +231,16 @@ export type CityStat = { name: string; lat: number; lng: number; spaces: number;
 export const getCityStats = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
 
-  const { data: cities } = await supabase.from("cities").select("id,name,lat,lng").eq("region", "india");
-  const { data: spaces } = await supabase.from("spaces").select("id,city_id").eq("is_published", true);
+  const [{ data: cities }, { data: spaces }] = await Promise.all([
+    supabase.from("cities").select("id,name,lat,lng").eq("region", "india"),
+    // Embedded count aggregates the review total per space in the database
+    // itself, instead of pulling every review row over the wire to count client-side.
+    supabase.from("spaces").select("id,city_id,reviews(count)").eq("is_published", true),
+  ]);
 
-  let reviewCounts: { space_id: string }[] = [];
-  let from = 0;
-  while (true) {
-    const { data: page } = await supabase.from("reviews").select("space_id").range(from, from + 999);
-    reviewCounts = reviewCounts.concat(page ?? []);
-    if (!page || page.length < 1000) break;
-    from += 1000;
-  }
-  const reviewsBySpace = new Map<string, number>();
-  for (const r of reviewCounts) reviewsBySpace.set(r.space_id, (reviewsBySpace.get(r.space_id) ?? 0) + 1);
+  const reviewsBySpace = new Map<string, number>(
+    (spaces ?? []).map((s) => [s.id, (s.reviews as unknown as { count: number }[])?.[0]?.count ?? 0]),
+  );
 
   const stats: CityStat[] = (cities ?? []).map((c) => {
     const citySpaces = (spaces ?? []).filter((s) => s.city_id === c.id);
@@ -244,21 +253,39 @@ export const getCityStats = createServerFn({ method: "GET" }).handler(async () =
 
 export const getSpaces = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
-  const { data: spaces } = await supabase
-    .from("spaces")
-    .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id,lat,lng")
-    .eq("is_published", true)
-    .order("name");
-  const { data: cities } = await supabase.from("cities").select("id,name,region");
+  const [{ data: spaces }, { data: cities }, { data: statsRows, error: statsErr }] = await Promise.all([
+    supabase
+      .from("spaces")
+      .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id,lat,lng")
+      .eq("is_published", true)
+      .order("name"),
+    supabase.from("cities").select("id,name,region"),
+    // Precomputed view (space_id, avg_rating, review_count) avoids pulling
+    // every review row just to average them client-side on the busiest page.
+    supabase.from("space_review_stats").select("space_id,avg_rating,review_count"),
+  ]);
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c]));
-  const { data: reviewAgg } = await supabase.from("reviews").select("space_id,rating_overall");
-  const aggMap = new Map<string, { sum: number; n: number }>();
-  (reviewAgg ?? []).forEach((r) => {
-    const cur = aggMap.get(r.space_id) ?? { sum: 0, n: 0 };
-    cur.sum += Number(r.rating_overall);
-    cur.n += 1;
-    aggMap.set(r.space_id, cur);
-  });
+
+  let aggMap: Map<string, { avg: number; n: number }>;
+  if (statsErr || !statsRows) {
+    // Falls back to a live aggregate if the view hasn't been created yet.
+    const { data: reviewAgg } = await supabase.from("reviews").select("space_id,rating_overall");
+    const sumMap = new Map<string, { sum: number; n: number }>();
+    (reviewAgg ?? []).forEach((r) => {
+      const cur = sumMap.get(r.space_id) ?? { sum: 0, n: 0 };
+      cur.sum += Number(r.rating_overall);
+      cur.n += 1;
+      sumMap.set(r.space_id, cur);
+    });
+    aggMap = new Map(Array.from(sumMap.entries()).map(([id, v]) => [id, { avg: v.sum / v.n, n: v.n }]));
+  } else {
+    aggMap = new Map(
+      statsRows
+        .filter((r): r is { space_id: string; avg_rating: number; review_count: number } => r.space_id !== null)
+        .map((r) => [r.space_id, { avg: Number(r.avg_rating), n: r.review_count }]),
+    );
+  }
+
   return (spaces ?? []).map((s) => {
     const agg = aggMap.get(s.id);
     const c = cityMap.get(s.city_id ?? "");
@@ -275,7 +302,7 @@ export const getSpaces = createServerFn({ method: "GET" }).handler(async () => {
       city_region: c?.region ?? null,
       lat: s.lat,
       lng: s.lng,
-      avg_rating: agg ? Number((agg.sum / agg.n).toFixed(1)) : null,
+      avg_rating: agg ? Number(agg.avg.toFixed(1)) : null,
       review_count: agg?.n ?? 0,
     };
   });

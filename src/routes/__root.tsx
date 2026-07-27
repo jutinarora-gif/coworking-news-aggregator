@@ -13,6 +13,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { RouteProgress } from "@/components/site/route-progress";
 
 function NotFoundComponent() {
   return (
@@ -93,6 +94,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <RouteProgress />
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1"><Outlet /></main>
