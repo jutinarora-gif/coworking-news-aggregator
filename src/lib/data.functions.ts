@@ -86,23 +86,31 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
   const newsFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "news").map(([id]) => id);
   const blogFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "blog").map(([id]) => id);
 
-  // News and blog are fetched with their own limits so a burst of blog
-  // ingestion can't crowd news out of the pool entirely (an 80:20 mix means
-  // nothing if the shared window only has room for one side).
+  // Fetched as four independent pools (region x category) rather than a
+  // shared recency-ordered window. Ingestion runs process feeds in a fixed
+  // order, so whichever region's feeds ran last always wins a shared
+  // "top N by ingested_at" query — starving the other region out entirely
+  // even though both actually have fresh content.
+  function fetchPool(feedIds: string[], region: "india" | "global", limit: number) {
+    return feedIds.length
+      ? supabase.from("dispatches").select(DISPATCH_COLS).eq("is_hidden", false).eq("region", region).in("feed_id", feedIds).order("ingested_at", { ascending: false }).limit(limit)
+      : Promise.resolve({ data: [] as Dispatch[] });
+  }
+
   const [
-    { data: newsRows },
-    { data: blogRows },
+    { data: newsIndiaRows },
+    { data: newsGlobalRows },
+    { data: blogIndiaRows },
+    { data: blogGlobalRows },
     { data: sotwRows },
     { data: allWinners },
     { data: cities },
     { data: salesQs },
   ] = await Promise.all([
-    newsFeedIds.length
-      ? supabase.from("dispatches").select(DISPATCH_COLS).eq("is_hidden", false).in("feed_id", newsFeedIds).order("ingested_at", { ascending: false }).limit(45)
-      : Promise.resolve({ data: [] as Dispatch[] }),
-    blogFeedIds.length
-      ? supabase.from("dispatches").select(DISPATCH_COLS).eq("is_hidden", false).in("feed_id", blogFeedIds).order("ingested_at", { ascending: false }).limit(15)
-      : Promise.resolve({ data: [] as Dispatch[] }),
+    fetchPool(newsFeedIds, "india", 35),
+    fetchPool(newsFeedIds, "global", 15),
+    fetchPool(blogFeedIds, "india", 10),
+    fetchPool(blogFeedIds, "global", 5),
     supabase
       .from("space_of_week")
       .select("space_id,editorial_note,week_start")
@@ -124,14 +132,12 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
       .limit(8),
   ]);
 
-  const news = (newsRows ?? []).map((d) => ({ ...d, category: "news" as const })) as Dispatch[];
-  const blog = (blogRows ?? []).map((d) => ({ ...d, category: "blog" as const })) as Dispatch[];
+  const tag = (rows: typeof newsIndiaRows, category: "news" | "blog") =>
+    (rows ?? []).map((d) => ({ ...d, category })) as Dispatch[];
 
-  // Enforce an 80:20 real-news:blog mix, then re-balance 7:3 india:global on top.
-  const categoryMixed = interleave(news, blog, 4, 1);
-
-  const india = categoryMixed.filter((d) => d.region === "india");
-  const global = categoryMixed.filter((d) => d.region === "global");
+  // Enforce 80:20 news:blog within each region, then 7:3 india:global across regions.
+  const india = interleave(tag(newsIndiaRows, "news"), tag(blogIndiaRows, "blog"), 4, 1);
+  const global = interleave(tag(newsGlobalRows, "news"), tag(blogGlobalRows, "blog"), 4, 1);
   const mixed = interleave(india, global, 7, 3);
 
   const sotwSpaceId = sotwRows?.[0]?.space_id ?? null;
