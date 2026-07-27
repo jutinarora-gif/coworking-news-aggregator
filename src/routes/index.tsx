@@ -5,7 +5,7 @@ import { DispatchCard } from "@/components/site/dispatch-card";
 import { IndiaHeatmap } from "@/components/site/india-heatmap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Sparkles, Trophy, Search, MapPin, HelpCircle, AlertTriangle } from "lucide-react";
+import { ArrowRight, Sparkles, Trophy, Search, MapPin, HelpCircle, AlertTriangle, PenLine } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -88,6 +88,8 @@ function Home() {
       <SalesQuestions items={data.salesQuestions} />
 
       <RedFlags />
+
+      <ReviewNudge />
 
       <section className="mx-auto max-w-7xl px-6 mt-20">
         <SectionHeader eyebrow="Latest dispatches" title="Fresh from the wire" href="/dispatches" />
@@ -213,6 +215,7 @@ function SalesQuestions({ items }: { items: { id: string; text: string; category
           <Link
             key={q.id}
             to="/questions"
+            hash={`sq-${q.id}`}
             className="glass rounded-2xl p-5 flex gap-4 hover-glow hover:hover-glow-hover group"
           >
             <div className="h-9 w-9 shrink-0 rounded-xl gradient-iris flex items-center justify-center font-display text-primary-foreground">
@@ -243,6 +246,30 @@ const RED_FLAGS = [
   "Printers, coffee, or meeting rooms are always 'out of order'",
   "Contracts have quiet auto-renewal and steep exit fees",
 ];
+
+function ReviewNudge() {
+  return (
+    <section className="mx-auto max-w-6xl px-6 mt-16">
+      <div className="glass-strong rounded-2xl p-6 md:p-8 flex flex-wrap items-center justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="h-10 w-10 shrink-0 rounded-xl gradient-iris flex items-center justify-center">
+            <PenLine className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-widest text-iris">Been to a space this month?</div>
+            <h2 className="mt-1 font-display text-2xl md:text-3xl">Leave a review. It takes under two minutes.</h2>
+            <p className="mt-1 text-sm text-muted-foreground max-w-xl">
+              Real ratings from real coworkers are the whole point of this site — find your space and rate it.
+            </p>
+          </div>
+        </div>
+        <Button asChild className="gradient-iris text-primary-foreground shrink-0">
+          <Link to="/spaces">Find your space →</Link>
+        </Button>
+      </div>
+    </section>
+  );
+}
 
 function RedFlags() {
   return (

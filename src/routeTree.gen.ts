@@ -19,6 +19,7 @@ import { Route as DispatchesIndexRouteImport } from './routes/dispatches.index'
 import { Route as DispatchesSlugRouteImport } from './routes/dispatches.$slug'
 import { Route as SpacesIndexRouteImport } from './routes/spaces.index'
 import { Route as SpacesSlugRouteImport } from './routes/spaces.$slug'
+import { Route as AuthenticatedReviewSlugRouteImport } from './routes/_authenticated/review.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -69,6 +70,11 @@ const SpacesSlugRoute = SpacesSlugRouteImport.update({
   path: '/spaces/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedReviewSlugRoute = AuthenticatedReviewSlugRouteImport.update({
+  id: '/review/$slug',
+  path: '/review/$slug',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches/': typeof DispatchesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
+  '/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches': typeof DispatchesIndexRoute
   '/spaces': typeof SpacesIndexRoute
+  '/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches/': typeof DispatchesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
+  '/_authenticated/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/spaces/$slug'
     | '/dispatches/'
     | '/spaces/'
+    | '/review/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/spaces/$slug'
     | '/dispatches'
     | '/spaces'
+    | '/review/$slug'
   id:
     | '__root__'
     | '/'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/spaces/$slug'
     | '/dispatches/'
     | '/spaces/'
+    | '/_authenticated/review/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -226,15 +238,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpacesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/review/$slug': {
+      id: '/_authenticated/review/$slug'
+      path: '/review/$slug'
+      fullPath: '/review/$slug'
+      preLoaderRoute: typeof AuthenticatedReviewSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedReviewSlugRoute: typeof AuthenticatedReviewSlugRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedReviewSlugRoute: AuthenticatedReviewSlugRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

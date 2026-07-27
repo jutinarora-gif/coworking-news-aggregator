@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 function makePublicClient() {
   const url = process.env.SUPABASE_URL!;
@@ -306,18 +307,46 @@ export const getWinners = createServerFn({ method: "GET" }).handler(async () => 
     .order("week_start", { ascending: false })
     .order("rank", { ascending: true });
   const spaceIds = Array.from(new Set((winners ?? []).map((w) => w.space_id)));
-  const { data: spaces } = spaceIds.length
-    ? await supabase.from("spaces").select("id,slug,name,cover_url,city_id,vibe_tags").in("id", spaceIds)
-    : { data: [] as any[] };
-  const { data: cities } = await supabase.from("cities").select("id,name");
+  const [{ data: spaces }, { data: cities }, { data: reviews }] = await Promise.all([
+    spaceIds.length
+      ? supabase.from("spaces").select("id,slug,name,cover_url,city_id,vibe_tags").in("id", spaceIds)
+      : Promise.resolve({ data: [] as any[] }),
+    supabase.from("cities").select("id,name"),
+    spaceIds.length
+      ? supabase.from("reviews").select("space_id,rating_overall").in("space_id", spaceIds).eq("is_hidden", false)
+      : Promise.resolve({ data: [] as any[] }),
+  ]);
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
   const spaceMap = new Map((spaces ?? []).map((s) => [s.id, { ...s, city_name: cityMap.get(s.city_id ?? "") ?? null }]));
-  return (winners ?? []).map((w) => ({
-    week_start: w.week_start,
-    rank: w.rank,
-    score: Number(w.score),
-    space: spaceMap.get(w.space_id) ?? null,
-  })).filter((w) => w.space);
+
+  const reviewsBySpace = new Map<string, number[]>();
+  (reviews ?? []).forEach((r) => {
+    const arr = reviewsBySpace.get(r.space_id) ?? [];
+    arr.push(Number(r.rating_overall));
+    reviewsBySpace.set(r.space_id, arr);
+  });
+
+  return (winners ?? [])
+    .map((w) => {
+      const ratings = reviewsBySpace.get(w.space_id) ?? [];
+      const reviewCount = ratings.length;
+      const avgRating = reviewCount ? ratings.reduce((a, b) => a + b, 0) / reviewCount : 0;
+      const fiveStarPct = reviewCount ? ratings.filter((r) => r >= 4.5).length / reviewCount : 0;
+      return {
+        week_start: w.week_start,
+        rank: w.rank,
+        score: Number(w.score),
+        space: spaceMap.get(w.space_id) ?? null,
+        breakdown: {
+          ratingComponent: Number(((avgRating / 5) * 60).toFixed(1)),
+          volumeComponent: Number(((Math.min(reviewCount, 30) / 30) * 25).toFixed(1)),
+          fiveStarComponent: Number((fiveStarPct * 15).toFixed(1)),
+          avgRating: Number(avgRating.toFixed(1)),
+          reviewCount,
+        },
+      };
+    })
+    .filter((w) => w.space);
 });
 
 export const getQuestions = createServerFn({ method: "GET" }).handler(async () => {
@@ -327,7 +356,7 @@ export const getQuestions = createServerFn({ method: "GET" }).handler(async () =
     .select("id,title,body,is_ama,space_id,created_at,profile_id")
     .eq("is_hidden", false)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(200);
   const spaceIds = Array.from(new Set((questions ?? []).map((q) => q.space_id).filter(Boolean) as string[]));
   const profIds = Array.from(new Set((questions ?? []).map((q) => q.profile_id)));
   const [{ data: spaces }, { data: profs }, { data: allAns }] = await Promise.all([
@@ -356,13 +385,23 @@ export const getQuestions = createServerFn({ method: "GET" }).handler(async () =
     arr.push({ ...a, author: ansProfMap.get(a.profile_id) ?? null });
     ansByQ.set(a.question_id, arr);
   });
-  return (questions ?? []).map((q) => ({
-    ...q,
-    space: q.space_id ? spaceMap.get(q.space_id) ?? null : null,
-    author: profMap.get(q.profile_id) ?? null,
-    answers: ansByQ.get(q.id) ?? [],
-    answer_count: (ansByQ.get(q.id) ?? []).length,
-  }));
+  const { data: salesQuestions } = await supabase
+    .from("sales_questions")
+    .select("id,text,category,space_id")
+    .eq("approved", true)
+    .eq("is_global", true)
+    .order("upvotes_denorm", { ascending: false });
+
+  return {
+    questions: (questions ?? []).map((q) => ({
+      ...q,
+      space: q.space_id ? spaceMap.get(q.space_id) ?? null : null,
+      author: profMap.get(q.profile_id) ?? null,
+      answers: ansByQ.get(q.id) ?? [],
+      answer_count: (ansByQ.get(q.id) ?? []).length,
+    })),
+    salesQuestions: salesQuestions ?? [],
+  };
 });
 
 export const search = createServerFn({ method: "GET" })
@@ -381,6 +420,65 @@ export const search = createServerFn({ method: "GET" })
       dispatches: dispatches ?? [],
       questions: questions ?? [],
     };
+  });
+
+export const submitReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: {
+    space_id: string;
+    rating_overall: number;
+    rating_wifi?: number;
+    rating_quiet?: number;
+    rating_community?: number;
+    rating_coffee?: number;
+    rating_value?: number;
+    title?: string;
+    body: string;
+    pros?: string;
+    cons?: string;
+  }) => data)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    if (!data.body?.trim() || data.body.trim().length < 20) {
+      throw new Error("Reviews need at least 20 characters — give it a sentence or two.");
+    }
+    if (!(data.rating_overall >= 1 && data.rating_overall <= 5)) {
+      throw new Error("Overall rating must be between 1 and 5.");
+    }
+
+    let { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("auth_user_id", userId)
+      .maybeSingle();
+
+    if (!profile) {
+      const { data: created, error: createError } = await supabase
+        .from("profiles")
+        .insert({ auth_user_id: userId, display_name: "Coworker" })
+        .select("id")
+        .single();
+      if (createError) throw new Error(createError.message);
+      profile = created;
+    }
+
+    const { error } = await supabase.from("reviews").insert({
+      space_id: data.space_id,
+      profile_id: profile.id,
+      rating_overall: data.rating_overall,
+      rating_wifi: data.rating_wifi ?? null,
+      rating_quiet: data.rating_quiet ?? null,
+      rating_community: data.rating_community ?? null,
+      rating_coffee: data.rating_coffee ?? null,
+      rating_value: data.rating_value ?? null,
+      title: data.title ?? null,
+      body: data.body.trim(),
+      pros: data.pros ?? null,
+      cons: data.cons ?? null,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })

@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getSpace } from "@/lib/data.functions";
 import { Star, MapPin, Wifi, Volume2, Users, Coffee, IndianRupee, ClipboardCheck, ArrowLeft } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 
@@ -106,18 +106,21 @@ function SpacePage() {
           )}
 
           <section>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <div className="text-xs uppercase tracking-widest text-iris">What coworkers say</div>
                 <h2 className="font-display text-3xl mt-1">{reviews.length} reviews</h2>
               </div>
+              <Button asChild variant="secondary" size="sm">
+                <Link to="/review/$slug" params={{ slug: space.slug }}>Leave a review</Link>
+              </Button>
             </div>
             <div className="mt-6 space-y-4">
               {reviews.slice(0, 20).map((r: any) => (
                 <div key={r.id} className="glass rounded-2xl p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9"><AvatarImage src={r.author?.avatar_url} /><AvatarFallback>{r.author?.display_name?.[0] ?? "?"}</AvatarFallback></Avatar>
+                      <Avatar className="h-9 w-9"><AvatarFallback>{r.author?.display_name?.[0] ?? "?"}</AvatarFallback></Avatar>
                       <div>
                         <div className="text-sm font-medium flex items-center gap-1.5">
                           {r.author?.display_name}

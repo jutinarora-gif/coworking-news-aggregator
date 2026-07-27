@@ -9,7 +9,7 @@ import { Search } from "lucide-react";
 const q = queryOptions({ queryKey: ["spaces"], queryFn: () => getSpaces() });
 
 export const Route = createFileRoute("/spaces/")({
-  validateSearch: (s: Record<string, unknown>) => ({ city: typeof s.city === "string" ? s.city : undefined }),
+  validateSearch: (s: Record<string, unknown>) => (typeof s.city === "string" ? { city: s.city } : {}),
   head: () => ({
     meta: [
       { title: "Coworking Spaces , The Coworking Dispatch" },
