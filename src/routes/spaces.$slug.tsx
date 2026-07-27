@@ -122,10 +122,7 @@ function SpacePage() {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9"><AvatarFallback>{r.author?.display_name?.[0] ?? "?"}</AvatarFallback></Avatar>
                       <div>
-                        <div className="text-sm font-medium flex items-center gap-1.5">
-                          {r.author?.display_name}
-                          {r.author?.is_verified_coworker && <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded gradient-iris text-primary-foreground">Verified</span>}
-                        </div>
+                        <div className="text-sm font-medium">{r.author?.display_name}</div>
                         <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}</div>
                       </div>
                     </div>
