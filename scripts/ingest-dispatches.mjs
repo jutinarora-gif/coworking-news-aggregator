@@ -17,6 +17,15 @@ const RELEVANCE_KEYWORDS = [
   "managed office", "remote work", "hybrid work", "wfh", "startup office",
   "office space", "commercial real estate", "workspace", "hot desk", "hotdesk",
   "wework", "awfis", "91springboard", "smartworks", "bhive", "cowrks", "indiqube",
+  // Broader business/real-estate terms so general news outlets (Inc42, ET
+  // Startups, Times of India, Hindustan Times) can qualify too, not just
+  // brand blogs that are inherently 100% on-topic.
+  "office lease", "office leasing", "office rent", "office demand", "office absorption",
+  "commercial property", "corporate real estate", "grade-a office", "grade a office",
+  "business park", "tech park", "it park", "serviced office", "business center",
+  "business centre", "return to office", "rto mandate", "office attendance",
+  "startup funding office", "office culture", "workplace trends", "future of work",
+  "office leasing market", "sq ft office", "office space demand",
 ];
 
 function isRelevant(title, contentSnippet) {

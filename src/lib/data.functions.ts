@@ -3,10 +3,15 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// Built once per warm lambda instance instead of per request, so repeat
+// invocations on the same instance can reuse the underlying HTTP connection
+// instead of paying fresh connection-setup cost every time.
+let _publicClient: ReturnType<typeof createClient<Database>> | null = null;
 function makePublicClient() {
+  if (_publicClient) return _publicClient;
   const url = process.env.SUPABASE_URL!;
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
-  return createClient<Database>(url, key, {
+  _publicClient = createClient<Database>(url, key, {
     auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
     global: {
       fetch: (input, init) => {
@@ -17,6 +22,7 @@ function makePublicClient() {
       },
     },
   });
+  return _publicClient;
 }
 
 export type Dispatch = {
@@ -71,26 +77,32 @@ export type SpaceCard = {
   review_count: number;
 };
 
+const DISPATCH_COLS = "id,slug,title,excerpt,cover_url,source_url,source_name,region,feed_id,tags,published_at,ingested_at,is_featured";
+
 export const getHomeData = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
 
-  // These five queries don't depend on each other, so fire them together
-  // instead of paying for round-trip latency five times in a row.
+  const feedCategory = await fetchFeedCategories(supabase);
+  const newsFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "news").map(([id]) => id);
+  const blogFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "blog").map(([id]) => id);
+
+  // News and blog are fetched with their own limits so a burst of blog
+  // ingestion can't crowd news out of the pool entirely (an 80:20 mix means
+  // nothing if the shared window only has room for one side).
   const [
-    { data: dispatchRows },
-    feedCategory,
+    { data: newsRows },
+    { data: blogRows },
     { data: sotwRows },
     { data: allWinners },
     { data: cities },
     { data: salesQs },
   ] = await Promise.all([
-    supabase
-      .from("dispatches")
-      .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,feed_id,tags,published_at,ingested_at,is_featured")
-      .eq("is_hidden", false)
-      .order("ingested_at", { ascending: false })
-      .limit(60),
-    fetchFeedCategories(supabase),
+    newsFeedIds.length
+      ? supabase.from("dispatches").select(DISPATCH_COLS).eq("is_hidden", false).in("feed_id", newsFeedIds).order("ingested_at", { ascending: false }).limit(45)
+      : Promise.resolve({ data: [] as Dispatch[] }),
+    blogFeedIds.length
+      ? supabase.from("dispatches").select(DISPATCH_COLS).eq("is_hidden", false).in("feed_id", blogFeedIds).order("ingested_at", { ascending: false }).limit(15)
+      : Promise.resolve({ data: [] as Dispatch[] }),
     supabase
       .from("space_of_week")
       .select("space_id,editorial_note,week_start")
@@ -112,11 +124,10 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
       .limit(8),
   ]);
 
-  const list = (dispatchRows ?? []).map((d) => ({ ...d, category: feedCategory.get(d.feed_id ?? "") ?? "blog" })) as Dispatch[];
+  const news = (newsRows ?? []).map((d) => ({ ...d, category: "news" as const })) as Dispatch[];
+  const blog = (blogRows ?? []).map((d) => ({ ...d, category: "blog" as const })) as Dispatch[];
 
-  // First enforce an 80:20 real-news:blog mix, then re-balance 7:3 india:global on top.
-  const news = list.filter((d) => d.category === "news");
-  const blog = list.filter((d) => d.category === "blog");
+  // Enforce an 80:20 real-news:blog mix, then re-balance 7:3 india:global on top.
   const categoryMixed = interleave(news, blog, 4, 1);
 
   const india = categoryMixed.filter((d) => d.region === "india");
