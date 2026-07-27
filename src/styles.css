@@ -138,3 +138,10 @@
 @utility hover-glow-hover {
   box-shadow: 0 0 0 1px oklch(0.68 0.18 295 / 0.35), 0 20px 50px -20px oklch(0.68 0.18 295 / 0.30);
 }
+@keyframes attract-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.68 0.18 295 / 0.45); }
+  50% { box-shadow: 0 0 0 10px oklch(0.68 0.18 295 / 0); }
+}
+@utility animate-attract-once {
+  animation: attract-pulse 1.1s ease-out 3;
+}

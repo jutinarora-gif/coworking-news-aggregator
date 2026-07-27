@@ -208,31 +208,26 @@ function SalesQuestions({ items }: { items: { id: string; text: string; category
         eyebrow="Before you sign"
         icon={<HelpCircle className="h-4 w-4" />}
         title="Questions to ask the salesperson"
-        href="/questions"
       />
+      <p className="mt-2 text-sm text-muted-foreground">A checklist to bring to your tour, not a link — nothing here to click.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {items.map((q, i) => (
-          <Link
+          <div
             key={q.id}
-            to="/questions"
-            hash={`sq-${q.id}`}
-            className="glass rounded-2xl p-5 flex gap-4 hover-glow hover:hover-glow-hover group"
+            className="glass rounded-2xl p-5 flex gap-4 cursor-default"
           >
             <div className="h-9 w-9 shrink-0 rounded-xl gradient-iris flex items-center justify-center font-display text-primary-foreground">
               {String(i + 1).padStart(2, "0")}
             </div>
             <div>
-              <p className="font-display text-lg leading-snug group-hover:text-iris transition-colors">{q.text}</p>
+              <p className="font-display text-lg leading-snug">{q.text}</p>
               {q.category && (
                 <div className="mt-1 text-xs uppercase tracking-widest text-iris">{q.category}</div>
               )}
             </div>
-          </Link>
+          </div>
         ))}
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">
-        Save the full checklist on any space page before your tour.
-      </p>
     </section>
   );
 }
@@ -295,6 +290,11 @@ function RedFlags() {
 
 function MapReveal() {
   const [open, setOpen] = useState(false);
+  const [attract, setAttract] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setAttract(false), 3500);
+    return () => clearTimeout(t);
+  }, []);
   if (open) {
     return (
       <>
@@ -311,8 +311,8 @@ function MapReveal() {
   }
   return (
     <button
-      onClick={() => setOpen(true)}
-      className="w-full glass rounded-2xl px-6 py-5 flex items-center justify-between hover-glow hover:hover-glow-hover text-left group"
+      onClick={() => { setOpen(true); setAttract(false); }}
+      className={`w-full glass rounded-2xl px-6 py-5 flex items-center justify-between hover-glow hover:hover-glow-hover text-left group ${attract ? "animate-attract-once" : ""}`}
     >
       <div className="flex items-center gap-4">
         <div className="h-10 w-10 rounded-xl gradient-iris flex items-center justify-center">

@@ -1,22 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import indiaMap from "@svg-maps/india";
+import { getCityStats } from "@/lib/data.functions";
 
-
-const CITIES: { name: string; lat: number; lng: number; spaces: number; reviews: number }[] = [
-  { name: "Bangalore", lat: 12.97, lng: 77.59, spaces: 4, reviews: 22 },
-  { name: "Mumbai", lat: 19.07, lng: 72.87, spaces: 3, reviews: 21 },
-  { name: "Delhi NCR", lat: 28.61, lng: 77.20, spaces: 2, reviews: 17 },
-  { name: "Pune", lat: 18.52, lng: 73.85, spaces: 2, reviews: 15 },
-  { name: "Chennai", lat: 13.08, lng: 80.27, spaces: 2, reviews: 12 },
-  { name: "Hyderabad", lat: 17.38, lng: 78.48, spaces: 2, reviews: 11 },
-  { name: "Goa", lat: 15.49, lng: 73.82, spaces: 1, reviews: 10 },
-  { name: "Gurugram", lat: 28.45, lng: 77.02, spaces: 1, reviews: 6 },
-  { name: "Ahmedabad", lat: 23.02, lng: 72.57, spaces: 0, reviews: 0 },
-  { name: "Jaipur", lat: 26.91, lng: 75.79, spaces: 0, reviews: 0 },
-  { name: "Kolkata", lat: 22.57, lng: 88.36, spaces: 0, reviews: 0 },
-  { name: "Noida", lat: 28.53, lng: 77.39, spaces: 0, reviews: 0 },
-];
+const cityStatsQuery = queryOptions({ queryKey: ["city-stats"], queryFn: () => getCityStats() });
 
 // Calibration for @svg-maps/india viewBox "0 0 612 696"
 // Linear projection tuned to bounding box of the actual paths.
@@ -32,8 +20,13 @@ function project(lat: number, lng: number) {
 
 export function IndiaHeatmap() {
   const [hover, setHover] = useState<number | null>(null);
+  const { data: CITIES = [] } = useQuery(cityStatsQuery);
   const maxReviews = Math.max(...CITIES.map((c) => c.reviews), 1);
   const paths = (indiaMap as { locations: { path: string; name: string }[] }).locations;
+
+  if (CITIES.length === 0) {
+    return <div className="glass rounded-3xl p-6 md:p-8 h-[420px] animate-pulse" />;
+  }
 
   return (
     <div className="glass rounded-3xl p-6 md:p-8 grid gap-8 md:grid-cols-[minmax(0,1fr),300px] items-center">

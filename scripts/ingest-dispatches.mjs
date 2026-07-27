@@ -24,6 +24,35 @@ function isRelevant(title, contentSnippet) {
   return RELEVANCE_KEYWORDS.some((kw) => text.includes(kw));
 }
 
+// Most RSS feeds don't include a usable cover image, so we pin a random
+// coworking-relevant stock photo per article rather than ship a text-only card.
+const FALLBACK_COVERS = [
+  "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1200",
+  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200",
+  "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1200",
+  "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200",
+  "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200",
+  "https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=1200",
+  "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=1200",
+  "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=1200",
+  "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200",
+  "https://images.unsplash.com/photo-1604328698692-f76ea9498e76?w=1200",
+  "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=1200",
+  "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1200",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
+  "https://images.unsplash.com/photo-1542626991-cbc4e32524cc?w=1200",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1200",
+  "https://images.unsplash.com/photo-1571624436279-b272aff752b5?w=1200",
+  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200",
+  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200",
+];
+
+function pickCover(item) {
+  const fromEnclosure = item.enclosure?.url;
+  if (fromEnclosure && /\.(jpe?g|png|webp)$/i.test(fromEnclosure)) return fromEnclosure;
+  return FALLBACK_COVERS[Math.floor(Math.random() * FALLBACK_COVERS.length)];
+}
+
 function slugify(s) {
   return s
     .toLowerCase()
@@ -68,7 +97,7 @@ async function ingestFeed(feed) {
         title,
         excerpt,
         body_md: null,
-        cover_url: null,
+        cover_url: pickCover(item),
         source_url: item.link || null,
         source_name: feed.name,
         region: feed.region,

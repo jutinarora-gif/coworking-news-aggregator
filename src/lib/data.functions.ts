@@ -81,17 +81,17 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     .limit(1);
   const sotwSpaceId = sotwRows?.[0]?.space_id ?? null;
 
-  const { data: winners } = await supabase
+  const { data: allWinners } = await supabase
     .from("weekly_winners")
     .select("space_id,rank,score,week_start")
     .order("week_start", { ascending: false })
     .order("rank", { ascending: true })
-    .limit(5);
+    .limit(20);
 
   const spaceIds = Array.from(
     new Set([
       ...(sotwSpaceId ? [sotwSpaceId] : []),
-      ...((winners ?? []).map((w) => w.space_id)),
+      ...((allWinners ?? []).map((w) => w.space_id)),
     ]),
   );
   const { data: spaces } = await supabase
@@ -99,8 +99,17 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id")
     .in("id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]);
 
-  const { data: cities } = await supabase.from("cities").select("id,name");
+  const { data: cities } = await supabase.from("cities").select("id,name,region");
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
+  const cityRegionMap = new Map((cities ?? []).map((c) => [c.id, c.region]));
+
+  // Homepage "five spaces India is talking about" must only feature Indian spaces.
+  const winners = (allWinners ?? [])
+    .filter((w) => {
+      const space = (spaces ?? []).find((s) => s.id === w.space_id);
+      return space && cityRegionMap.get(space.city_id ?? "") === "india";
+    })
+    .slice(0, 5);
 
   const { data: reviewAgg } = await supabase
     .from("reviews")
@@ -146,8 +155,8 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     spaceOfWeek: sotwSpaceId
       ? { space: spaceById.get(sotwSpaceId) ?? null, note: sotwRows![0].editorial_note }
       : null,
-    winners: (winners ?? []).map((w) => ({
-      rank: w.rank,
+    winners: winners.map((w, i) => ({
+      rank: i + 1,
       score: Number(w.score),
       space: spaceById.get(w.space_id) ?? null,
     })).filter((w) => w.space),
@@ -185,6 +194,34 @@ export const getDispatch = createServerFn({ method: "GET" })
       .maybeSingle();
     return row;
   });
+
+export type CityStat = { name: string; lat: number; lng: number; spaces: number; reviews: number };
+
+export const getCityStats = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = makePublicClient();
+
+  const { data: cities } = await supabase.from("cities").select("id,name,lat,lng").eq("region", "india");
+  const { data: spaces } = await supabase.from("spaces").select("id,city_id").eq("is_published", true);
+
+  let reviewCounts: { space_id: string }[] = [];
+  let from = 0;
+  while (true) {
+    const { data: page } = await supabase.from("reviews").select("space_id").range(from, from + 999);
+    reviewCounts = reviewCounts.concat(page ?? []);
+    if (!page || page.length < 1000) break;
+    from += 1000;
+  }
+  const reviewsBySpace = new Map<string, number>();
+  for (const r of reviewCounts) reviewsBySpace.set(r.space_id, (reviewsBySpace.get(r.space_id) ?? 0) + 1);
+
+  const stats: CityStat[] = (cities ?? []).map((c) => {
+    const citySpaces = (spaces ?? []).filter((s) => s.city_id === c.id);
+    const reviews = citySpaces.reduce((sum, s) => sum + (reviewsBySpace.get(s.id) ?? 0), 0);
+    return { name: c.name, lat: Number(c.lat), lng: Number(c.lng), spaces: citySpaces.length, reviews };
+  });
+
+  return stats.sort((a, b) => b.reviews - a.reviews);
+});
 
 export const getSpaces = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
