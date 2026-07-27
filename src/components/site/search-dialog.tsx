@@ -4,10 +4,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { search } from "@/lib/data.functions";
 import { Building2, Newspaper, MessagesSquare } from "lucide-react";
 
-export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+export function SearchDialog({ open, onOpenChange, initialQuery }: { open: boolean; onOpenChange: (v: boolean) => void; initialQuery?: string }) {
   const [q, setQ] = useState("");
   const [results, setResults] = useState<{ spaces: any[]; dispatches: any[]; questions: any[] }>({ spaces: [], dispatches: [], questions: [] });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (open && initialQuery) setQ(initialQuery);
+  }, [open, initialQuery]);
 
   useEffect(() => {
     if (!q.trim()) { setResults({ spaces: [], dispatches: [], questions: [] }); return; }

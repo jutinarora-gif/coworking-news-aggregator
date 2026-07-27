@@ -15,6 +15,7 @@ const nav = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [initialQuery, setInitialQuery] = useState("");
   const [session, setSession] = useState<any>(null);
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -24,12 +25,16 @@ export function Header() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Lets other components (e.g. the homepage hero search box) open this
+  // dialog pre-filled, without prop-drilling search state through the tree.
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setOpen(true); }
+    const onOpenSearch = (e: Event) => {
+      const query = (e as CustomEvent<{ query?: string }>).detail?.query ?? "";
+      setInitialQuery(query);
+      setOpen(true);
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("app:open-search", onOpenSearch);
+    return () => window.removeEventListener("app:open-search", onOpenSearch);
   }, []);
 
   return (
@@ -58,14 +63,13 @@ export function Header() {
         </nav>
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
-            onClick={() => setOpen(true)}
+            onClick={() => { setInitialQuery(""); setOpen(true); }}
             className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md glass text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <Search className="h-4 w-4" />
             <span>Search spaces, dispatches…</span>
-            <kbd className="ml-4 rounded bg-muted px-1.5 py-0.5 text-[10px]">⌘K</kbd>
           </button>
-          <button onClick={() => setOpen(true)} className="sm:hidden p-2 rounded-md glass shrink-0"><Search className="h-4 w-4" /></button>
+          <button onClick={() => { setInitialQuery(""); setOpen(true); }} className="sm:hidden p-2 rounded-md glass shrink-0"><Search className="h-4 w-4" /></button>
           <div className="hidden md:block">
             {session ? (
               <Button asChild variant="secondary" size="sm">
@@ -116,7 +120,7 @@ export function Header() {
           </Sheet>
         </div>
       </div>
-      <SearchDialog open={open} onOpenChange={setOpen} />
+      <SearchDialog open={open} onOpenChange={setOpen} initialQuery={initialQuery} />
     </header>
   );
 }
