@@ -511,10 +511,13 @@ export const search = createServerFn({ method: "GET" })
     const supabase = makePublicClient();
     const term = data.q.trim().slice(0, 100);
     if (!term) return { spaces: [], dispatches: [], questions: [] };
+    const esc = term.replace(/[%_,]/g, (c) => `\\${c}`);
     const [{ data: spaces }, { data: dispatches }, { data: questions }] = await Promise.all([
-      supabase.from("spaces").select("id,slug,name,cover_url").ilike("name", `%${term}%`).eq("is_published", true).limit(6),
-      supabase.from("dispatches").select("id,slug,title,region").ilike("title", `%${term}%`).eq("is_hidden", false).limit(6),
-      supabase.from("questions").select("id,title").ilike("title", `%${term}%`).eq("is_hidden", false).limit(6),
+      // Matches name (e.g. "WeWork") and address (which embeds area + city,
+      // e.g. "Koramangala, Bangalore") so a city or locality search actually works.
+      supabase.from("spaces").select("id,slug,name,cover_url").or(`name.ilike.%${esc}%,address.ilike.%${esc}%`).eq("is_published", true).limit(6),
+      supabase.from("dispatches").select("id,slug,title,region").or(`title.ilike.%${esc}%,excerpt.ilike.%${esc}%`).eq("is_hidden", false).limit(6),
+      supabase.from("questions").select("id,title").ilike("title", `%${esc}%`).eq("is_hidden", false).limit(6),
     ]);
     return {
       spaces: spaces ?? [],

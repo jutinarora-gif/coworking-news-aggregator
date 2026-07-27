@@ -154,7 +154,7 @@ function Hero() {
         </p>
         <form onSubmit={(e) => e.preventDefault()} className="mt-8 max-w-xl mx-auto flex items-center gap-2 glass rounded-2xl p-2 relative z-10">
           <Search className="h-5 w-5 ml-3 text-muted-foreground" />
-          <Input placeholder="Search 'WeWork Galaxy', 'Koramangala', 'quiet'…" className="border-0 bg-transparent focus-visible:ring-0 text-base" onFocus={(e) => { (e.target as HTMLInputElement).blur(); document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true })); }} />
+          <Input placeholder="Search 'Awfis', 'Koramangala', 'Bangalore'…" className="border-0 bg-transparent focus-visible:ring-0 text-base" onFocus={(e) => { (e.target as HTMLInputElement).blur(); document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true })); }} />
           <Button className="gradient-iris text-primary-foreground">Search</Button>
         </form>
         <div className="mt-4 text-xs text-muted-foreground">Press <kbd className="rounded bg-muted px-1.5 py-0.5">⌘K</kbd> anywhere, or wiggle your cursor.</div>

@@ -23,7 +23,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Search spaces, dispatches, questions…" value={q} onValueChange={setQ} />
       <CommandList>
-        <CommandEmpty>{q ? "No matches" : "Try 'WeWork', 'Bangalore', or 'wifi'"}</CommandEmpty>
+        <CommandEmpty>{q ? "No matches" : "Try 'Awfis', 'Bangalore', or 'Koramangala'"}</CommandEmpty>
         {results.spaces.length > 0 && (
           <CommandGroup heading="Spaces">
             {results.spaces.map((s) => (
