@@ -498,7 +498,7 @@ export const submitReview = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     if (!data.body?.trim() || data.body.trim().length < 20) {
-      throw new Error("Reviews need at least 20 characters — give it a sentence or two.");
+      throw new Error("Reviews need at least 20 characters. Give it a sentence or two.");
     }
     if (!(data.rating_overall >= 1 && data.rating_overall <= 5)) {
       throw new Error("Overall rating must be between 1 and 5.");

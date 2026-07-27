@@ -168,8 +168,8 @@ function SectionHeader({ eyebrow, title, href, icon }: { eyebrow: string; title:
   return (
     <div className="flex items-end justify-between">
       <div>
-        <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-iris">{icon}{eyebrow}</div>
-        <h2 className="mt-1 font-display text-3xl md:text-4xl">{title}</h2>
+        <div className="inline-flex items-center gap-2 rounded-full glass px-3 py-1 text-xs font-semibold uppercase tracking-widest text-iris">{icon}{eyebrow}</div>
+        <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">{title}</h2>
       </div>
       {href && (
         <Link to={href} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">View all <ArrowRight className="h-3 w-3" /></Link>
@@ -209,7 +209,7 @@ function SalesQuestions({ items }: { items: { id: string; text: string; category
         icon={<HelpCircle className="h-4 w-4" />}
         title="Questions to ask the salesperson"
       />
-      <p className="mt-2 text-sm text-muted-foreground">A checklist to bring to your tour, not a link — nothing here to click.</p>
+      <p className="mt-2 text-sm text-muted-foreground">A checklist to bring to your tour, not a link. Nothing here to click.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {items.map((q, i) => (
           <div
@@ -254,7 +254,7 @@ function ReviewNudge() {
             <div className="text-xs uppercase tracking-widest text-iris">Been to a space this month?</div>
             <h2 className="mt-1 font-display text-2xl md:text-3xl">Leave a review. It takes under two minutes.</h2>
             <p className="mt-1 text-sm text-muted-foreground max-w-xl">
-              Real ratings from real coworkers are the whole point of this site — find your space and rate it.
+              Real ratings from real coworkers are the whole point of this site. Find your space and rate it.
             </p>
           </div>
         </div>

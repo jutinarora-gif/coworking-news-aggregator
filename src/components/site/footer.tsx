@@ -18,7 +18,7 @@ export function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link to="/dispatches" className="hover:text-primary">Dispatches</Link></li>
             <li><Link to="/spaces" className="hover:text-primary">Spaces</Link></li>
-            <li><Link to="/winners" className="hover:text-primary">Winners</Link></li>
+            <li><Link to="/winners" className="hover:text-primary">Winners of the Week</Link></li>
             <li><Link to="/questions" className="hover:text-primary">Q&A</Link></li>
           </ul>
         </div>

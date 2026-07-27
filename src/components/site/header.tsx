@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 const nav = [
   { to: "/dispatches", label: "Dispatches", icon: Newspaper },
   { to: "/spaces", label: "Spaces", icon: Building2 },
-  { to: "/winners", label: "Winners", icon: Trophy },
+  { to: "/winners", label: "Winners of the Week", icon: Trophy },
   { to: "/questions", label: "Q&A", icon: MessagesSquare },
 ];
 

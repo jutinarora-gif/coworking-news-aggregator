@@ -32,7 +32,7 @@ function WinnersPage() {
       <div className="text-xs uppercase tracking-widest text-iris flex items-center gap-1"><Trophy className="h-3.5 w-3.5" />This week's leaderboard</div>
       <h1 className="mt-1 font-display text-4xl md:text-5xl">Top winners</h1>
       <p className="mt-3 text-lg text-muted-foreground max-w-2xl">
-        The coworking spaces India is actually talking about right now — not the ones with the biggest ad
+        The coworking spaces India is actually talking about right now, not the ones with the biggest ad
         budget. A space only makes this list if it scores <strong className="text-foreground">80 or higher</strong> out
         of 100 on our published formula below.
       </p>
@@ -51,7 +51,7 @@ function WinnersPage() {
             <div>
               <div className="font-display text-lg">60% · Average rating</div>
               <p className="mt-1 text-sm text-muted-foreground">
-                A space's average star rating (out of 5), scaled to 60 points. The single biggest factor —
+                A space's average star rating (out of 5), scaled to 60 points. The single biggest factor:
                 a beloved space with mediocre volume still beats a mediocre space with lots of reviews.
               </p>
             </div>
@@ -62,7 +62,7 @@ function WinnersPage() {
               <div className="font-display text-lg">25% · Review volume</div>
               <p className="mt-1 text-sm text-muted-foreground">
                 Reviews are capped at 30 for scoring purposes, so a space with 200 reviews doesn't
-                automatically beat one with 35 — but a handful of reviews isn't enough to rank highly either.
+                automatically beat one with 35, but a handful of reviews isn't enough to rank highly either.
               </p>
             </div>
           </div>

@@ -90,7 +90,7 @@ function ReviewFormPage() {
         <ArrowLeft className="h-3 w-3" />Back to {data.space.name}
       </Link>
       <h1 className="mt-3 font-display text-3xl md:text-4xl">Review {data.space.name}</h1>
-      <p className="mt-2 text-muted-foreground">Real experience only — this goes straight to the space's public review list.</p>
+      <p className="mt-2 text-muted-foreground">Real experience only. This goes straight to the space's public review list.</p>
 
       <form
         onSubmit={(e) => {
