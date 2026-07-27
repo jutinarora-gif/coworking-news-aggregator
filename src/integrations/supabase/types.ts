@@ -200,6 +200,7 @@ export type Database = {
         Row: {
           added_by: string | null
           approved: boolean
+          category: string
           created_at: string
           id: string
           is_active: boolean
@@ -213,6 +214,7 @@ export type Database = {
         Insert: {
           added_by?: string | null
           approved?: boolean
+          category?: string
           created_at?: string
           id?: string
           is_active?: boolean
@@ -226,6 +228,7 @@ export type Database = {
         Update: {
           added_by?: string | null
           approved?: boolean
+          category?: string
           created_at?: string
           id?: string
           is_active?: boolean

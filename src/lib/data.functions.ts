@@ -28,11 +28,34 @@ export type Dispatch = {
   source_url: string | null;
   source_name: string | null;
   region: "india" | "global";
+  category: "news" | "blog";
   tags: string[];
   published_at: string;
   ingested_at: string;
   is_featured: boolean;
 };
+
+// Interleaves two recency-sorted lists so `primary` appears `primaryPer`
+// items for every `secondaryPer` items of `secondary`, without dropping
+// anything (leftovers of whichever list runs out first get appended).
+function interleave<T>(primary: T[], secondary: T[], primaryPer: number, secondaryPer: number): T[] {
+  const out: T[] = [];
+  let si = 0;
+  for (let i = 0; i < primary.length; i++) {
+    out.push(primary[i]);
+    if ((i + 1) % primaryPer === 0 && si < secondary.length) {
+      const take = Math.min(secondaryPer, secondary.length - si);
+      for (let k = 0; k < take; k++) out.push(secondary[si++]);
+    }
+  }
+  while (si < secondary.length) out.push(secondary[si++]);
+  return out;
+}
+
+async function fetchFeedCategories(supabase: ReturnType<typeof makePublicClient>) {
+  const { data: feeds } = await supabase.from("feeds").select("id,category");
+  return new Map((feeds ?? []).map((f) => [f.id, (f.category ?? "blog") as "news" | "blog"]));
+}
 
 export type SpaceCard = {
   id: string;
@@ -51,28 +74,24 @@ export type SpaceCard = {
 export const getHomeData = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
 
-  // Interleave 7:3 india/global
-  const { data: dispatches } = await supabase
+  const { data: dispatchRows } = await supabase
     .from("dispatches")
-    .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,tags,published_at,ingested_at,is_featured")
+    .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,feed_id,tags,published_at,ingested_at,is_featured")
     .eq("is_hidden", false)
     .order("ingested_at", { ascending: false })
-    .limit(30);
+    .limit(60);
 
-  const list = dispatches ?? [];
-  const india = list.filter((d) => d.region === "india");
-  const global = list.filter((d) => d.region === "global");
-  const mixed: Dispatch[] = [];
-  let gi = 0;
-  for (let i = 0; i < india.length; i++) {
-    mixed.push(india[i] as Dispatch);
-    if ((i + 1) % 7 === 0 && gi < global.length) {
-      // insert up to 3 global for every 7 india
-      const take = Math.min(3, global.length - gi);
-      for (let k = 0; k < take; k++) mixed.push(global[gi++] as Dispatch);
-    }
-  }
-  while (gi < global.length) mixed.push(global[gi++] as Dispatch);
+  const feedCategory = await fetchFeedCategories(supabase);
+  const list = (dispatchRows ?? []).map((d) => ({ ...d, category: feedCategory.get(d.feed_id ?? "") ?? "blog" })) as Dispatch[];
+
+  // First enforce an 80:20 real-news:blog mix, then re-balance 7:3 india:global on top.
+  const news = list.filter((d) => d.category === "news");
+  const blog = list.filter((d) => d.category === "blog");
+  const categoryMixed = interleave(news, blog, 4, 1);
+
+  const india = categoryMixed.filter((d) => d.region === "india");
+  const global = categoryMixed.filter((d) => d.region === "global");
+  const mixed = interleave(india, global, 7, 3);
 
   const { data: sotwRows } = await supabase
     .from("space_of_week")
