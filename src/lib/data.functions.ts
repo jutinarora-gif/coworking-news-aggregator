@@ -30,6 +30,7 @@ export type Dispatch = {
   region: "india" | "global";
   tags: string[];
   published_at: string;
+  ingested_at: string;
   is_featured: boolean;
 };
 
@@ -53,9 +54,9 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
   // Interleave 7:3 india/global
   const { data: dispatches } = await supabase
     .from("dispatches")
-    .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,tags,published_at,is_featured")
+    .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,tags,published_at,ingested_at,is_featured")
     .eq("is_hidden", false)
-    .order("published_at", { ascending: false })
+    .order("ingested_at", { ascending: false })
     .limit(30);
 
   const list = dispatches ?? [];
@@ -161,9 +162,9 @@ export const getDispatches = createServerFn({ method: "GET" })
     const supabase = makePublicClient();
     let query = supabase
       .from("dispatches")
-      .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,tags,published_at,is_featured")
+      .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,tags,published_at,ingested_at,is_featured")
       .eq("is_hidden", false)
-      .order("published_at", { ascending: false })
+      .order("ingested_at", { ascending: false })
       .limit(60);
     if (data.region === "india" || data.region === "global") {
       query = query.eq("region", data.region);
