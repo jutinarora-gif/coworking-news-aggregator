@@ -43,7 +43,7 @@ function DispatchesPage() {
         <div>
           <div className="text-xs uppercase tracking-widest text-iris">The wire</div>
           <h1 className="mt-1 font-display text-4xl md:text-5xl">Dispatches</h1>
-          <p className="mt-2 text-muted-foreground">Aggregated from {["YourStory","Inc42","ET Startups","Coworker","AllWork.Space"].join(" · ")} and more.</p>
+          <p className="mt-2 text-muted-foreground">Aggregated from {["YourStory","Inc42","ET Startups","91springboard","COWRKS","GCUC","AllWork.Space"].join(" · ")} and more.</p>
         </div>
         <div className="inline-flex glass rounded-full p-1">
           {(["all", "india", "global"] as const).map((r) => (

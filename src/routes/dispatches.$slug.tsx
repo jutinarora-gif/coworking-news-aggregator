@@ -34,7 +34,7 @@ function DispatchPage() {
   return (
     <article className="mx-auto max-w-3xl px-6 py-12">
       <Link to="/dispatches" className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1"><ArrowLeft className="h-3 w-3" />Back to dispatches</Link>
-      <div className="mt-6 text-xs uppercase tracking-widest text-iris">{d.source_name} · {formatDistanceToNow(new Date(d.published_at), { addSuffix: true })}</div>
+      <div className="mt-6 text-xs uppercase tracking-widest text-iris">{d.source_name} · {formatDistanceToNow(new Date(d.ingested_at), { addSuffix: true })}</div>
       <h1 className="mt-3 font-display text-4xl md:text-5xl leading-tight">{d.title}</h1>
       {d.cover_url && (
         <div className="mt-8 rounded-2xl overflow-hidden aspect-[16/9]">

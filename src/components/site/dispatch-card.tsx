@@ -25,7 +25,7 @@ export function DispatchCard({ d, featured = false }: { d: Dispatch; featured?: 
         <div className="text-[11px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
           <span>{d.source_name}</span>
           <span>·</span>
-          <span>{formatDistanceToNow(new Date(d.published_at), { addSuffix: true })}</span>
+          <span>{formatDistanceToNow(new Date(d.ingested_at), { addSuffix: true })}</span>
         </div>
         <h3 className={`mt-2 font-display leading-snug group-hover:text-iris transition-colors ${featured ? "text-2xl md:text-3xl" : "text-lg"}`}>
           {d.title}
