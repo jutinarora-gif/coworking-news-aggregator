@@ -19,10 +19,12 @@ import { Route as QuestionsRouteImport } from './routes/questions'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WinnersRouteImport } from './routes/winners'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedSubmitSpaceRouteImport } from './routes/_authenticated/submit-space'
 import { Route as DispatchesIndexRouteImport } from './routes/dispatches.index'
 import { Route as DispatchesSlugRouteImport } from './routes/dispatches.$slug'
 import { Route as SpacesIndexRouteImport } from './routes/spaces.index'
 import { Route as SpacesSlugRouteImport } from './routes/spaces.$slug'
+import { Route as AuthenticatedAdminSpacesRouteImport } from './routes/_authenticated/admin.spaces'
 import { Route as AuthenticatedReviewSlugRouteImport } from './routes/_authenticated/review.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -74,6 +76,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSubmitSpaceRoute =
+  AuthenticatedSubmitSpaceRouteImport.update({
+    id: '/submit-space',
+    path: '/submit-space',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const DispatchesIndexRoute = DispatchesIndexRouteImport.update({
   id: '/dispatches/',
   path: '/dispatches/',
@@ -94,6 +102,12 @@ const SpacesSlugRoute = SpacesSlugRouteImport.update({
   path: '/spaces/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminSpacesRoute =
+  AuthenticatedAdminSpacesRouteImport.update({
+    id: '/admin/spaces',
+    path: '/admin/spaces',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReviewSlugRoute = AuthenticatedReviewSlugRouteImport.update({
   id: '/review/$slug',
   path: '/review/$slug',
@@ -110,10 +124,12 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/winners': typeof WinnersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/submit-space': typeof AuthenticatedSubmitSpaceRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches/': typeof DispatchesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
+  '/admin/spaces': typeof AuthenticatedAdminSpacesRoute
   '/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRoutesByTo {
@@ -126,10 +142,12 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/winners': typeof WinnersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/submit-space': typeof AuthenticatedSubmitSpaceRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches': typeof DispatchesIndexRoute
   '/spaces': typeof SpacesIndexRoute
+  '/admin/spaces': typeof AuthenticatedAdminSpacesRoute
   '/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRoutesById {
@@ -144,10 +162,12 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/winners': typeof WinnersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/submit-space': typeof AuthenticatedSubmitSpaceRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches/': typeof DispatchesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
+  '/_authenticated/admin/spaces': typeof AuthenticatedAdminSpacesRoute
   '/_authenticated/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRouteTypes {
@@ -162,10 +182,12 @@ export interface FileRouteTypes {
     | '/terms'
     | '/winners'
     | '/dashboard'
+    | '/submit-space'
     | '/dispatches/$slug'
     | '/spaces/$slug'
     | '/dispatches/'
     | '/spaces/'
+    | '/admin/spaces'
     | '/review/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -178,10 +200,12 @@ export interface FileRouteTypes {
     | '/terms'
     | '/winners'
     | '/dashboard'
+    | '/submit-space'
     | '/dispatches/$slug'
     | '/spaces/$slug'
     | '/dispatches'
     | '/spaces'
+    | '/admin/spaces'
     | '/review/$slug'
   id:
     | '__root__'
@@ -195,10 +219,12 @@ export interface FileRouteTypes {
     | '/terms'
     | '/winners'
     | '/_authenticated/dashboard'
+    | '/_authenticated/submit-space'
     | '/dispatches/$slug'
     | '/spaces/$slug'
     | '/dispatches/'
     | '/spaces/'
+    | '/_authenticated/admin/spaces'
     | '/_authenticated/review/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -290,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/submit-space': {
+      id: '/_authenticated/submit-space'
+      path: '/submit-space'
+      fullPath: '/submit-space'
+      preLoaderRoute: typeof AuthenticatedSubmitSpaceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/dispatches/': {
       id: '/dispatches/'
       path: '/dispatches'
@@ -318,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpacesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/spaces': {
+      id: '/_authenticated/admin/spaces'
+      path: '/admin/spaces'
+      fullPath: '/admin/spaces'
+      preLoaderRoute: typeof AuthenticatedAdminSpacesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/review/$slug': {
       id: '/_authenticated/review/$slug'
       path: '/review/$slug'
@@ -330,11 +370,15 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedSubmitSpaceRoute: typeof AuthenticatedSubmitSpaceRoute
+  AuthenticatedAdminSpacesRoute: typeof AuthenticatedAdminSpacesRoute
   AuthenticatedReviewSlugRoute: typeof AuthenticatedReviewSlugRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedSubmitSpaceRoute: AuthenticatedSubmitSpaceRoute,
+  AuthenticatedAdminSpacesRoute: AuthenticatedAdminSpacesRoute,
   AuthenticatedReviewSlugRoute: AuthenticatedReviewSlugRoute,
 }
 

@@ -27,8 +27,8 @@ export function Footer() {
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Community</div>
           <ul className="space-y-2 text-sm">
             <li><Link to="/auth" className="hover:text-primary">Sign in / Join</Link></li>
-            <li><a href="#" className="hover:text-primary">Suggest a feed</a></li>
-            <li><a href="#" className="hover:text-primary">Submit a space</a></li>
+            <li><a href="mailto:info@coworkingdispatch.com?subject=Suggest a feed" className="hover:text-primary">Suggest a feed</a></li>
+            <li><Link to="/submit-space" className="hover:text-primary">Submit a space</Link></li>
           </ul>
         </div>
         <div>

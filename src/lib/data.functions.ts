@@ -610,6 +610,138 @@ export const submitReview = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const getCities = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = makePublicClient();
+  const { data } = await supabase.from("cities").select("id,name,region").order("name");
+  return data ?? [];
+});
+
+function slugify(name: string, cityName: string | undefined) {
+  const base = `${name}${cityName ? ` ${cityName}` : ""}`
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || "space";
+}
+
+export const submitSpace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: {
+    name: string;
+    city_id: string;
+    address?: string;
+    description: string;
+    website_url?: string;
+    price_from?: number;
+    currency?: string;
+    vibe_tags?: string[];
+  }) => data)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    if (!data.name?.trim() || data.name.trim().length < 2) {
+      throw new Error("Space name is required.");
+    }
+    if (!data.city_id) {
+      throw new Error("Please select a city.");
+    }
+    if (!data.description?.trim() || data.description.trim().length < 20) {
+      throw new Error("Description needs at least 20 characters — give people a real sense of the place.");
+    }
+
+    const { data: city } = await supabase.from("cities").select("name").eq("id", data.city_id).maybeSingle();
+
+    let slug = slugify(data.name, city?.name);
+    const { data: existing } = await supabase.from("spaces").select("slug").ilike("slug", `${slug}%`);
+    if (existing && existing.length > 0) {
+      const taken = new Set(existing.map((s) => s.slug));
+      let i = 2;
+      while (taken.has(slug)) slug = `${slugify(data.name, city?.name)}-${i++}`;
+    }
+
+    const { error } = await supabase.from("spaces").insert({
+      name: data.name.trim(),
+      slug,
+      city_id: data.city_id,
+      address: data.address?.trim() || null,
+      description: data.description.trim(),
+      website_url: data.website_url?.trim() || null,
+      price_from: data.price_from ?? null,
+      currency: data.currency?.trim() || "INR",
+      vibe_tags: data.vibe_tags?.filter(Boolean) ?? [],
+      is_published: false,
+      submitted_by: userId,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, slug };
+  });
+
+export const getMySpaceSubmissions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data } = await supabase
+      .from("spaces")
+      .select("id,slug,name,is_published,created_at,city_id")
+      .eq("submitted_by", userId)
+      .order("created_at", { ascending: false });
+    return data ?? [];
+  });
+
+// Relies entirely on RLS, not an app-level role check: the "Admins/mods can
+// manage spaces" policy is the only thing that can see is_published=false
+// rows belonging to someone else, so a non-admin calling this simply gets
+// back their own pending submissions (if any) rather than everyone's.
+export const getPendingSpaces = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const [{ data: spaces }, { data: cities }] = await Promise.all([
+      supabase
+        .from("spaces")
+        .select("id,slug,name,address,description,website_url,price_from,currency,vibe_tags,city_id,submitted_by,created_at")
+        .eq("is_published", false)
+        .order("created_at", { ascending: false }),
+      supabase.from("cities").select("id,name"),
+    ]);
+    const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
+    return (spaces ?? []).map((s) => ({ ...s, city_name: cityMap.get(s.city_id ?? "") ?? null }));
+  });
+
+export const approveSpace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { space_id: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: updated, error } = await supabase
+      .from("spaces")
+      .update({ is_published: true })
+      .eq("id", data.space_id)
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!updated) throw new Error("Not authorized, or this space is no longer pending.");
+    return { ok: true };
+  });
+
+export const rejectSpace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { space_id: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: deleted, error } = await supabase
+      .from("spaces")
+      .delete()
+      .eq("id", data.space_id)
+      .eq("is_published", false)
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!deleted) throw new Error("Not authorized, or this space is no longer pending.");
+    return { ok: true };
+  });
+
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .inputValidator((data: { email: string }) => data)
   .handler(async ({ data }) => {
