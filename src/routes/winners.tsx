@@ -114,6 +114,16 @@ function WinnersPage() {
                 </div>
               </div>
             </Link>
+            <p className="mt-2 px-4 text-sm text-muted-foreground">
+              <Link to="/spaces/$slug" params={{ slug: w.space!.slug }} className="text-iris hover:underline">{w.space!.name}</Link> ranks #{w.rank} this week among{" "}
+              <Link to="/spaces" search={{ city: w.space!.city_name ?? undefined }} className="text-iris hover:underline">
+                coworking spaces in {w.space!.city_name}
+              </Link>
+              , scoring {w.score.toFixed(1)}/100 on a {w.breakdown.avgRating}★ average across {w.breakdown.reviewCount} member{" "}
+              <Link to="/spaces/$slug" params={{ slug: w.space!.slug }} className="text-iris hover:underline">reviews</Link>. See how it compares to the rest of{" "}
+              <Link to="/spaces" className="text-iris hover:underline">the full spaces directory</Link>, or catch up on{" "}
+              <Link to="/dispatches" className="text-iris hover:underline">the latest coworking news</Link>.
+            </p>
           </li>
         ))}
       </ol>
