@@ -24,7 +24,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 
 async function main() {
-  const staticUrls = ["", "/dispatches", "/spaces", "/winners", "/questions"];
+  const staticUrls = ["", "/dispatches", "/spaces", "/winners", "/questions", "/about", "/contact", "/terms", "/privacy"];
   let dynamicUrls = [];
 
   if (supabaseUrl && supabaseKey) {

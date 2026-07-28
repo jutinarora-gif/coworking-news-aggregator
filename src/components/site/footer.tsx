@@ -31,15 +31,17 @@ export function Footer() {
           </ul>
         </div>
         <div>
-          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">About</div>
-          <p className="text-sm text-muted-foreground">
-            Made in India, by coworkers, for coworkers.
-          </p>
-
+          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Company</div>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/about" className="hover:text-primary">About us</Link></li>
+            <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
+            <li><Link to="/terms" className="hover:text-primary">Terms &amp; conditions</Link></li>
+            <li><Link to="/privacy" className="hover:text-primary">Privacy policy</Link></li>
+          </ul>
         </div>
       </div>
       <div className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground">
-        © 2026 The Coworking Dispatch
+        © 2026 The Coworking Dispatch · Made in India, by coworkers, for coworkers.
       </div>
     </footer>
   );
