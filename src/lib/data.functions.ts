@@ -452,17 +452,35 @@ export const getWinners = createServerFn({ method: "GET" }).handler(async () => 
 
 export const getQuestions = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
-  const { data: questions } = await supabase
-    .from("questions")
-    .select("id,title,body,is_ama,space_id,created_at,profile_id")
-    .eq("is_hidden", false)
-    .order("created_at", { ascending: false })
-    .limit(200);
+
+  // city_id on questions lets city-only (space-less) questions be filtered
+  // too; falls back gracefully if that migration hasn't been run yet.
+  let questions: any[] | null = null;
+  {
+    const withCity = await supabase
+      .from("questions")
+      .select("id,title,body,is_ama,space_id,city_id,created_at,profile_id")
+      .eq("is_hidden", false)
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (withCity.error) {
+      const withoutCity = await supabase
+        .from("questions")
+        .select("id,title,body,is_ama,space_id,created_at,profile_id")
+        .eq("is_hidden", false)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      questions = (withoutCity.data ?? []).map((q) => ({ ...q, city_id: null }));
+    } else {
+      questions = withCity.data;
+    }
+  }
+
   const spaceIds = Array.from(new Set((questions ?? []).map((q) => q.space_id).filter(Boolean) as string[]));
   const profIds = Array.from(new Set((questions ?? []).map((q) => q.profile_id)));
-  const [{ data: spaces }, { data: profs }, { data: allAns }] = await Promise.all([
+  const [{ data: spaces }, { data: profs }, { data: allAns }, { data: cities }] = await Promise.all([
     spaceIds.length
-      ? supabase.from("spaces").select("id,slug,name").in("id", spaceIds)
+      ? supabase.from("spaces").select("id,slug,name,city_id,address").in("id", spaceIds)
       : Promise.resolve({ data: [] as any[] }),
     profIds.length
       ? supabase.from("profiles").select("id,display_name,avatar_url").in("id", profIds)
@@ -472,6 +490,7 @@ export const getQuestions = createServerFn({ method: "GET" }).handler(async () =
       .select("id,question_id,body,is_founder_reply,created_at,profile_id")
       .eq("is_hidden", false)
       .order("created_at", { ascending: true }),
+    supabase.from("cities").select("id,name"),
   ]);
   const ansProfIds = Array.from(new Set((allAns ?? []).map((a) => a.profile_id)));
   const { data: ansProfs } = ansProfIds.length
@@ -480,6 +499,7 @@ export const getQuestions = createServerFn({ method: "GET" }).handler(async () =
   const ansProfMap = new Map((ansProfs ?? []).map((p) => [p.id, p]));
   const spaceMap = new Map((spaces ?? []).map((s) => [s.id, s]));
   const profMap = new Map((profs ?? []).map((p) => [p.id, p]));
+  const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
   const ansByQ = new Map<string, any[]>();
   (allAns ?? []).forEach((a) => {
     const arr = ansByQ.get(a.question_id) ?? [];
@@ -494,13 +514,18 @@ export const getQuestions = createServerFn({ method: "GET" }).handler(async () =
     .order("upvotes_denorm", { ascending: false });
 
   return {
-    questions: (questions ?? []).map((q) => ({
-      ...q,
-      space: q.space_id ? spaceMap.get(q.space_id) ?? null : null,
-      author: profMap.get(q.profile_id) ?? null,
-      answers: ansByQ.get(q.id) ?? [],
-      answer_count: (ansByQ.get(q.id) ?? []).length,
-    })),
+    questions: (questions ?? []).map((q) => {
+      const space = q.space_id ? spaceMap.get(q.space_id) ?? null : null;
+      const effectiveCityId = q.city_id ?? space?.city_id ?? null;
+      return {
+        ...q,
+        space,
+        city_name: effectiveCityId ? cityMap.get(effectiveCityId) ?? null : null,
+        author: profMap.get(q.profile_id) ?? null,
+        answers: ansByQ.get(q.id) ?? [],
+        answer_count: (ansByQ.get(q.id) ?? []).length,
+      };
+    }),
     salesQuestions: salesQuestions ?? [],
   };
 });

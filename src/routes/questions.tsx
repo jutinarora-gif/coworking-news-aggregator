@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getQuestions } from "@/lib/data.functions";
-import { MessagesSquare, Sparkles, CornerDownRight, BadgeCheck, ChevronDown } from "lucide-react";
+import { MessagesSquare, Sparkles, CornerDownRight, BadgeCheck, ChevronDown, MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 const q = queryOptions({ queryKey: ["questions"], queryFn: () => getQuestions() });
 
@@ -21,8 +21,33 @@ export const Route = createFileRoute("/questions")({
   errorComponent: ({ error }) => <div className="p-8">{error.message}</div>,
 });
 
+function locality(qq: any): string | null {
+  // Space address is stored as "Area, City" (e.g. "Koramangala, Bangalore") — take the area part.
+  const addr = qq.space?.address as string | undefined;
+  if (!addr) return null;
+  const [area] = addr.split(",");
+  return area?.trim() || null;
+}
+
 function QuestionsPage() {
   const { data } = useSuspenseQuery(q);
+  const [city, setCity] = useState("all");
+  const [area, setArea] = useState("all");
+
+  const cities = useMemo(
+    () => Array.from(new Set(data.questions.map((qq) => qq.city_name).filter(Boolean) as string[])).sort(),
+    [data.questions],
+  );
+  const areas = useMemo(() => {
+    const relevant = city === "all" ? data.questions : data.questions.filter((qq) => qq.city_name === city);
+    return Array.from(new Set(relevant.map(locality).filter(Boolean) as string[])).sort();
+  }, [data.questions, city]);
+
+  const filtered = data.questions.filter((qq) => {
+    if (city !== "all" && qq.city_name !== city) return false;
+    if (area !== "all" && locality(qq) !== area) return false;
+    return true;
+  });
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
@@ -30,10 +55,45 @@ function QuestionsPage() {
       <h1 className="mt-1 font-display text-4xl md:text-5xl">Questions & AMAs</h1>
       <p className="mt-2 text-muted-foreground">Real coworkers. Real answers. No affiliate links.</p>
 
-      <div className="mt-10 space-y-4">
-        {data.questions.map((qq) => (
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground">
+          <MapPin className="h-3.5 w-3.5" />Filter by
+        </div>
+        <select
+          value={city}
+          onChange={(e) => { setCity(e.target.value); setArea("all"); }}
+          className="glass rounded-xl px-3 py-2 text-sm bg-transparent"
+        >
+          <option value="all">All cities</option>
+          {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select
+          value={area}
+          onChange={(e) => setArea(e.target.value)}
+          className="glass rounded-xl px-3 py-2 text-sm bg-transparent"
+          disabled={areas.length === 0}
+        >
+          <option value="all">All locations</option>
+          {areas.map((a) => <option key={a} value={a}>{a}</option>)}
+        </select>
+        {(city !== "all" || area !== "all") && (
+          <button
+            onClick={() => { setCity("all"); setArea("all"); }}
+            className="text-xs text-muted-foreground hover:text-primary underline"
+          >
+            Clear filters
+          </button>
+        )}
+        <span className="text-xs text-muted-foreground ml-auto">{filtered.length} of {data.questions.length}</span>
+      </div>
+
+      <div className="mt-6 space-y-4">
+        {filtered.map((qq) => (
           <QuestionItem key={qq.id} qq={qq} />
         ))}
+        {filtered.length === 0 && (
+          <div className="glass rounded-2xl p-8 text-center text-sm text-muted-foreground">No questions match this filter yet.</div>
+        )}
       </div>
     </div>
   );
