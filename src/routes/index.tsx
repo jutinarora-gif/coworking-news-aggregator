@@ -163,7 +163,16 @@ function Hero() {
           <Search className="h-5 w-5 ml-3 text-muted-foreground" />
           <Input
             value={heroQuery}
-            onChange={(e) => setHeroQuery(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setHeroQuery(value);
+              // Open with live suggestions as soon as typing starts, instead
+              // of waiting for submit; the dialog's own input takes over
+              // from here and keeps updating results as the user keeps typing.
+              if (value.trim()) {
+                window.dispatchEvent(new CustomEvent("app:open-search", { detail: { query: value } }));
+              }
+            }}
             placeholder="Search 'Awfis', 'Koramangala', 'Bangalore'…"
             className="border-0 bg-transparent focus-visible:ring-0 text-base"
           />
