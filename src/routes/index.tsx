@@ -153,11 +153,6 @@ function Hero() {
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
           Aggregated news, real reviews from real coworkers, weekly winners, and the questions you should actually ask the salesperson before you sign.
         </p>
-        <p className="mt-3 text-sm text-muted-foreground max-w-2xl mx-auto">
-          The Coworking Dispatch is an independent website covering the coworking and flexible workspace industry: news aggregated
-          from hundreds of publishers, real member reviews of coworking spaces, a transparently-scored weekly ranking, and a
-          community Q&A, for founders, freelancers, and remote teams across India and the world.
-        </p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
