@@ -151,7 +151,7 @@ function Hero() {
           .
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Aggregated news, real reviews from real coworkers, weekly winners, and the questions you should actually ask the salesperson before you sign.
+          Aggregated news, member reviews from real coworking spaces, weekly winners, and the questions you should actually ask the salesperson before you sign.
         </p>
         <form
           onSubmit={(e) => {

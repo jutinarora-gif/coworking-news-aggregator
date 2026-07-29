@@ -10,7 +10,7 @@ export function Footer() {
             <span className="font-display text-lg">The Coworking Dispatch</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            The Coworking Dispatch aggregates coworking industry news, hosts real member reviews of coworking
+            The Coworking Dispatch aggregates coworking industry news, hosts member reviews of coworking
             spaces, and runs a community Q&A, for India's coworking scene and the world.
           </p>
         </div>

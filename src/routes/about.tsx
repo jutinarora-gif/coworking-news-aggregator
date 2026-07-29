@@ -5,9 +5,9 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About , The Coworking Dispatch" },
-      { name: "description", content: "Why we built The Coworking Dispatch: India-first coworking news, real reviews, and a transparent weekly ranking." },
+      { name: "description", content: "Why we built The Coworking Dispatch: India-first coworking news, member reviews, and a transparent weekly ranking." },
       { property: "og:title", content: "About The Coworking Dispatch" },
-      { property: "og:description", content: "India-first coworking news, real reviews, and a transparent weekly ranking." },
+      { property: "og:description", content: "India-first coworking news, member reviews, and a transparent weekly ranking." },
     ],
   }),
   component: AboutPage,
@@ -35,10 +35,10 @@ function AboutPage() {
         </div>
         <div className="glass rounded-2xl p-6">
           <Star className="h-5 w-5 text-iris" />
-          <h2 className="mt-3 font-display text-xl">Reviews from real coworkers</h2>
+          <h2 className="mt-3 font-display text-xl">Open to every coworker</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Every space listing has a real name, address, and price sourced from public coworking directories,
-            reviewed by members of our community.
+            Every space listing has a real name, address, and price sourced from public coworking directories.
+            Anyone who's actually worked out of a space can <Link to="/spaces" className="text-iris hover:underline">sign in and leave a review</Link>.
           </p>
         </div>
         <div className="glass rounded-2xl p-6">

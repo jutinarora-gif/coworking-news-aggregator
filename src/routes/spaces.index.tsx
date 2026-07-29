@@ -13,9 +13,9 @@ export const Route = createFileRoute("/spaces/")({
   head: () => ({
     meta: [
       { title: "Coworking Spaces , The Coworking Dispatch" },
-      { name: "description", content: "Browse India's coworking spaces with real user reviews and structured ratings." },
+      { name: "description", content: "Browse India's coworking spaces with member reviews and structured ratings." },
       { property: "og:title", content: "Coworking Spaces across India" },
-      { property: "og:description", content: "Real reviews. Real ratings. Real coworkers." },
+      { property: "og:description", content: "Member reviews. Structured ratings. Real spaces." },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q),
