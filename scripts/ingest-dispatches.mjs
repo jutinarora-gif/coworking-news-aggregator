@@ -33,6 +33,14 @@ function isRelevant(title, contentSnippet) {
   return RELEVANCE_KEYWORDS.some((kw) => text.includes(kw));
 }
 
+// AltF Coworking must never appear anywhere on the site, including news
+// coverage picked up by the Google News search feeds.
+const EXCLUDED_MENTIONS = ["alt.f coworking", "altf coworking", "alt.f cowork", "altf cowork"];
+function mentionsExcludedBrand(title, contentSnippet) {
+  const text = `${title ?? ""} ${contentSnippet ?? ""}`.toLowerCase();
+  return EXCLUDED_MENTIONS.some((m) => text.includes(m));
+}
+
 function isGoogleNewsFeed(url) {
   return url.includes("news.google.com/rss/search");
 }
@@ -99,6 +107,10 @@ async function ingestFeed(feed) {
       // Google News search feeds are already scoped to the query terms, so
       // only apply the keyword filter to fixed publisher feeds.
       if (!isGoogleNews && !isRelevant(item.title, item.contentSnippet)) {
+        skipped++;
+        continue;
+      }
+      if (mentionsExcludedBrand(item.title, item.contentSnippet)) {
         skipped++;
         continue;
       }

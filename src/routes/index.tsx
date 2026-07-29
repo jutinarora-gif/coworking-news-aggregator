@@ -128,7 +128,7 @@ function Hero() {
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative overflow-hidden pt-20 pb-20 cursor-crosshair"
+      className="relative overflow-hidden pt-20 pb-20"
     >
       <div
         className="absolute inset-0 -z-10 transition-[background-position] duration-300 ease-out"
