@@ -58,6 +58,15 @@ function interleave<T>(primary: T[], secondary: T[], primaryPer: number, seconda
   return out;
 }
 
+// Feeds can resurface old articles that only just got re-linked/re-shared.
+// Publish date, not ingestion time, is what makes something "news" — this
+// mirrors the same 2-week gate applied at ingestion in ingest-dispatches.mjs,
+// as a safety net for rows that predate that gate or slip through it.
+const MAX_ARTICLE_AGE_DAYS = 14;
+function maxArticleAgeCutoff() {
+  return new Date(Date.now() - MAX_ARTICLE_AGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+}
+
 async function fetchFeedCategories(supabase: ReturnType<typeof makePublicClient>) {
   const { data: feeds } = await supabase.from("feeds").select("id,category");
   return new Map((feeds ?? []).map((f) => [f.id, (f.category ?? "blog") as "news" | "blog"]));
@@ -93,7 +102,7 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
   // even though both actually have fresh content.
   function fetchPool(feedIds: string[], region: "india" | "global", limit: number) {
     return feedIds.length
-      ? supabase.from("dispatches").select(DISPATCH_COLS).eq("is_hidden", false).eq("region", region).in("feed_id", feedIds).order("ingested_at", { ascending: false }).limit(limit)
+      ? supabase.from("dispatches").select(DISPATCH_COLS).eq("is_hidden", false).eq("region", region).in("feed_id", feedIds).gte("published_at", maxArticleAgeCutoff()).order("ingested_at", { ascending: false }).limit(limit)
       : Promise.resolve({ data: [] as Dispatch[] });
   }
 
@@ -221,6 +230,7 @@ export const getDispatches = createServerFn({ method: "GET" })
       .from("dispatches")
       .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,tags,published_at,ingested_at,is_featured")
       .eq("is_hidden", false)
+      .gte("published_at", maxArticleAgeCutoff())
       .order("ingested_at", { ascending: false })
       .limit(60);
     if (data.region === "india" || data.region === "global") {
