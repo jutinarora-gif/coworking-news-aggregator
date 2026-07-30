@@ -41,8 +41,6 @@ function mentionsExcludedBrand(title, contentSnippet) {
   return EXCLUDED_MENTIONS.some((m) => text.includes(m));
 }
 
-const MAX_ARTICLE_AGE_MS = 14 * 24 * 60 * 60 * 1000;
-
 function isGoogleNewsFeed(url) {
   return url.includes("news.google.com/rss/search");
 }
@@ -117,16 +115,9 @@ async function ingestFeed(feed) {
         continue;
       }
 
-      // Feeds (especially Google News search results) sometimes resurface old
-      // articles that only just got re-linked/re-shared. Publish date, not
-      // ingestion time, is what makes something "news" — so anything more
-      // than 2 weeks old at the actual article's own publish date is rejected
-      // outright, regardless of how fresh it looks to the ingestion pipeline.
-      const publishedAt = item.isoDate || item.pubDate;
-      if (publishedAt && Date.now() - new Date(publishedAt).getTime() > MAX_ARTICLE_AGE_MS) {
-        skipped++;
-        continue;
-      }
+      // Older articles are still ingested and kept on /dispatches for SEO
+      // breadth — the 2-week freshness rule is enforced only on the homepage
+      // feed (see maxArticleAgeCutoff() in data.functions.ts), not here.
 
       const { data: existing } = await supabase
         .from("dispatches")

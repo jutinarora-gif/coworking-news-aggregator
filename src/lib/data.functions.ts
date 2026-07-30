@@ -58,10 +58,10 @@ function interleave<T>(primary: T[], secondary: T[], primaryPer: number, seconda
   return out;
 }
 
-// Feeds can resurface old articles that only just got re-linked/re-shared.
-// Publish date, not ingestion time, is what makes something "news" — this
-// mirrors the same 2-week gate applied at ingestion in ingest-dispatches.mjs,
-// as a safety net for rows that predate that gate or slip through it.
+// The homepage feed must only ever show fresh news (unlike /dispatches,
+// which intentionally keeps older articles around for SEO breadth). Feeds
+// can resurface old articles that only just got re-linked/re-shared, so this
+// filters by the article's own publish date, not when we ingested it.
 const MAX_ARTICLE_AGE_DAYS = 14;
 function maxArticleAgeCutoff() {
   return new Date(Date.now() - MAX_ARTICLE_AGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
@@ -230,7 +230,6 @@ export const getDispatches = createServerFn({ method: "GET" })
       .from("dispatches")
       .select("id,slug,title,excerpt,cover_url,source_url,source_name,region,tags,published_at,ingested_at,is_featured")
       .eq("is_hidden", false)
-      .gte("published_at", maxArticleAgeCutoff())
       .order("ingested_at", { ascending: false })
       .limit(60);
     if (data.region === "india" || data.region === "global") {
