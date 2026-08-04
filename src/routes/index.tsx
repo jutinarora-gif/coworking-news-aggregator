@@ -2,10 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useMutation } from "@tanstack/react-query";
 import { getHomeData, subscribeNewsletter } from "@/lib/data.functions";
 import { DispatchCard } from "@/components/site/dispatch-card";
-import { IndiaHeatmap } from "@/components/site/india-heatmap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Sparkles, Trophy, Search, MapPin, HelpCircle, AlertTriangle, PenLine } from "lucide-react";
+import { ArrowRight, Sparkles, Trophy, Search, HelpCircle, AlertTriangle, PenLine } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -30,10 +29,6 @@ function Home() {
   return (
     <div>
       <Hero />
-
-      <section className="mx-auto max-w-7xl px-6 mt-16">
-        <MapReveal />
-      </section>
 
       {data.spaceOfWeek?.space && (
         <section className="mx-auto max-w-7xl px-6 mt-20">
@@ -188,8 +183,8 @@ function SectionHeader({ eyebrow, title, href, icon }: { eyebrow: string; title:
   return (
     <div className="flex items-end justify-between">
       <div>
-        <div className="inline-flex items-center gap-2 rounded-full glass px-3 py-1 text-xs font-semibold uppercase tracking-widest text-iris">{icon}{eyebrow}</div>
-        <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">{title}</h2>
+        <div className="inline-flex items-center gap-2 rounded-full gradient-iris px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-[0_0_24px_-6px_var(--iris-2)]">{icon}{eyebrow}</div>
+        <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-muted-foreground">{title}</h2>
       </div>
       {href && (
         <Link to={href} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">View all <ArrowRight className="h-3 w-3" /></Link>
@@ -290,11 +285,10 @@ function RedFlags() {
   return (
     <section className="mx-auto max-w-6xl px-6 mt-16">
       <div className="glass rounded-2xl p-6 md:p-8 border border-destructive/20">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-destructive" />
-          <div className="text-xs uppercase tracking-widest text-destructive font-semibold">Red flags</div>
+        <div className="inline-flex items-center gap-2 rounded-full bg-destructive px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-destructive-foreground">
+          <AlertTriangle className="h-4 w-4" /> Red flags
         </div>
-        <h2 className="mt-2 font-display text-2xl md:text-3xl text-iris">Spot two of these? Time to rethink your coworking space</h2>
+        <h2 className="mt-3 font-display text-2xl md:text-3xl text-muted-foreground">Spot two of these? Time to rethink your coworking space</h2>
         <ul className="mt-5 grid gap-x-6 gap-y-2 md:grid-cols-2 text-sm">
           {RED_FLAGS.map((f, i) => (
             <li key={f} className="flex gap-2.5 items-baseline py-1.5 border-b border-border/40 last:border-0 md:[&:nth-last-child(2)]:border-0">
@@ -308,45 +302,4 @@ function RedFlags() {
   );
 }
 
-function MapReveal() {
-  const [open, setOpen] = useState(false);
-  const [attract, setAttract] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setAttract(false), 3500);
-    return () => clearTimeout(t);
-  }, []);
-  if (open) {
-    return (
-      <>
-        <SectionHeader eyebrow="India, mapped" icon={<MapPin className="h-4 w-4" />} title="Where India works" href="/spaces" />
-        <div className="mt-6"><IndiaHeatmap /></div>
-        <button
-          onClick={() => setOpen(false)}
-          className="mt-4 mx-auto flex items-center gap-1.5 text-sm text-muted-foreground hover:text-iris transition-colors"
-        >
-          Collapse map <ArrowRight className="h-3.5 w-3.5 rotate-[-90deg]" />
-        </button>
-      </>
-    );
-  }
-  return (
-    <button
-      onClick={() => { setOpen(true); setAttract(false); }}
-      className={`w-full glass rounded-2xl px-6 py-5 flex items-center justify-between hover-glow hover:hover-glow-hover text-left group ${attract ? "animate-attract-once" : ""}`}
-    >
-      <div className="flex items-center gap-4">
-        <div className="h-10 w-10 rounded-xl gradient-iris flex items-center justify-center">
-          <MapPin className="h-5 w-5 text-primary-foreground" />
-        </div>
-        <div>
-          <div className="text-xs uppercase tracking-widest text-iris">India, mapped</div>
-          <div className="font-display text-lg md:text-xl">Explore coworking density across 12 cities</div>
-        </div>
-      </div>
-      <span className="text-sm text-muted-foreground group-hover:text-iris flex items-center gap-1">
-        Show map <ArrowRight className="h-4 w-4" />
-      </span>
-    </button>
-  );
-}
 
