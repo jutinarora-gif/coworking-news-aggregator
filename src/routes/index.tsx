@@ -324,7 +324,7 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
                       <Link to="/spaces/$slug" params={{ slug: entry.slug }} className="block group">
                         <div className="leading-snug">
                           <span className="text-muted-foreground">{entry.rank}. </span>
-                          <span className="text-iris underline decoration-iris/40 underline-offset-2 group-hover:decoration-iris break-words">
+                          <span className="underline decoration-muted-foreground/40 underline-offset-2 group-hover:text-iris group-hover:decoration-iris break-words">
                             {entry.name}
                           </span>
                         </div>
