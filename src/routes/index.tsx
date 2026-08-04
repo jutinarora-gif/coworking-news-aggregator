@@ -289,8 +289,6 @@ const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" 
 ];
 
 function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboards>> }) {
-  const maxRows = Math.max(1, ...LEADERBOARD_CATEGORIES.map((c) => (data[c.key]?.length ?? 0)));
-
   return (
     <div className="glass-strong rounded-3xl p-6 md:p-10">
       <div className="inline-flex items-center gap-2 rounded-full gradient-iris px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-[0_0_24px_-6px_var(--iris-2)]">
@@ -303,43 +301,31 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
         Top 3 spaces amongst India's coworking crowd, category-wise.
       </p>
 
-      <table className="mt-6 w-full table-fixed border-collapse text-sm overflow-hidden rounded-xl">
-        <thead>
-          <tr>
-            {LEADERBOARD_CATEGORIES.map((c) => (
-              <th key={c.key} className="text-left font-semibold text-xs uppercase tracking-wide text-iris bg-muted/60 border-b-2 border-iris/30 py-2.5 px-3 first:rounded-tl-xl last:rounded-tr-xl">
-                {c.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: maxRows }).map((_, row) => (
-            <tr key={row} className={row % 2 === 1 ? "bg-muted/30" : undefined}>
-              {LEADERBOARD_CATEGORIES.map((c) => {
-                const entry = data[c.key]?.[row];
-                return (
-                  <td key={c.key} className="border-b border-border/60 py-2.5 px-3 align-top">
-                    {entry ? (
-                      <Link to="/spaces/$slug" params={{ slug: entry.slug }} className="block group">
-                        <div className="leading-snug">
-                          <span className="text-muted-foreground">{entry.rank}. </span>
-                          <span className="underline decoration-muted-foreground/40 underline-offset-2 group-hover:text-iris group-hover:decoration-iris break-words">
-                            {entry.name}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{entry.cityName}</div>
-                      </Link>
-                    ) : (
-                      <span className="text-muted-foreground/60">Not enough data yet</span>
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {LEADERBOARD_CATEGORIES.map((c) => (
+          <div key={c.key} className="rounded-2xl bg-background/60 border border-border/60 p-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-iris">{c.label}</div>
+            <div className="mt-3 space-y-2.5">
+              {(data[c.key] ?? []).map((entry) => (
+                <Link key={entry.slug} to="/spaces/$slug" params={{ slug: entry.slug }} className="flex items-start gap-2.5 group">
+                  <span className="mt-0.5 shrink-0 h-5 w-5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium flex items-center justify-center">
+                    {entry.rank}
+                  </span>
+                  <span className="min-w-0 leading-snug">
+                    <span className="underline decoration-muted-foreground/40 underline-offset-2 group-hover:text-iris group-hover:decoration-iris">
+                      {entry.name}
+                    </span>
+                    <span className="text-muted-foreground">, {entry.cityName}</span>
+                  </span>
+                </Link>
+              ))}
+              {(data[c.key] ?? []).length === 0 && (
+                <div className="text-sm text-muted-foreground/60">Not enough data yet</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
 
       <p className="mt-4 text-[10px] text-muted-foreground/70">
         *Based on community reviews and ratings on The Coworking Dispatch. Rankings update as more reviews come in.
