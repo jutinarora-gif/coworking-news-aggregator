@@ -11,9 +11,9 @@ export const Route = createFileRoute("/questions")({
   head: () => ({
     meta: [
       { title: "Community Q&A , The Coworking Dispatch" },
-      { name: "description", content: "Ask coworkers and founders. Real answers, real experience." },
+      { name: "description", content: "Ask coworkers and founders. Practical answers, no affiliate links." },
       { property: "og:title", content: "Coworking Q&A and AMAs" },
-      { property: "og:description", content: "Ask coworkers and founders. Real answers, real experience." },
+      { property: "og:description", content: "Ask coworkers and founders. Practical answers, no affiliate links." },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q),
@@ -53,7 +53,7 @@ function QuestionsPage() {
     <div className="mx-auto max-w-4xl px-6 py-12">
       <div className="text-xs uppercase tracking-widest text-iris flex items-center gap-1"><MessagesSquare className="h-3.5 w-3.5" />Community</div>
       <h1 className="mt-1 font-display text-4xl md:text-5xl">Questions & AMAs</h1>
-      <p className="mt-2 text-muted-foreground">Real coworkers. Real answers. No affiliate links.</p>
+      <p className="mt-2 text-muted-foreground">Ask, answer, compare notes. No affiliate links.</p>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground">

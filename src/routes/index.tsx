@@ -14,7 +14,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "The Coworking Dispatch , India-first coworking news & reviews" },
-      { name: "description", content: "News, real-user reviews, Space of the Week, weekly winners, and a community Q&A for India's coworking scene." },
+      { name: "description", content: "News, member reviews, Space of the Week, weekly winners, and a community Q&A for India's coworking scene." },
       { property: "og:title", content: "The Coworking Dispatch" },
       { property: "og:description", content: "India-first coworking news & community." },
     ],
@@ -134,7 +134,7 @@ function Hero() {
           Coworking News, Reviews, and Real Talk from <span className="text-iris">Everywhere</span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Aggregated news, member reviews from real coworking spaces, weekly winners, and the questions you should actually ask the salesperson before you sign.
+          Aggregated news, member reviews, weekly winners, and the questions you should actually ask the salesperson before you sign.
         </p>
         <form
           onSubmit={(e) => {
@@ -257,7 +257,7 @@ function ReviewNudge() {
             <div className="text-xs uppercase tracking-widest text-iris">Been to a space this month?</div>
             <h2 className="mt-1 font-display text-2xl md:text-3xl">Leave a review. It takes under two minutes.</h2>
             <p className="mt-1 text-sm text-muted-foreground max-w-xl">
-              Real ratings from real coworkers are the whole point of this site. Find your space and rate it.
+              The more coworkers who weigh in, the more useful this gets for the next person choosing a space.
             </p>
           </div>
         </div>

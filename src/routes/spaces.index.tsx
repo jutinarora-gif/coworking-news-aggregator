@@ -91,7 +91,7 @@ function SpacesPage() {
     <div className="mx-auto max-w-7xl px-6 py-12">
       <div className="text-xs uppercase tracking-widest text-iris">The directory</div>
       <h1 className="mt-1 font-display text-4xl md:text-5xl">Coworking spaces</h1>
-      <p className="mt-2 text-muted-foreground">{data.length} spaces · {data.reduce((s, x) => s + x.review_count, 0)} reviews from real coworkers</p>
+      <p className="mt-2 text-muted-foreground">{data.length} spaces · {data.reduce((s, x) => s + x.review_count, 0)} member reviews and ratings</p>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <div className="glass rounded-xl px-3 flex items-center flex-1 min-w-[240px] overflow-hidden">
