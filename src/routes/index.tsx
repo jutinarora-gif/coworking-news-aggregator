@@ -139,7 +139,7 @@ function Hero() {
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Live, 70% India, 30% world
         </div>
         <h1 className="mt-6 font-display text-5xl md:text-7xl leading-[1.05]">
-          The pulse of India's{" "}
+          Real talk on{" "}
           <span key={wordIdx} className="text-iris inline-block animate-in fade-in slide-in-from-bottom-2 duration-500">
             {ROTATING_WORDS[wordIdx]}
           </span>
