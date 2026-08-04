@@ -5,7 +5,7 @@ import { DispatchCard } from "@/components/site/dispatch-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Sparkles, Trophy, Search, HelpCircle, AlertTriangle, PenLine } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 
 const homeQuery = queryOptions({ queryKey: ["home"], queryFn: () => getHomeData() });
@@ -100,18 +100,10 @@ function Home() {
   );
 }
 
-const ROTATING_WORDS = ["coworking", "coffee culture", "founder scene", "hybrid week", "hot desk hunt"];
-
 function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ x: 50, y: 40 });
-  const [wordIdx, setWordIdx] = useState(0);
   const [heroQuery, setHeroQuery] = useState("");
-
-  useEffect(() => {
-    const t = setInterval(() => setWordIdx((i) => (i + 1) % ROTATING_WORDS.length), 2200);
-    return () => clearInterval(t);
-  }, []);
 
   const onMove = (e: React.MouseEvent) => {
     const r = ref.current?.getBoundingClientRect();
@@ -139,11 +131,7 @@ function Hero() {
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Live, 70% India, 30% world
         </div>
         <h1 className="mt-6 font-display text-5xl md:text-7xl leading-[1.05]">
-          Real talk on{" "}
-          <span key={wordIdx} className="text-iris inline-block animate-in fade-in slide-in-from-bottom-2 duration-500">
-            {ROTATING_WORDS[wordIdx]}
-          </span>
-          .
+          Coworking News, Reviews, and Real Talk from <span className="text-iris">Everywhere</span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
           Aggregated news, member reviews from real coworking spaces, weekly winners, and the questions you should actually ask the salesperson before you sign.

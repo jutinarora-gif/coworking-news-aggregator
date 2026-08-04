@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Logomark } from "./logomark";
 
 export function Footer() {
   return (
@@ -6,7 +7,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded gradient-iris" />
+            <Logomark className="h-6 w-6" />
             <span className="font-display text-lg">The Coworking Dispatch</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
