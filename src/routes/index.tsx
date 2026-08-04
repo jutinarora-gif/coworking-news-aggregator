@@ -4,7 +4,7 @@ import { getHomeData, getLeaderboards, subscribeNewsletter } from "@/lib/data.fu
 import { DispatchCard } from "@/components/site/dispatch-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Sparkles, Trophy, Search, HelpCircle, AlertTriangle, PenLine, Wifi, Sparkle, Headset, Users, Wind, DoorClosed } from "lucide-react";
+import { ArrowRight, Sparkles, Trophy, Search, HelpCircle, AlertTriangle, PenLine } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 
@@ -279,83 +279,67 @@ function ReviewNudge() {
   );
 }
 
-const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" | "ac" | "meet"; label: string; icon: React.ReactNode }[] = [
-  { key: "wifi", label: "Best Wifi", icon: <Wifi className="h-4 w-4" /> },
-  { key: "community", label: "Best Community Engagement", icon: <Users className="h-4 w-4" /> },
-  { key: "clean", label: "Cleanest Spaces", icon: <Sparkle className="h-4 w-4" /> },
-  { key: "support", label: "Best On-Ground Support", icon: <Headset className="h-4 w-4" /> },
-  { key: "ac", label: "Most Consistent Air Conditioning", icon: <Wind className="h-4 w-4" /> },
-  { key: "meet", label: "Most Private Meeting Rooms", icon: <DoorClosed className="h-4 w-4" /> },
+const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" | "ac" | "meet"; label: string }[] = [
+  { key: "wifi", label: "Wifi" },
+  { key: "community", label: "Community" },
+  { key: "clean", label: "Cleanliness" },
+  { key: "support", label: "On-Ground Support" },
+  { key: "ac", label: "Air Conditioning" },
+  { key: "meet", label: "Meeting Rooms" },
 ];
 
 function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboards>> }) {
   const maxRows = Math.max(1, ...LEADERBOARD_CATEGORIES.map((c) => (data[c.key]?.length ?? 0)));
 
   return (
-    <div className="glass-strong rounded-3xl p-6 md:p-10 relative overflow-hidden">
-      <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full blur-3xl opacity-30 gradient-iris" />
-      <div className="relative">
-        <div className="inline-flex items-center gap-2 rounded-full gradient-iris px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-[0_0_24px_-6px_var(--iris-2)]">
-          <Trophy className="h-4 w-4" /> India Leaderboard
-        </div>
-        <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold">
-          Who's actually winning in Indian coworking, by category
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-          The top 3 spaces amongst India's coworking crowd, across every category, in one view.
-        </p>
-
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full border-separate border-spacing-0 min-w-[900px]">
-            <thead>
-              <tr>
-                {LEADERBOARD_CATEGORIES.map((c) => (
-                  <th key={c.key} className="text-left align-bottom pb-3 pr-4 last:pr-0">
-                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-iris">
-                      {c.icon}
-                      {c.label}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: maxRows }).map((_, row) => (
-                <tr key={row}>
-                  {LEADERBOARD_CATEGORIES.map((c) => {
-                    const entry = data[c.key]?.[row];
-                    return (
-                      <td key={c.key} className="pr-4 last:pr-0 pt-3 align-top">
-                        {entry ? (
-                          <Link
-                            to="/spaces/$slug"
-                            params={{ slug: entry.slug }}
-                            className="group glass rounded-2xl p-4 flex items-start gap-3 hover-glow hover:hover-glow-hover h-full"
-                          >
-                            <div className="h-7 w-7 shrink-0 rounded-lg gradient-iris flex items-center justify-center font-display text-sm text-primary-foreground">
-                              #{entry.rank}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="font-display text-base leading-snug group-hover:text-iris truncate">{entry.name}</div>
-                              <div className="text-xs text-muted-foreground mt-0.5">{entry.cityName}</div>
-                            </div>
-                          </Link>
-                        ) : (
-                          <div className="glass rounded-2xl p-4 h-full text-xs text-muted-foreground/70">Not enough data yet</div>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <p className="mt-6 text-[10px] text-muted-foreground/70">
-          *Based on community reviews and ratings on The Coworking Dispatch. Rankings update as more reviews come in.
-        </p>
+    <div className="glass-strong rounded-3xl p-6 md:p-10">
+      <div className="inline-flex items-center gap-2 rounded-full gradient-iris px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-[0_0_24px_-6px_var(--iris-2)]">
+        <Trophy className="h-4 w-4" /> India Leaderboard
       </div>
+      <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold">
+        Who's actually winning in Indian coworking, by category
+      </h2>
+      <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
+        Top 3 spaces amongst India's coworking crowd, category-wise.
+      </p>
+
+      <table className="mt-6 w-full table-fixed border-collapse text-sm">
+        <thead>
+          <tr>
+            {LEADERBOARD_CATEGORIES.map((c) => (
+              <th key={c.key} className="text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground border-b border-border py-2 px-2 first:pl-0">
+                {c.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: maxRows }).map((_, row) => (
+            <tr key={row}>
+              {LEADERBOARD_CATEGORIES.map((c) => {
+                const entry = data[c.key]?.[row];
+                return (
+                  <td key={c.key} className="border-b border-border/60 py-2 px-2 first:pl-0 align-top">
+                    {entry ? (
+                      <Link to="/spaces/$slug" params={{ slug: entry.slug }} className="hover:text-iris" title={entry.name}>
+                        <span className="text-muted-foreground">{entry.rank}. </span>
+                        <span className="truncate">{entry.name}</span>
+                        <span className="text-muted-foreground">, {entry.cityName}</span>
+                      </Link>
+                    ) : (
+                      <span className="text-muted-foreground/60">—</span>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <p className="mt-4 text-[10px] text-muted-foreground/70">
+        *Based on community reviews and ratings on The Coworking Dispatch. Rankings update as more reviews come in.
+      </p>
     </div>
   );
 }
