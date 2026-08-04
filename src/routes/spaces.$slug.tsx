@@ -3,8 +3,27 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getSpace } from "@/lib/data.functions";
 import { Star, MapPin, Wifi, Volume2, Users, Coffee, IndianRupee, ClipboardCheck, ArrowLeft } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { useMemo, useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+type ReviewSort = "newest" | "oldest" | "highest" | "lowest";
+
+function sortReviews(reviews: any[], sort: ReviewSort) {
+  const copy = [...reviews];
+  switch (sort) {
+    case "oldest":
+      return copy.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    case "highest":
+      return copy.sort((a, b) => b.rating_overall - a.rating_overall);
+    case "lowest":
+      return copy.sort((a, b) => a.rating_overall - b.rating_overall);
+    case "newest":
+    default:
+      return copy.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
+}
 
 const q = (slug: string) => queryOptions({ queryKey: ["space", slug], queryFn: () => getSpace({ data: { slug } }) });
 
@@ -14,15 +33,25 @@ export const Route = createFileRoute("/spaces/$slug")({
     if (!d) throw notFound();
     return d;
   },
-  head: ({ loaderData }) => ({
-    meta: loaderData ? [
-      { title: `${loaderData.space.name} , Reviews & pricing | The Coworking Dispatch` },
-      { name: "description", content: loaderData.space.description ?? `Reviews and details for ${loaderData.space.name}` },
-      { property: "og:title", content: `${loaderData.space.name} , The Coworking Dispatch` },
-      { property: "og:description", content: loaderData.space.description ?? "" },
-      ...(loaderData.space.cover_url ? [{ property: "og:image", content: loaderData.space.cover_url }, { name: "twitter:image", content: loaderData.space.cover_url }] : []),
-    ] : [{ title: "Space" }],
-  }),
+  head: ({ loaderData }) => {
+    const city = loaderData?.space.city_name;
+    const title = loaderData
+      ? city
+        ? `${loaderData.space.name} – Coworking Space in ${city} | Reviews & Pricing | The Coworking Dispatch`
+        : `${loaderData.space.name} – Reviews & Pricing | The Coworking Dispatch`
+      : "Space";
+    const description = loaderData?.space.description ?? (loaderData ? `Reviews and details for ${loaderData.space.name}` : "");
+    return {
+      meta: loaderData ? [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        ...(loaderData.space.cover_url ? [{ property: "og:image", content: loaderData.space.cover_url }, { name: "twitter:image", content: loaderData.space.cover_url }] : []),
+      ] : [{ title: "Space" }],
+      links: loaderData ? [{ rel: "canonical", href: `https://www.coworkingdispatch.com/spaces/${loaderData.space.slug}` }] : [],
+    };
+  },
   component: SpacePage,
   notFoundComponent: () => <div className="p-16 text-center">Space not found</div>,
   errorComponent: ({ error }) => <div className="p-8">{error.message}</div>,
@@ -33,6 +62,8 @@ function SpacePage() {
   const { data } = useSuspenseQuery(q(slug));
   if (!data) return null;
   const { space, reviews, agg, salesQuestions } = data;
+  const [sort, setSort] = useState<ReviewSort>("newest");
+  const sortedReviews = useMemo(() => sortReviews(reviews, sort), [reviews, sort]);
   return (
     <div>
       <div className="relative h-[45vh] min-h-[380px] overflow-hidden">
@@ -111,19 +142,34 @@ function SpacePage() {
                 <div className="text-xs uppercase tracking-widest text-iris">What coworkers say</div>
                 <h2 className="font-display text-3xl mt-1">{reviews.length} reviews</h2>
               </div>
-              <Button asChild variant="secondary" size="sm">
-                <Link to="/review/$slug" params={{ slug: space.slug }}>Leave a review</Link>
-              </Button>
+              <div className="flex items-center gap-2">
+                {reviews.length > 1 && (
+                  <Select value={sort} onValueChange={(v) => setSort(v as ReviewSort)}>
+                    <SelectTrigger className="w-[150px] h-9 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Newest first</SelectItem>
+                      <SelectItem value="oldest">Oldest first</SelectItem>
+                      <SelectItem value="highest">Highest rated</SelectItem>
+                      <SelectItem value="lowest">Lowest rated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+                <Button asChild variant="secondary" size="sm">
+                  <Link to="/review/$slug" params={{ slug: space.slug }}>Leave a review</Link>
+                </Button>
+              </div>
             </div>
             <div className="mt-6 space-y-4">
-              {reviews.slice(0, 20).map((r: any) => (
+              {sortedReviews.slice(0, 30).map((r: any) => (
                 <div key={r.id} className="glass rounded-2xl p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9"><AvatarFallback>{r.author?.display_name?.[0] ?? "?"}</AvatarFallback></Avatar>
                       <div>
                         <div className="text-sm font-medium">{r.author?.display_name}</div>
-                        <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}</div>
+                        <div className="text-xs text-muted-foreground" title={format(new Date(r.created_at), "PPP")}>
+                          {format(new Date(r.created_at), "MMM d, yyyy")} · {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                        </div>
                       </div>
                     </div>
                     <div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg glass">

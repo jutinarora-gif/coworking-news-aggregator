@@ -104,9 +104,7 @@ async function ingestFeed(feed) {
       const guid = item.guid || item.link;
       if (!guid) continue;
 
-      // Google News search feeds are already scoped to the query terms, so
-      // only apply the keyword filter to fixed publisher feeds.
-      if (!isGoogleNews && !isRelevant(item.title, item.contentSnippet)) {
+      if (!isRelevant(item.title, item.contentSnippet)) {
         skipped++;
         continue;
       }
