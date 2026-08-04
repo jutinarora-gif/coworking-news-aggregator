@@ -280,12 +280,12 @@ function ReviewNudge() {
 }
 
 const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" | "ac" | "meet"; label: string }[] = [
-  { key: "wifi", label: "Wifi" },
-  { key: "community", label: "Community" },
-  { key: "clean", label: "Cleanliness" },
-  { key: "support", label: "On-Ground Support" },
-  { key: "ac", label: "Air Conditioning" },
-  { key: "meet", label: "Meeting Rooms" },
+  { key: "wifi", label: "Best Wifi" },
+  { key: "community", label: "Best Community" },
+  { key: "clean", label: "Cleanest Spaces" },
+  { key: "support", label: "Best On-Ground Support" },
+  { key: "ac", label: "Most Consistent AC" },
+  { key: "meet", label: "Most Private Meeting Rooms" },
 ];
 
 function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboards>> }) {
@@ -303,11 +303,11 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
         Top 3 spaces amongst India's coworking crowd, category-wise.
       </p>
 
-      <table className="mt-6 w-full table-fixed border-collapse text-sm">
+      <table className="mt-6 w-full table-fixed border-collapse text-sm overflow-hidden rounded-xl">
         <thead>
           <tr>
             {LEADERBOARD_CATEGORIES.map((c) => (
-              <th key={c.key} className="text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground border-b border-border py-2 px-2 first:pl-0">
+              <th key={c.key} className="text-left font-semibold text-xs uppercase tracking-wide text-iris bg-muted/60 border-b-2 border-iris/30 py-2.5 px-3 first:rounded-tl-xl last:rounded-tr-xl">
                 {c.label}
               </th>
             ))}
@@ -315,19 +315,23 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
         </thead>
         <tbody>
           {Array.from({ length: maxRows }).map((_, row) => (
-            <tr key={row}>
+            <tr key={row} className={row % 2 === 1 ? "bg-muted/30" : undefined}>
               {LEADERBOARD_CATEGORIES.map((c) => {
                 const entry = data[c.key]?.[row];
                 return (
-                  <td key={c.key} className="border-b border-border/60 py-2 px-2 first:pl-0 align-top">
+                  <td key={c.key} className="border-b border-border/60 py-2.5 px-3 align-top">
                     {entry ? (
-                      <Link to="/spaces/$slug" params={{ slug: entry.slug }} className="hover:text-iris" title={entry.name}>
-                        <span className="text-muted-foreground">{entry.rank}. </span>
-                        <span className="truncate">{entry.name}</span>
-                        <span className="text-muted-foreground">, {entry.cityName}</span>
+                      <Link to="/spaces/$slug" params={{ slug: entry.slug }} className="block group">
+                        <div className="leading-snug">
+                          <span className="text-muted-foreground">{entry.rank}. </span>
+                          <span className="text-iris underline decoration-iris/40 underline-offset-2 group-hover:decoration-iris break-words">
+                            {entry.name}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{entry.cityName}</div>
                       </Link>
                     ) : (
-                      <span className="text-muted-foreground/60">—</span>
+                      <span className="text-muted-foreground/60">Not enough data yet</span>
                     )}
                   </td>
                 );
