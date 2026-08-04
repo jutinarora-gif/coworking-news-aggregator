@@ -4,7 +4,47 @@ import { getSpaces } from "@/lib/data.functions";
 import { SpaceCard } from "@/components/site/space-card";
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, ChevronsUpDown, Check, MapPin } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+function CityFilter({ cities, value, onChange }: { cities: { name: string; count: number }[]; value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const label = value === "all" ? "All cities" : value;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" role="combobox" aria-expanded={open} className="glass rounded-xl px-3 justify-between font-normal text-sm min-w-[160px]">
+          <span className="flex items-center gap-1.5 truncate"><MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />{label}</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[240px] p-0">
+        <Command>
+          <CommandInput placeholder="Search cities…" />
+          <CommandList>
+            <CommandEmpty>No city found.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem value="all" onSelect={() => { onChange("all"); setOpen(false); }}>
+                <Check className={cn("mr-2 h-4 w-4", value === "all" ? "opacity-100" : "opacity-0")} />
+                All cities
+              </CommandItem>
+              {cities.map((c) => (
+                <CommandItem key={c.name} value={c.name} onSelect={() => { onChange(c.name); setOpen(false); }}>
+                  <Check className={cn("mr-2 h-4 w-4", value === c.name ? "opacity-100" : "opacity-0")} />
+                  <span className="flex-1">{c.name}</span>
+                  <span className="text-xs text-muted-foreground">{c.count}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 const q = queryOptions({ queryKey: ["spaces"], queryFn: () => getSpaces() });
 
@@ -31,7 +71,15 @@ function SpacesPage() {
   const [city, setCity] = useState<string>(cityParam ?? "all");
 
 
-  const cities = useMemo(() => Array.from(new Set(data.map((s) => s.city_name).filter(Boolean) as string[])).sort(), [data]);
+  const cities = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const s of data) {
+      if (region !== "all" && s.city_region !== region) continue;
+      if (!s.city_name) continue;
+      counts.set(s.city_name, (counts.get(s.city_name) ?? 0) + 1);
+    }
+    return Array.from(counts.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [data, region]);
   const filtered = data.filter((s) => {
     if (region !== "all" && s.city_region !== region) return false;
     if (city !== "all" && s.city_name !== city) return false;
@@ -55,10 +103,7 @@ function SpacesPage() {
             <button key={r} onClick={() => setRegion(r)} className={`px-3 py-1.5 rounded-full text-sm capitalize ${region === r ? "gradient-iris text-primary-foreground" : "text-muted-foreground"}`}>{r === "india" ? "🇮🇳" : r === "global" ? "🌏" : "All"}</button>
           ))}
         </div>
-        <select value={city} onChange={(e) => setCity(e.target.value)} className="glass rounded-xl px-3 py-2 text-sm bg-transparent">
-          <option value="all">All cities</option>
-          {cities.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
+        <CityFilter cities={cities} value={city} onChange={setCity} />
       </div>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
