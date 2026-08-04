@@ -459,6 +459,92 @@ export const getWinners = createServerFn({ method: "GET" }).handler(async () => 
     .filter((w) => w.space);
 });
 
+const LEADERBOARD_MIN_REVIEWS = 8;
+const LEADERBOARD_KEYWORDS: Record<string, string[]> = {
+  clean: ["clean", "hygien", "housekeeping"],
+  support: ["community manager", "front desk", "staff", "support team", "reception"],
+  ac: ["air condition", " ac ", "temperature", "too cold", "too hot", "ac takes", "ac is"],
+  meet: ["meeting room"],
+};
+
+function textHasAny(text: string | null, keywords: string[]) {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  return keywords.some((k) => t.includes(k));
+}
+
+export type LeaderboardEntry = { name: string; slug: string; cityName: string | null; rank: number };
+export type Leaderboards = Record<
+  "wifi" | "community" | "clean" | "support" | "ac" | "meet",
+  LeaderboardEntry[]
+>;
+
+// Computed from the same synthetic review corpus used across the site.
+// Intentionally scoped to India-region spaces only.
+export const getLeaderboards = createServerFn({ method: "GET" }).handler(async (): Promise<Leaderboards> => {
+  const supabase = makePublicClient();
+  const [{ data: cities }, { data: spaces }] = await Promise.all([
+    supabase.from("cities").select("id,name,region").eq("region", "india"),
+    supabase.from("spaces").select("id,name,slug,city_id").eq("is_published", true),
+  ]);
+  const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
+  const indiaSpaceIds = new Set((spaces ?? []).filter((s) => cityMap.has(s.city_id ?? "")).map((s) => s.id));
+  const spaceMap = new Map((spaces ?? []).map((s) => [s.id, s]));
+
+  const { data: reviews } = await supabase
+    .from("reviews")
+    .select("space_id,pros,cons,rating_wifi,rating_community")
+    .eq("is_hidden", false);
+
+  type Agg = { n: number; wifi: number[]; community: number[]; clean: number; support: number; ac: number; meet: number };
+  const agg = new Map<string, Agg>();
+  const get = (id: string): Agg => {
+    let a = agg.get(id);
+    if (!a) { a = { n: 0, wifi: [], community: [], clean: 0, support: 0, ac: 0, meet: 0 }; agg.set(id, a); }
+    return a;
+  };
+
+  for (const r of reviews ?? []) {
+    if (!r.space_id || !indiaSpaceIds.has(r.space_id)) continue;
+    const a = get(r.space_id);
+    a.n += 1;
+    if (typeof r.rating_wifi === "number") a.wifi.push(r.rating_wifi);
+    if (typeof r.rating_community === "number") a.community.push(r.rating_community);
+    for (const key of ["clean", "support", "ac", "meet"] as const) {
+      const posInPros = textHasAny(r.pros, LEADERBOARD_KEYWORDS[key]);
+      const negInCons = textHasAny(r.cons, LEADERBOARD_KEYWORDS[key]);
+      if (posInPros) a[key] += 1;
+      if (negInCons) a[key] -= 1;
+    }
+  }
+
+  const top3 = (scoreFn: (a: Agg) => number | null): LeaderboardEntry[] => {
+    const scored: { score: number; id: string }[] = [];
+    for (const [id, a] of agg.entries()) {
+      if (a.n < LEADERBOARD_MIN_REVIEWS) continue;
+      const s = scoreFn(a);
+      if (s === null) continue;
+      scored.push({ score: s, id });
+    }
+    scored.sort((x, y) => y.score - x.score);
+    return scored.slice(0, 3).map((s, i) => {
+      const sp = spaceMap.get(s.id)!;
+      return { name: sp.name, slug: sp.slug, cityName: cityMap.get(sp.city_id ?? "") ?? null, rank: i + 1 };
+    });
+  };
+
+  const meanOf = (arr: number[]) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
+
+  return {
+    wifi: top3((a) => meanOf(a.wifi)),
+    community: top3((a) => meanOf(a.community)),
+    clean: top3((a) => (a.n ? a.clean / a.n : null)),
+    support: top3((a) => (a.n ? a.support / a.n : null)),
+    ac: top3((a) => (a.n ? a.ac / a.n : null)),
+    meet: top3((a) => (a.n ? a.meet / a.n : null)),
+  };
+});
+
 export const getQuestions = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
 
