@@ -289,9 +289,7 @@ const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" 
 ];
 
 function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboards>> }) {
-  const [active, setActive] = useState<typeof LEADERBOARD_CATEGORIES[number]["key"]>("wifi");
-  const entries = data[active] ?? [];
-  const activeTab = LEADERBOARD_CATEGORIES.find((c) => c.key === active)!;
+  const maxRows = Math.max(1, ...LEADERBOARD_CATEGORIES.map((c) => (data[c.key]?.length ?? 0)));
 
   return (
     <div className="glass-strong rounded-3xl p-6 md:p-10 relative overflow-hidden">
@@ -304,46 +302,54 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
           Who's actually winning in Indian coworking, by category
         </h2>
         <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-          Pick a category and see the top 3 spaces amongst India's coworking crowd right now.
+          The top 3 spaces amongst India's coworking crowd, across every category, in one view.
         </p>
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          {LEADERBOARD_CATEGORIES.map((c) => (
-            <button
-              key={c.key}
-              onClick={() => setActive(c.key)}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-colors ${
-                active === c.key ? "gradient-iris text-primary-foreground" : "glass text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {c.icon}
-              {c.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {entries.length === 0 && (
-            <div className="md:col-span-3 text-sm text-muted-foreground py-8 text-center">
-              Not enough data for {activeTab.label.toLowerCase()} yet. Check back soon.
-            </div>
-          )}
-          {entries.map((e) => (
-            <Link
-              key={e.slug}
-              to="/spaces/$slug"
-              params={{ slug: e.slug }}
-              className="group glass rounded-2xl p-5 flex items-start gap-4 hover-glow hover:hover-glow-hover"
-            >
-              <div className="h-9 w-9 shrink-0 rounded-xl gradient-iris flex items-center justify-center font-display text-lg text-primary-foreground">
-                #{e.rank}
-              </div>
-              <div className="min-w-0">
-                <div className="font-display text-lg leading-snug group-hover:text-iris truncate">{e.name}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{e.cityName}</div>
-              </div>
-            </Link>
-          ))}
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full border-separate border-spacing-0 min-w-[900px]">
+            <thead>
+              <tr>
+                {LEADERBOARD_CATEGORIES.map((c) => (
+                  <th key={c.key} className="text-left align-bottom pb-3 pr-4 last:pr-0">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-iris">
+                      {c.icon}
+                      {c.label}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: maxRows }).map((_, row) => (
+                <tr key={row}>
+                  {LEADERBOARD_CATEGORIES.map((c) => {
+                    const entry = data[c.key]?.[row];
+                    return (
+                      <td key={c.key} className="pr-4 last:pr-0 pt-3 align-top">
+                        {entry ? (
+                          <Link
+                            to="/spaces/$slug"
+                            params={{ slug: entry.slug }}
+                            className="group glass rounded-2xl p-4 flex items-start gap-3 hover-glow hover:hover-glow-hover h-full"
+                          >
+                            <div className="h-7 w-7 shrink-0 rounded-lg gradient-iris flex items-center justify-center font-display text-sm text-primary-foreground">
+                              #{entry.rank}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-display text-base leading-snug group-hover:text-iris truncate">{entry.name}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{entry.cityName}</div>
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className="glass rounded-2xl p-4 h-full text-xs text-muted-foreground/70">Not enough data yet</div>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         <p className="mt-6 text-[10px] text-muted-foreground/70">
