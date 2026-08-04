@@ -169,7 +169,7 @@ function Hero() {
               }
             }}
             placeholder="Search 'Awfis', 'Koramangala', 'Bangalore'…"
-            className="border-0 bg-transparent focus-visible:ring-0 text-base"
+            className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-base"
           />
           <Button type="submit" className="gradient-iris text-primary-foreground">Search</Button>
         </form>

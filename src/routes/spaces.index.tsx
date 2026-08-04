@@ -94,9 +94,9 @@ function SpacesPage() {
       <p className="mt-2 text-muted-foreground">{data.length} spaces · {data.reduce((s, x) => s + x.review_count, 0)} reviews from real coworkers</p>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
-        <div className="glass rounded-xl px-3 flex items-center flex-1 min-w-[240px]">
+        <div className="glass rounded-xl px-3 flex items-center flex-1 min-w-[240px] overflow-hidden">
           <Search className="h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by name or city…" className="border-0 bg-transparent focus-visible:ring-0" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input placeholder="Search by name or city…" className="border-0 bg-transparent shadow-none focus-visible:ring-0" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <div className="inline-flex glass rounded-full p-1">
           {(["all","india","global"] as const).map((r) => (
