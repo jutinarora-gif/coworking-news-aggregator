@@ -5,7 +5,7 @@ import howToChooseGuide from "./how-to-choose-a-coworking-space";
 // full lineup consistently. Guides not yet written just render as "Coming
 // soon" cards until their entry is added to WRITTEN below.
 export const ALL_GUIDES_META: GuideMeta[] = [
-  { slug: "how-to-choose-a-coworking-space", title: "How to choose a coworking space", dek: "A practical checklist for picking the right one, not just the closest one.", category: "coworkers", readMins: 6 },
+  { slug: "how-to-choose-a-coworking-space", title: "How to choose a coworking space", dek: "A practical checklist for picking the right one, not just the closest one.", category: "coworkers", readMins: 4 },
   { slug: "coworking-vs-traditional-office-cost-breakdown", title: "Coworking vs. traditional office", dek: "A real cost breakdown for small teams deciding between the two.", category: "coworkers", readMins: 7 },
   { slug: "gst-registration-virtual-offices-guide", title: "GST registration and virtual offices", dek: "What founders actually need to know before signing up.", category: "coworkers", readMins: 6 },
   { slug: "red-flags-before-you-sign-a-coworking-contract", title: "Red flags before you sign", dek: "Contract terms and warning signs worth catching early.", category: "coworkers", readMins: 5 },
