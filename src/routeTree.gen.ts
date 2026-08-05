@@ -14,7 +14,6 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as GuidesRouteImport } from './routes/guides'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as QuestionsRouteImport } from './routes/questions'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -23,6 +22,8 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedSubmitSpaceRouteImport } from './routes/_authenticated/submit-space'
 import { Route as DispatchesIndexRouteImport } from './routes/dispatches.index'
 import { Route as DispatchesSlugRouteImport } from './routes/dispatches.$slug'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as SpacesIndexRouteImport } from './routes/spaces.index'
 import { Route as SpacesSlugRouteImport } from './routes/spaces.$slug'
 import { Route as AuthenticatedAdminSpacesRouteImport } from './routes/_authenticated/admin.spaces'
@@ -50,11 +51,6 @@ const AuthRoute = AuthRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuidesRoute = GuidesRouteImport.update({
-  id: '/guides',
-  path: '/guides',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -98,6 +94,16 @@ const DispatchesSlugRoute = DispatchesSlugRouteImport.update({
   path: '/dispatches/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SpacesIndexRoute = SpacesIndexRouteImport.update({
   id: '/spaces/',
   path: '/spaces/',
@@ -125,7 +131,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
-  '/guides': typeof GuidesRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -133,8 +138,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/submit-space': typeof AuthenticatedSubmitSpaceRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches/': typeof DispatchesIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
   '/admin/spaces': typeof AuthenticatedAdminSpacesRoute
   '/review/$slug': typeof AuthenticatedReviewSlugRoute
@@ -144,7 +151,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
-  '/guides': typeof GuidesRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -152,8 +158,10 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/submit-space': typeof AuthenticatedSubmitSpaceRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches': typeof DispatchesIndexRoute
+  '/guides': typeof GuidesIndexRoute
   '/spaces': typeof SpacesIndexRoute
   '/admin/spaces': typeof AuthenticatedAdminSpacesRoute
   '/review/$slug': typeof AuthenticatedReviewSlugRoute
@@ -165,7 +173,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
-  '/guides': typeof GuidesRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -173,8 +180,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/submit-space': typeof AuthenticatedSubmitSpaceRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
   '/dispatches/': typeof DispatchesIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
   '/_authenticated/admin/spaces': typeof AuthenticatedAdminSpacesRoute
   '/_authenticated/review/$slug': typeof AuthenticatedReviewSlugRoute
@@ -186,7 +195,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
-    | '/guides'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -194,8 +202,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/submit-space'
     | '/dispatches/$slug'
+    | '/guides/$slug'
     | '/spaces/$slug'
     | '/dispatches/'
+    | '/guides/'
     | '/spaces/'
     | '/admin/spaces'
     | '/review/$slug'
@@ -205,7 +215,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
-    | '/guides'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -213,8 +222,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/submit-space'
     | '/dispatches/$slug'
+    | '/guides/$slug'
     | '/spaces/$slug'
     | '/dispatches'
+    | '/guides'
     | '/spaces'
     | '/admin/spaces'
     | '/review/$slug'
@@ -225,7 +236,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
-    | '/guides'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -233,8 +243,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/submit-space'
     | '/dispatches/$slug'
+    | '/guides/$slug'
     | '/spaces/$slug'
     | '/dispatches/'
+    | '/guides/'
     | '/spaces/'
     | '/_authenticated/admin/spaces'
     | '/_authenticated/review/$slug'
@@ -246,14 +258,15 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
-  GuidesRoute: typeof GuidesRoute
   PrivacyRoute: typeof PrivacyRoute
   QuestionsRoute: typeof QuestionsRoute
   TermsRoute: typeof TermsRoute
   WinnersRoute: typeof WinnersRoute
   DispatchesSlugRoute: typeof DispatchesSlugRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
   SpacesSlugRoute: typeof SpacesSlugRoute
   DispatchesIndexRoute: typeof DispatchesIndexRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
   SpacesIndexRoute: typeof SpacesIndexRoute
 }
 
@@ -292,13 +305,6 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guides': {
-      id: '/guides'
-      path: '/guides'
-      fullPath: '/guides'
-      preLoaderRoute: typeof GuidesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -357,6 +363,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DispatchesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/spaces/': {
       id: '/spaces/'
       path: '/spaces'
@@ -411,14 +431,15 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
-  GuidesRoute: GuidesRoute,
   PrivacyRoute: PrivacyRoute,
   QuestionsRoute: QuestionsRoute,
   TermsRoute: TermsRoute,
   WinnersRoute: WinnersRoute,
   DispatchesSlugRoute: DispatchesSlugRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
   SpacesSlugRoute: SpacesSlugRoute,
   DispatchesIndexRoute: DispatchesIndexRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
   SpacesIndexRoute: SpacesIndexRoute,
 }
 export const routeTree = rootRouteImport
