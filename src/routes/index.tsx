@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight, Sparkles, Trophy, Search, HelpCircle, AlertTriangle, PenLine } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
+import { cardImageUrl } from "@/lib/utils";
 
 const homeQuery = queryOptions({ queryKey: ["home"], queryFn: () => getHomeData() });
 const leaderboardsQuery = queryOptions({ queryKey: ["leaderboards"], queryFn: () => getLeaderboards() });
@@ -46,7 +47,7 @@ function Home() {
           <div className="mt-6 glass rounded-3xl overflow-hidden grid md:grid-cols-2">
             {data.spaceOfWeek.space.cover_url && (
               <div className="relative aspect-[4/3] md:aspect-auto">
-                <img src={data.spaceOfWeek.space.cover_url} alt={data.spaceOfWeek.space.name} className="absolute inset-0 h-full w-full object-cover" />
+                <img src={cardImageUrl(data.spaceOfWeek.space.cover_url, 900) ?? undefined} alt={data.spaceOfWeek.space.name} className="absolute inset-0 h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/40 md:to-background/60" />
               </div>
             )}
@@ -76,7 +77,7 @@ function Home() {
                 <div className="absolute top-3 left-3 z-10 h-10 w-10 rounded-xl gradient-iris flex items-center justify-center font-display text-xl text-primary-foreground shadow-[0_0_24px_-4px_var(--iris-2)]">#{w.rank}</div>
                 {w.space!.cover_url && (
                   <div className="aspect-[4/3] overflow-hidden">
-                    <img src={w.space!.cover_url} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={cardImageUrl(w.space!.cover_url, 400) ?? undefined} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                   </div>
                 )}
                 <div className="p-4">

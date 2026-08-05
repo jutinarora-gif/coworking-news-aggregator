@@ -91,10 +91,6 @@ const DISPATCH_COLS = "id,slug,title,excerpt,cover_url,source_url,source_name,re
 export const getHomeData = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
 
-  const feedCategory = await fetchFeedCategories(supabase);
-  const newsFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "news").map(([id]) => id);
-  const blogFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "blog").map(([id]) => id);
-
   // Fetched as four independent pools (region x category) rather than a
   // shared recency-ordered window. Ingestion runs process feeds in a fixed
   // order, so whichever region's feeds ran last always wins a shared
@@ -106,20 +102,11 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
       : Promise.resolve({ data: [] as Dispatch[] });
   }
 
-  const [
-    { data: newsIndiaRows },
-    { data: newsGlobalRows },
-    { data: blogIndiaRows },
-    { data: blogGlobalRows },
-    { data: sotwRows },
-    { data: allWinners },
-    { data: cities },
-    { data: salesQs },
-  ] = await Promise.all([
-    fetchPool(newsFeedIds, "india", 35),
-    fetchPool(newsFeedIds, "global", 15),
-    fetchPool(blogFeedIds, "india", 10),
-    fetchPool(blogFeedIds, "global", 5),
+  // feedCategory only gates the dispatch pools below - the other four
+  // queries don't depend on it, so run all five in one round trip instead
+  // of forcing everything to wait on the feed-category lookup first.
+  const [feedCategory, { data: sotwRows }, { data: allWinners }, { data: cities }, { data: salesQs }] = await Promise.all([
+    fetchFeedCategories(supabase),
     supabase
       .from("space_of_week")
       .select("space_id,editorial_note,week_start")
@@ -139,6 +126,21 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
       .eq("is_global", true)
       .order("upvotes_denorm", { ascending: false })
       .limit(8),
+  ]);
+
+  const newsFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "news").map(([id]) => id);
+  const blogFeedIds = Array.from(feedCategory.entries()).filter(([, c]) => c === "blog").map(([id]) => id);
+
+  const [
+    { data: newsIndiaRows },
+    { data: newsGlobalRows },
+    { data: blogIndiaRows },
+    { data: blogGlobalRows },
+  ] = await Promise.all([
+    fetchPool(newsFeedIds, "india", 35),
+    fetchPool(newsFeedIds, "global", 15),
+    fetchPool(blogFeedIds, "india", 10),
+    fetchPool(blogFeedIds, "global", 5),
   ]);
 
   const tag = (rows: typeof newsIndiaRows, category: "news" | "blog") =>
