@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as GuidesRouteImport } from './routes/guides'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as QuestionsRouteImport } from './routes/questions'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -49,6 +50,11 @@ const AuthRoute = AuthRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesRoute = GuidesRouteImport.update({
+  id: '/guides',
+  path: '/guides',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/guides': typeof GuidesRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/guides': typeof GuidesRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/guides': typeof GuidesRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/guides'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/guides'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/guides'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  GuidesRoute: typeof GuidesRoute
   PrivacyRoute: typeof PrivacyRoute
   QuestionsRoute: typeof QuestionsRoute
   TermsRoute: typeof TermsRoute
@@ -279,6 +292,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides': {
+      id: '/guides'
+      path: '/guides'
+      fullPath: '/guides'
+      preLoaderRoute: typeof GuidesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -391,6 +411,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  GuidesRoute: GuidesRoute,
   PrivacyRoute: PrivacyRoute,
   QuestionsRoute: QuestionsRoute,
   TermsRoute: TermsRoute,
