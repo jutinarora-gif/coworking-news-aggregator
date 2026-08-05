@@ -55,7 +55,7 @@ function AuthPage() {
     <div className="mx-auto max-w-md px-6 py-20">
       <div className="glass-strong rounded-3xl p-8">
         <div className="text-center">
-          <Logomark className="h-12 w-12 mx-auto shadow-[0_0_32px_-4px_var(--iris-2)]" />
+          <Logomark className="h-12 w-12 mx-auto text-[15px] shadow-[0_0_32px_-4px_#65e7d1]" />
           <h1 className="mt-4 font-display text-3xl">{mode === "signin" ? "Welcome back" : "Join the community"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to post reviews and questions." : "Sign up to share your coworking experience."}</p>
         </div>

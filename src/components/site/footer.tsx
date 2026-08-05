@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-2">
-            <Logomark className="h-6 w-6" />
+            <Logomark className="h-6 w-6 text-[8px]" />
             <span className="font-display text-lg">The Coworking Dispatch</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">

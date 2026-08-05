@@ -36,7 +36,7 @@ function Home() {
     <div>
       <Hero />
 
-      <section className="mx-auto max-w-7xl px-6 mt-20">
+      <section id="leaderboard" className="mx-auto max-w-7xl px-6 mt-20 scroll-mt-24">
         <Leaderboards data={leaderboards} />
       </section>
 

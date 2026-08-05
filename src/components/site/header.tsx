@@ -43,7 +43,7 @@ export function Header() {
     <header className="sticky top-0 z-40 glass-strong">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-3 sm:gap-6 sm:px-6">
         <Link to="/" className="group flex items-center gap-2 shrink-0 min-w-0">
-          <Logomark className="h-8 w-8 shrink-0 shadow-[0_0_24px_-4px_var(--iris-2)]" />
+          <Logomark className="h-8 w-8 shrink-0 text-[10px] shadow-[0_0_24px_-4px_#65e7d1]" />
           <div className="leading-tight min-w-0">
             <div className="font-display text-base sm:text-lg truncate">The Coworking Dispatch</div>
             <div className="hidden sm:block text-[10px] uppercase tracking-widest text-muted-foreground">India-first · since 2026</div>
