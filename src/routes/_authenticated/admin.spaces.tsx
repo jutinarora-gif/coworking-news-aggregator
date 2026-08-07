@@ -55,7 +55,7 @@ function AdminSpacesPage() {
                 <div className="text-xs text-muted-foreground">{s.city_name}{s.address ? ` · ${s.address}` : ""}</div>
               </div>
               <div className="flex gap-2 shrink-0">
-                <Button size="sm" onClick={() => approve.mutate(s.id)} disabled={approve.isPending || reject.isPending} className="gradient-iris text-primary-foreground">
+                <Button size="sm" onClick={() => approve.mutate(s.id)} disabled={approve.isPending || reject.isPending} className="bg-flare text-flare-ink hover:bg-flare/90">
                   <Check className="h-4 w-4 mr-1" />Approve
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => reject.mutate(s.id)} disabled={approve.isPending || reject.isPending}>

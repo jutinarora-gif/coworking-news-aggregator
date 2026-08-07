@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHeading } from "@/components/site/page-heading";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -22,9 +23,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
-      <div className="text-xs uppercase tracking-widest text-iris">Legal</div>
-      <h1 className="mt-1 font-display text-4xl md:text-5xl">Privacy policy</h1>
-      <p className="mt-3 text-sm text-muted-foreground">Last updated 27 July 2026.</p>
+      <PageHeading eyebrow="Legal" title="Privacy policy" sub="Last updated 27 July 2026." />
 
       <Section title="1. What we collect">
         <p>
@@ -69,7 +68,7 @@ function PrivacyPage() {
       <Section title="5. Data retention and deletion">
         <p>
           We keep your account and content for as long as your account is active. Want your data deleted? Email{" "}
-          <a href="mailto:info@coworkingdispatch.com" className="text-iris hover:underline">info@coworkingdispatch.com</a>{" "}
+          <a href="mailto:info@coworkingdispatch.com" className="acid-underline hover:acid-underline-hover font-medium text-foreground">info@coworkingdispatch.com</a>{" "}
           and we'll remove your account, reviews, and questions within a reasonable time.
         </p>
       </Section>
@@ -87,7 +86,7 @@ function PrivacyPage() {
 
       <Section title="8. Contact">
         <p>
-          Questions about this policy or your data? Email <a href="mailto:info@coworkingdispatch.com" className="text-iris hover:underline">info@coworkingdispatch.com</a>.
+          Questions about this policy or your data? Email <a href="mailto:info@coworkingdispatch.com" className="acid-underline hover:acid-underline-hover font-medium text-foreground">info@coworkingdispatch.com</a>.
         </p>
       </Section>
     </div>
