@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useMutation } from "@tanstack/react-query";
 import { getHomeData, getLeaderboards, subscribeNewsletter } from "@/lib/data.functions";
-import { DispatchCard } from "@/components/site/dispatch-card";
 import { HeroStage } from "@/components/site/hero-stage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 import { cardImageUrl } from "@/lib/utils";
 
 const homeQuery = queryOptions({ queryKey: ["home"], queryFn: () => getHomeData() });
@@ -314,7 +314,23 @@ function Dispatches({ items }: { items: any[] }) {
     <section className={`${WRAP} mt-24`}>
       <SectionHead eyebrow="Latest dispatches" title="Fresh from the wire" href="/dispatches" />
       <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((d, i) => <DispatchCard key={d.id} d={d} featured={i === 0} />)}
+        {items.map((d) => (
+          <Link key={d.id} to="/dispatches/$slug" params={{ slug: d.slug }} className="group block">
+            {d.cover_url && (
+              <div className="aspect-[4/3] overflow-hidden bg-muted">
+                <img src={cardImageUrl(d.cover_url, 640) ?? undefined} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+              </div>
+            )}
+            <div className="label mt-4 flex items-center gap-2">
+              <span>{d.region === "india" ? "India" : "Global"}</span>
+              <span>/</span>
+              <span className="truncate">{d.source_name}</span>
+            </div>
+            <h3 className="mt-2 font-display text-xl leading-snug acid-underline group-hover:acid-underline-hover">{d.title}</h3>
+            {d.excerpt && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{d.excerpt}</p>}
+            <div className="label mt-3">{formatDistanceToNow(new Date(d.ingested_at), { addSuffix: true })}</div>
+          </Link>
+        ))}
       </div>
     </section>
   );
