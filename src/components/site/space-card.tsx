@@ -12,7 +12,6 @@ export function SpaceCard({ s }: { s: any }) {
       {s.cover_url && (
         <div className="relative aspect-[16/10] overflow-hidden">
           <img src={cardImageUrl(s.cover_url) ?? undefined} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
         </div>
       )}
       <div className="p-5">

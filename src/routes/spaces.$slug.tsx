@@ -68,7 +68,7 @@ function SpacePage() {
     <div>
       <div className="relative h-[45vh] min-h-[380px] overflow-hidden">
         {space.cover_url && <img src={space.cover_url} alt={space.name} className="absolute inset-0 h-full w-full object-cover" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20" />
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background/90 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-6 pb-8">
           <Link to="/spaces" className="text-xs text-muted-foreground hover:text-primary inline-flex items-center gap-1"><ArrowLeft className="h-3 w-3" />All spaces</Link>
           <div className="flex flex-wrap items-end justify-between gap-4 mt-3">
