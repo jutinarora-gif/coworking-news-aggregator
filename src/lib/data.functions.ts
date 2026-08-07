@@ -174,8 +174,14 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
   const cityRegionMap = new Map((cities ?? []).map((c) => [c.id, c.region]));
 
+  // weekly_winners keeps one full rank-1..N set per week; rows are ordered
+  // week_start desc, so the first row's week is the current one - drop
+  // everything else before it can leak an older week's #1 into this list.
+  const latestWinnersWeek = allWinners?.[0]?.week_start;
+  const currentWeekWinners = (allWinners ?? []).filter((w) => w.week_start === latestWinnersWeek);
+
   // Homepage "five spaces India is talking about" must only feature Indian spaces.
-  const winners = (allWinners ?? [])
+  const winners = currentWeekWinners
     .filter((w) => {
       const space = (spaces ?? []).find((s) => s.id === w.space_id);
       return space && cityRegionMap.get(space.city_id ?? "") === "india";
@@ -425,11 +431,24 @@ function avg(arr: (number | null)[]) {
 
 export const getWinners = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
-  const { data: winners } = await supabase
+  // weekly_winners accumulates one full rank-1..N set per week, so an
+  // unfiltered query returns every past week's winners back to back, each
+  // restarting at #1 — reads as a broken/duplicated ranking. Only the
+  // most recent week is a real "current" leaderboard.
+  const { data: latestWeekRow } = await supabase
     .from("weekly_winners")
-    .select("space_id,rank,score,week_start")
+    .select("week_start")
     .order("week_start", { ascending: false })
-    .order("rank", { ascending: true });
+    .limit(1)
+    .maybeSingle();
+
+  const { data: winners } = latestWeekRow
+    ? await supabase
+        .from("weekly_winners")
+        .select("space_id,rank,score,week_start")
+        .eq("week_start", latestWeekRow.week_start)
+        .order("rank", { ascending: true })
+    : { data: [] as { space_id: string; rank: number; score: number; week_start: string }[] };
   const spaceIds = Array.from(new Set((winners ?? []).map((w) => w.space_id)));
   const [{ data: spaces }, { data: cities }, { data: reviews }] = await Promise.all([
     spaceIds.length
