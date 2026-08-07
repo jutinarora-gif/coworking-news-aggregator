@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PlayRouteImport } from './routes/play'
@@ -22,6 +23,8 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WinnersRouteImport } from './routes/winners'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSubmitSpaceRouteImport } from './routes/_authenticated/submit-space'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as DispatchesIndexRouteImport } from './routes/dispatches.index'
 import { Route as DispatchesSlugRouteImport } from './routes/dispatches.$slug'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
@@ -49,6 +52,11 @@ const AboutRoute = AboutRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersRoute = CareersRouteImport.update({
@@ -97,6 +105,16 @@ const AuthenticatedSubmitSpaceRoute =
     path: '/submit-space',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const DispatchesIndexRoute = DispatchesIndexRouteImport.update({
   id: '/dispatches/',
   path: '/dispatches/',
@@ -149,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/play': typeof PlayRoute
@@ -158,9 +177,11 @@ export interface FileRoutesByFullPath {
   '/winners': typeof WinnersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/submit-space': typeof AuthenticatedSubmitSpaceRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/dispatches/': typeof DispatchesIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
@@ -181,9 +202,11 @@ export interface FileRoutesByTo {
   '/winners': typeof WinnersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/submit-space': typeof AuthenticatedSubmitSpaceRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/dispatches': typeof DispatchesIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/spaces': typeof SpacesIndexRoute
@@ -197,6 +220,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/play': typeof PlayRoute
@@ -206,9 +230,11 @@ export interface FileRoutesById {
   '/winners': typeof WinnersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/submit-space': typeof AuthenticatedSubmitSpaceRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dispatches/$slug': typeof DispatchesSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/spaces/$slug': typeof SpacesSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/dispatches/': typeof DispatchesIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
@@ -222,6 +248,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/blog'
     | '/careers'
     | '/contact'
     | '/play'
@@ -231,9 +258,11 @@ export interface FileRouteTypes {
     | '/winners'
     | '/dashboard'
     | '/submit-space'
+    | '/blog/$slug'
     | '/dispatches/$slug'
     | '/guides/$slug'
     | '/spaces/$slug'
+    | '/blog/'
     | '/dispatches/'
     | '/guides/'
     | '/spaces/'
@@ -254,9 +283,11 @@ export interface FileRouteTypes {
     | '/winners'
     | '/dashboard'
     | '/submit-space'
+    | '/blog/$slug'
     | '/dispatches/$slug'
     | '/guides/$slug'
     | '/spaces/$slug'
+    | '/blog'
     | '/dispatches'
     | '/guides'
     | '/spaces'
@@ -269,6 +300,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/auth'
+    | '/blog'
     | '/careers'
     | '/contact'
     | '/play'
@@ -278,9 +310,11 @@ export interface FileRouteTypes {
     | '/winners'
     | '/_authenticated/dashboard'
     | '/_authenticated/submit-space'
+    | '/blog/$slug'
     | '/dispatches/$slug'
     | '/guides/$slug'
     | '/spaces/$slug'
+    | '/blog/'
     | '/dispatches/'
     | '/guides/'
     | '/spaces/'
@@ -294,6 +328,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  BlogRoute: typeof BlogRouteWithChildren
   CareersRoute: typeof CareersRoute
   ContactRoute: typeof ContactRoute
   PlayRoute: typeof PlayRoute
@@ -337,6 +372,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers': {
@@ -401,6 +443,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/submit-space'
       preLoaderRoute: typeof AuthenticatedSubmitSpaceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/dispatches/': {
       id: '/dispatches/'
@@ -487,11 +543,24 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  BlogRoute: BlogRouteWithChildren,
   CareersRoute: CareersRoute,
   ContactRoute: ContactRoute,
   PlayRoute: PlayRoute,

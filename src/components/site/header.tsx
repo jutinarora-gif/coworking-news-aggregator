@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Search, LogIn, Menu, Newspaper, Building2, Trophy, MessagesSquare, BookOpen, Gamepad2 } from "lucide-react";
+import { Search, LogIn, Menu, Newspaper, Building2, Trophy, MessagesSquare, BookOpen, PenSquare, Gamepad2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SearchDialog } from "./search-dialog";
@@ -13,6 +13,7 @@ const nav = [
   { to: "/winners", label: "Best Value", icon: Trophy },
   { to: "/questions", label: "Q&A", icon: MessagesSquare },
   { to: "/guides", label: "Guides", icon: BookOpen },
+  { to: "/blog", label: "Blog", icon: PenSquare },
   { to: "/play", label: "Play", icon: Gamepad2 },
 ];
 

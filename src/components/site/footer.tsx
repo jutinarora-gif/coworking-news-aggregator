@@ -19,28 +19,30 @@ export function Footer() {
         <div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Explore</div>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/dispatches" className="hover:text-primary">Dispatches</Link></li>
-            <li><Link to="/spaces" className="hover:text-primary">Spaces</Link></li>
-            <li><Link to="/winners" className="hover:text-primary">Best Value</Link></li>
-            <li><Link to="/questions" className="hover:text-primary">Q&A</Link></li>
+            <li><Link to="/dispatches" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Dispatches</Link></li>
+            <li><Link to="/spaces" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Spaces</Link></li>
+            <li><Link to="/winners" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Best Value</Link></li>
+            <li><Link to="/questions" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Q&A</Link></li>
+            <li><Link to="/guides" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Guides</Link></li>
+            <li><Link to="/blog" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Blog</Link></li>
           </ul>
         </div>
         <div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Community</div>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/auth" className="hover:text-primary">Sign in / Join</Link></li>
-            <li><a href="mailto:info@coworkingdispatch.com?subject=Suggest a feed" className="hover:text-primary">Suggest a feed</a></li>
-            <li><Link to="/submit-space" className="hover:text-primary">Submit a space</Link></li>
+            <li><Link to="/auth" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Sign in / Join</Link></li>
+            <li><a href="mailto:info@coworkingdispatch.com?subject=Suggest a feed" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Suggest a feed</a></li>
+            <li><Link to="/submit-space" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Submit a space</Link></li>
           </ul>
         </div>
         <div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Company</div>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/about" className="hover:text-primary">About us</Link></li>
-            <li><Link to="/careers" className="hover:text-primary">Careers</Link></li>
-            <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
-            <li><Link to="/terms" className="hover:text-primary">Terms &amp; conditions</Link></li>
-            <li><Link to="/privacy" className="hover:text-primary">Privacy policy</Link></li>
+            <li><Link to="/about" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">About us</Link></li>
+            <li><Link to="/careers" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Careers</Link></li>
+            <li><Link to="/contact" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Contact</Link></li>
+            <li><Link to="/terms" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Terms &amp; conditions</Link></li>
+            <li><Link to="/privacy" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Privacy policy</Link></li>
           </ul>
         </div>
       </div>
