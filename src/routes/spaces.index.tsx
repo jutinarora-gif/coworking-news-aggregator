@@ -8,6 +8,7 @@ import { Search, ChevronsUpDown, Check, MapPin } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
+import { PageHeading } from "@/components/site/page-heading";
 import { cn } from "@/lib/utils";
 
 function CityFilter({ cities, value, onChange }: { cities: { name: string; count: number }[]; value: string; onChange: (v: string) => void }) {
@@ -16,7 +17,7 @@ function CityFilter({ cities, value, onChange }: { cities: { name: string; count
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="glass rounded-xl px-3 justify-between font-normal text-sm min-w-[160px]">
+        <Button variant="outline" role="combobox" aria-expanded={open} className="glass rounded-full px-4 justify-between font-normal text-sm min-w-[160px]">
           <span className="flex items-center gap-1.5 truncate"><MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />{label}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -89,18 +90,20 @@ function SpacesPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-12">
-      <div className="text-xs uppercase tracking-widest text-iris">The directory</div>
-      <h1 className="mt-1 font-display text-4xl md:text-5xl">Coworking spaces</h1>
-      <p className="mt-2 text-muted-foreground">{data.length} spaces · {data.reduce((s, x) => s + x.review_count, 0)} member reviews and ratings</p>
+      <PageHeading
+        eyebrow="The directory"
+        title="Coworking spaces"
+        sub={`${data.length} spaces · ${data.reduce((s, x) => s + x.review_count, 0)} member reviews and ratings`}
+      />
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
-        <div className="glass rounded-xl px-3 flex items-center flex-1 min-w-[240px] overflow-hidden">
+        <div className="glass rounded-full px-4 flex items-center flex-1 min-w-[240px] focus-within:border-flare transition-colors">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search by name or city…" className="border-0 bg-transparent shadow-none focus-visible:ring-0" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <div className="inline-flex glass rounded-full p-1">
           {(["all","india","global"] as const).map((r) => (
-            <button key={r} onClick={() => setRegion(r)} className={`px-3 py-1.5 rounded-full text-sm capitalize ${region === r ? "gradient-iris text-primary-foreground" : "text-muted-foreground"}`}>{r === "india" ? "🇮🇳" : r === "global" ? "🌏" : "All"}</button>
+            <button key={r} onClick={() => setRegion(r)} className={`px-3 py-1.5 rounded-full text-sm capitalize ${region === r ? "bg-flare text-flare-ink" : "text-muted-foreground"}`}>{r === "india" ? "🇮🇳" : r === "global" ? "🌏" : "All"}</button>
           ))}
         </div>
         <CityFilter cities={cities} value={city} onChange={setCity} />

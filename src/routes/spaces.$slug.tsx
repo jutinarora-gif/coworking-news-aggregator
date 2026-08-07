@@ -98,7 +98,7 @@ function SpacePage() {
         <div className="lg:col-span-2 space-y-10">
           {space.description && (
             <section className="glass rounded-2xl p-6">
-              <div className="text-xs uppercase tracking-widest text-iris">Overview</div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" />Overview</div>
               <p className="mt-3 text-lg leading-relaxed">{space.description}</p>
               {space.price_from && (
                 <div className="mt-4 text-sm">
@@ -117,29 +117,41 @@ function SpacePage() {
 
           {agg && (
             <section className="glass rounded-2xl p-6">
-              <div className="text-xs uppercase tracking-widest text-iris">Ratings breakdown</div>
-              <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
-                {[
+              <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" />Ratings breakdown</div>
+              {(() => {
+                const rows = [
                   { l: "Wifi", v: agg.wifi, i: Wifi },
                   { l: "Quiet", v: agg.quiet, i: Volume2 },
                   { l: "Community", v: agg.community, i: Users },
                   { l: "Coffee", v: agg.coffee, i: Coffee },
                   { l: "Value", v: agg.value, i: IndianRupee },
-                ].map(({ l, v, i: Icon }) => (
-                  <div key={l} className="text-center">
-                    <Icon className="h-5 w-5 mx-auto text-muted-foreground" />
-                    <div className="mt-2 font-display text-2xl">{v ?? "-"}</div>
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{l}</div>
+                ];
+                const best = Math.max(...rows.map((r) => Number(r.v ?? 0)));
+                return (
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {rows.map(({ l, v, i: Icon }) => {
+                      const top = v != null && Number(v) === best && best > 0;
+                      return (
+                        <div key={l} className="text-center">
+                          <Icon className={`h-5 w-5 mx-auto ${top ? "text-foreground" : "text-muted-foreground"}`} />
+                          <div className="mt-2 font-display text-2xl">{v ?? "-"}</div>
+                          <div className="mx-auto mt-2 h-1.5 w-full max-w-[72px] overflow-hidden rounded-full bg-muted">
+                            <span className={`block h-full rounded-full ${top ? "bg-flare" : "bg-foreground/25"}`} style={{ width: `${((Number(v ?? 0)) / 5) * 100}%` }} />
+                          </div>
+                          <div className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">{l}</div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </section>
           )}
 
           <section>
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
-                <div className="text-xs uppercase tracking-widest text-iris">What coworkers say</div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" />What coworkers say</div>
                 <h2 className="font-display text-3xl mt-1">{reviews.length} reviews</h2>
               </div>
               <div className="flex items-center gap-2">
@@ -154,7 +166,7 @@ function SpacePage() {
                     </SelectContent>
                   </Select>
                 )}
-                <Button asChild variant="secondary" size="sm">
+                <Button asChild variant="mint" size="sm">
                   <Link to="/review/$slug" params={{ slug: space.slug }}>Leave a review</Link>
                 </Button>
               </div>
@@ -193,18 +205,18 @@ function SpacePage() {
 
         <aside className="space-y-6">
           <section className="glass rounded-2xl p-6 sticky top-20">
-            <div className="text-xs uppercase tracking-widest text-iris flex items-center gap-1"><ClipboardCheck className="h-3.5 w-3.5" />Ask the salesperson</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" /><ClipboardCheck className="h-3.5 w-3.5" />Ask the salesperson</div>
             <h3 className="mt-2 font-display text-xl">Before you sign</h3>
             <p className="text-xs text-muted-foreground mt-1">Copy-paste these to your tour email. Community-curated.</p>
             <ol className="mt-4 space-y-2.5">
               {salesQuestions.map((sq: any, i: number) => (
                 <li key={sq.id} className="text-sm flex gap-2">
-                  <span className="text-iris font-display text-lg leading-none">{i + 1}.</span>
+                  <span className="acid-mark font-display text-lg leading-none">{i + 1}.</span>
                   <span>{sq.text}</span>
                 </li>
               ))}
             </ol>
-            <Button className="mt-4 w-full" variant="secondary" onClick={() => {
+            <Button className="mt-4 w-full" variant="mint" size="lg" onClick={() => {
               const text = salesQuestions.map((q: any, i: number) => `${i + 1}. ${q.text}`).join("\n");
               navigator.clipboard.writeText(text);
             }}>Copy all questions</Button>
