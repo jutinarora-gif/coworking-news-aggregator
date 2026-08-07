@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Briefcase, ArrowRight, Loader2 } from "lucide-react";
+import { Briefcase, ArrowRight, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { submitJobApplication } from "@/lib/data.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { PageHeading } from "@/components/site/page-heading";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -158,14 +160,10 @@ function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; op
             <Textarea id="message" value={message} onChange={(e) => setMessage(e.target.value)} rows={3} />
           </div>
           <DialogFooter>
-            <button
-              type="submit"
-              disabled={mutation.isPending}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md gradient-iris text-primary-foreground font-medium disabled:opacity-60"
-            >
+            <Button type="submit" variant="mint" disabled={mutation.isPending} className="disabled:opacity-60">
               {mutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               Submit application
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -175,17 +173,17 @@ function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; op
 
 function RoleCard({ role, onApply }: { role: Role; onApply: (role: Role) => void }) {
   return (
-    <div className="rounded-2xl border border-border/60 p-5 flex flex-col">
-      <div className="font-display text-lg">{role.title}</div>
-      <div className="mt-1 text-sm font-medium text-iris">{role.salary}</div>
-      <p className="mt-2 text-sm text-muted-foreground flex-1">{role.blurb}</p>
+    <li className="glass rounded-2xl p-5 hover-glow hover:hover-glow-hover flex flex-col">
+      <div className="font-display text-lg leading-tight">{role.title}</div>
+      <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">{role.salary}</div>
+      <p className="mt-3 text-sm text-muted-foreground flex-1">{role.blurb}</p>
       <button
         onClick={() => onApply(role)}
-        className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-iris hover:underline underline-offset-2 w-fit"
+        className="mt-4 inline-flex items-center gap-1 text-sm font-medium hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4 w-fit"
       >
         Apply <ArrowRight className="h-3.5 w-3.5" />
       </button>
-    </div>
+    </li>
   );
 }
 
@@ -199,23 +197,34 @@ function CareersPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="text-xs uppercase tracking-widest text-iris flex items-center gap-1">
-        <Briefcase className="h-3.5 w-3.5" /> Careers
-      </div>
-      <h1 className="mt-1 font-display text-4xl md:text-5xl">Open positions</h1>
-      <p className="mt-2 text-muted-foreground max-w-2xl">
-        We're a small team building India's coworking news, reviews, and community platform.
-        Apply below, we read every application ourselves.
-      </p>
+    <div className="mx-auto max-w-5xl px-6 py-12">
+      <PageHeading
+        eyebrow="Work with us"
+        icon={<Briefcase className="h-3.5 w-3.5" />}
+        title="Careers"
+        sub="We're a small team building India's coworking news, reviews, and community platform. Apply below, we read every application ourselves."
+        right={
+          <Button asChild variant="mint">
+            <a href="mailto:info@coworkingdispatch.com">
+              <Mail className="mr-1 h-4 w-4" /> Send an intro
+            </a>
+          </Button>
+        }
+      />
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {ROLES.map((role) => <RoleCard key={role.title} role={role} onApply={handleApply} />)}
-      </div>
+      <section className="mt-12">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+          <span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" />
+          Open roles
+        </div>
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {ROLES.map((role) => <RoleCard key={role.title} role={role} onApply={handleApply} />)}
+        </ul>
+      </section>
 
       <p className="mt-10 text-sm text-muted-foreground">
         Don't see a fit but think you'd still be useful here? Write to us at{" "}
-        <a href="mailto:info@coworkingdispatch.com" className="text-iris hover:underline underline-offset-2">
+        <a href="mailto:info@coworkingdispatch.com" className="font-medium hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">
           info@coworkingdispatch.com
         </a>
         .

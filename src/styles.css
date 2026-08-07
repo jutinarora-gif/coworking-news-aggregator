@@ -83,7 +83,7 @@
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.885 0.012 88);
   --input: oklch(0.9 0.012 88);
-  --ring: oklch(0.5 0.012 70);
+  --ring: oklch(0.895 0.176 141);
   --signal: oklch(0.16 0.004 60);
   /* flare: mint green #8DF688. Always carries near-black ink type on top. */
   --flare: oklch(0.895 0.176 141);
@@ -161,7 +161,7 @@
   transition: border-color 240ms ease, background-color 240ms ease, color 240ms ease, transform 240ms ease;
 }
 @utility hover-glow-hover {
-  border-color: color-mix(in oklab, var(--foreground) 45%, transparent);
+  border-color: color-mix(in oklab, var(--flare) 70%, transparent);
 }
 @utility label {
   font-size: 0.6875rem;

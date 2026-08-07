@@ -51,7 +51,7 @@ function QuestionsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
-      <div className="text-xs uppercase tracking-widest text-iris flex items-center gap-1"><MessagesSquare className="h-3.5 w-3.5" />Community</div>
+      <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" /><MessagesSquare className="h-3.5 w-3.5" />Community</div>
       <h1 className="mt-1 font-display text-4xl md:text-5xl">Questions & AMAs</h1>
       <p className="mt-2 text-muted-foreground">Ask, answer, compare notes. No affiliate links.</p>
 
@@ -110,7 +110,7 @@ function QuestionItem({ qq }: { qq: any }) {
         className={`w-full text-left p-5 md:p-6 flex items-start gap-3 ${open ? "" : "hover-glow hover:hover-glow-hover"}`}
       >
         {qq.is_ama && (
-          <span className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded gradient-iris text-primary-foreground shrink-0">
+          <span className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-flare text-flare-ink shrink-0">
             <Sparkles className="h-3 w-3" />AMA
           </span>
         )}
@@ -125,7 +125,7 @@ function QuestionItem({ qq }: { qq: any }) {
                   to="/spaces/$slug"
                   params={{ slug: qq.space.slug }}
                   onClick={(e) => e.stopPropagation()}
-                  className="text-iris hover:underline"
+                  className="acid-underline hover:acid-underline-hover font-medium text-foreground"
                 >
                   {qq.space.name}
                 </Link>
@@ -143,16 +143,16 @@ function QuestionItem({ qq }: { qq: any }) {
           {qq.body && <p className="text-sm text-muted-foreground">{qq.body}</p>}
 
           {qq.answers.length > 0 && (
-            <div className="mt-4 space-y-3 border-l-2 border-iris/20 pl-4">
+            <div className="mt-4 space-y-3 border-l-2 border-[var(--flare)] pl-4">
               {qq.answers.map((a: any) => (
                 <div key={a.id} className="flex gap-2.5">
-                  <CornerDownRight className="h-3.5 w-3.5 mt-1 text-iris/60 shrink-0" />
+                  <CornerDownRight className="h-3.5 w-3.5 mt-1 text-muted-foreground shrink-0" />
                   <div className="flex-1">
                     <p className="text-sm leading-relaxed">{a.body}</p>
                     <div className="mt-1 text-[11px] text-muted-foreground flex items-center gap-1">
                       <span className="font-medium text-foreground/80">{a.author?.display_name ?? "Anonymous"}</span>
                       {a.is_founder_reply && (
-                        <span className="inline-flex items-center gap-0.5 text-iris">
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-flare px-1.5 text-flare-ink">
                           <BadgeCheck className="h-3 w-3" />founder
                         </span>
                       )}
