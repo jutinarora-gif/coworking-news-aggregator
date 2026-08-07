@@ -36,6 +36,7 @@ export function Footer() {
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Company</div>
           <ul className="space-y-2 text-sm">
             <li><Link to="/about" className="hover:text-primary">About us</Link></li>
+            <li><Link to="/careers" className="hover:text-primary">Careers</Link></li>
             <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
             <li><Link to="/terms" className="hover:text-primary">Terms &amp; conditions</Link></li>
             <li><Link to="/privacy" className="hover:text-primary">Privacy policy</Link></li>
