@@ -3,7 +3,7 @@ import { Logomark } from "./logomark";
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-border/40">
+    <footer className="mt-24 border-t-2 border-[var(--flare)]">
       <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-2.5">

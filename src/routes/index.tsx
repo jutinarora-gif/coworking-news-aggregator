@@ -36,15 +36,10 @@ const WRAP = "mx-auto w-full max-w-[1400px] px-5 sm:px-8";
 function Home() {
   const { data } = useSuspenseQuery(homeQuery);
   const { data: leaderboards } = useSuspenseQuery(leaderboardsQuery);
-  const strip = [
-    data.spaceOfWeek?.space,
-    ...data.winners.map((w) => w.space),
-  ].filter(Boolean).slice(0, 5) as { slug: string; name: string; cover_url: string | null; city_name: string | null }[];
 
   return (
     <div className="pb-0">
       <Hero />
-      <ImageStrip items={strip} />
       <section id="leaderboard" className={`${WRAP} mt-20 scroll-mt-24`}>
         <Leaderboards data={leaderboards} />
       </section>
@@ -79,38 +74,6 @@ function Hero() {
             <Link to="/spaces">Browse spaces</Link>
           </Button>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function ImageStrip({ items }: { items: { slug: string; name: string; cover_url: string | null; city_name: string | null }[] }) {
-  if (!items.length) return null;
-  return (
-    <section className={`${WRAP} mt-12`}>
-      <SectionHead eyebrow="Talk of the week" title="Five spaces people are talking about" href="/spaces" cta="All spaces" />
-      <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-6">
-        {items.map((s, i) => (
-          <Link
-            key={s.slug}
-            to="/spaces/$slug"
-            params={{ slug: s.slug }}
-            className={`group relative overflow-hidden rounded-2xl bg-muted ${i === 0 ? "col-span-2 aspect-[16/10]" : "aspect-[4/5]"}`}
-          >
-            {s.cover_url && (
-              <img
-                src={cardImageUrl(s.cover_url, 400) ?? undefined}
-                alt={s.name}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-              />
-            )}
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-foreground/70 to-transparent p-3">
-              <span className="truncate text-xs font-medium text-background">{s.name}</span>
-              <span className="shrink-0 text-[10px] uppercase tracking-widest text-background/70">{s.city_name}</span>
-            </div>
-          </Link>
-        ))}
       </div>
     </section>
   );
