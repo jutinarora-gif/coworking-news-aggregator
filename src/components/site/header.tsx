@@ -20,6 +20,18 @@ export function Header() {
   const [initialQuery, setInitialQuery] = useState("");
   const [session, setSession] = useState<any>(null);
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // On the homepage, the hero sits in a "mist" band; let the header float
+  // transparent over it until the user scrolls, matching the hero's edge.
+  const overMist = path === "/" && !scrolled;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -40,25 +52,26 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 glass-strong">
+    <header className={`sticky top-0 z-40 transition-colors duration-300 ${overMist ? "bg-transparent" : "glass-strong"}`}>
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-3 sm:gap-6 sm:px-6">
         <Link to="/" className="group flex items-center gap-2 shrink-0 min-w-0">
-          <Logomark className="h-8 w-8 shrink-0 text-[10px] shadow-[0_0_24px_-4px_#65e7d1]" />
+          <Logomark className="h-9 w-9 shrink-0 text-[13px]" />
           <div className="leading-tight min-w-0">
             <div className="font-display text-base sm:text-lg truncate">The Coworking Dispatch</div>
             <div className="hidden sm:block text-[10px] uppercase tracking-widest text-muted-foreground">India-first · since 2026</div>
           </div>
         </Link>
-        <nav className="hidden md:flex items-center gap-1 ml-2">
+        <nav className="hidden md:flex items-center gap-7 ml-2">
           {nav.map((n) => {
             const active = path.startsWith(n.to);
             return (
               <Link
                 key={n.to}
                 to={n.to}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${active ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent/60"}`}
+                className={`relative text-sm transition-colors ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {n.label}
+                {active && <span className="absolute -bottom-2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-flare" />}
               </Link>
             );
           })}
@@ -66,26 +79,28 @@ export function Header() {
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             onClick={() => { setInitialQuery(""); setOpen(true); }}
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md glass text-sm text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Search"
+            className="hidden sm:flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-flare hover:text-foreground"
           >
             <Search className="h-4 w-4" />
-            <span>Search spaces, dispatches…</span>
+            <span className="hidden lg:inline">Search</span>
+            <kbd className="ml-2 hidden rounded bg-muted px-1.5 py-0.5 text-[10px] lg:inline">⌘K</kbd>
           </button>
-          <button onClick={() => { setInitialQuery(""); setOpen(true); }} className="sm:hidden p-2 rounded-md glass shrink-0"><Search className="h-4 w-4" /></button>
+          <button onClick={() => { setInitialQuery(""); setOpen(true); }} aria-label="Search" className="sm:hidden p-2 rounded-full border border-border shrink-0"><Search className="h-4 w-4" /></button>
           <div className="hidden md:block">
             {session ? (
-              <Button asChild variant="secondary" size="sm">
+              <Button asChild variant="outline" size="sm" className="rounded-full">
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
             ) : (
-              <Button asChild size="sm" className="gradient-iris text-primary-foreground font-medium">
+              <Button asChild size="sm" variant="mint">
                 <Link to="/auth"><LogIn className="h-4 w-4 mr-1" />Sign in</Link>
               </Button>
             )}
           </div>
           <Sheet>
             <SheetTrigger asChild>
-              <button className="md:hidden p-2 rounded-md glass shrink-0" aria-label="Open menu">
+              <button className="md:hidden p-2 rounded-full border border-border shrink-0" aria-label="Open menu">
                 <Menu className="h-4 w-4" />
               </button>
             </SheetTrigger>
@@ -109,11 +124,11 @@ export function Header() {
               </nav>
               <div className="mt-6 border-t border-border/50 pt-6">
                 {session ? (
-                  <Button asChild variant="secondary" className="w-full">
+                  <Button asChild variant="outline" className="w-full rounded-full">
                     <Link to="/dashboard">Dashboard</Link>
                   </Button>
                 ) : (
-                  <Button asChild className="w-full gradient-iris text-primary-foreground font-medium">
+                  <Button asChild className="w-full" variant="mint">
                     <Link to="/auth"><LogIn className="h-4 w-4 mr-1" />Sign in</Link>
                   </Button>
                 )}

@@ -2,10 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useMutation } from "@tanstack/react-query";
 import { getHomeData, getLeaderboards, subscribeNewsletter } from "@/lib/data.functions";
 import { DispatchCard } from "@/components/site/dispatch-card";
+import { HeroStage } from "@/components/site/hero-stage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Sparkles, Trophy, Search, HelpCircle, AlertTriangle, PenLine } from "lucide-react";
-import { useState, useRef } from "react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { cardImageUrl } from "@/lib/utils";
 
@@ -30,186 +31,196 @@ export const Route = createFileRoute("/")({
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
 });
 
+const WRAP = "mx-auto w-full max-w-[1400px] px-5 sm:px-8";
+
 function Home() {
   const { data } = useSuspenseQuery(homeQuery);
   const { data: leaderboards } = useSuspenseQuery(leaderboardsQuery);
-  return (
-    <div>
-      <Hero />
 
-      <section id="leaderboard" className="mx-auto max-w-7xl px-6 mt-20 scroll-mt-24">
+  return (
+    <div className="pb-0">
+      <Hero />
+      <section id="leaderboard" className={`${WRAP} mt-20 scroll-mt-24`}>
         <Leaderboards data={leaderboards} />
       </section>
-
-      {data.spaceOfWeek?.space && (
-        <section className="mx-auto max-w-7xl px-6 mt-20">
-          <SectionHeader eyebrow="Space of the week" icon={<Sparkles className="h-4 w-4" />} title={`${data.spaceOfWeek.space.name}, ${data.spaceOfWeek.space.city_name ?? ""}`} href="/spaces" />
-          <div className="mt-6 glass rounded-3xl overflow-hidden grid md:grid-cols-2">
-            {data.spaceOfWeek.space.cover_url && (
-              <div className="relative aspect-[4/3] md:aspect-auto">
-                <img src={cardImageUrl(data.spaceOfWeek.space.cover_url, 900) ?? undefined} alt={data.spaceOfWeek.space.name} className="absolute inset-0 h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/40 md:to-background/60" />
-              </div>
-            )}
-            <div className="p-8 md:p-10 flex flex-col justify-center">
-              <div className="text-xs uppercase tracking-widest text-iris">This week's pick</div>
-              <h3 className="font-display text-3xl md:text-4xl mt-2">{data.spaceOfWeek.space.name}</h3>
-              <div className="text-sm text-muted-foreground mt-1">{data.spaceOfWeek.space.city_name}</div>
-              <p className="mt-4 text-muted-foreground leading-relaxed italic">"{data.spaceOfWeek.note}"</p>
-              <div className="mt-6">
-                <Button asChild className="gradient-iris text-primary-foreground">
-                  <Link to="/spaces/$slug" params={{ slug: data.spaceOfWeek.space.slug }}>
-                    Visit the profile <ArrowRight className="h-4 w-4 ml-1" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {data.winners.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 mt-20">
-          <SectionHeader eyebrow="Top winners this week" icon={<Trophy className="h-4 w-4" />} title="The five spaces India is talking about" href="/winners" />
-          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-            {data.winners.map((w) => (
-              <Link key={w.rank} to="/spaces/$slug" params={{ slug: w.space!.slug }} className="group glass rounded-2xl overflow-hidden hover-glow hover:hover-glow-hover relative">
-                <div className="absolute top-3 left-3 z-10 h-10 w-10 rounded-xl gradient-iris flex items-center justify-center font-display text-xl text-primary-foreground shadow-[0_0_24px_-4px_var(--iris-2)]">#{w.rank}</div>
-                {w.space!.cover_url && (
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img src={cardImageUrl(w.space!.cover_url, 400) ?? undefined} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                  </div>
-                )}
-                <div className="p-4">
-                  <div className="font-display text-lg">{w.space!.name}</div>
-                  <div className="text-xs text-muted-foreground">{w.space!.city_name}</div>
-                  <div className="text-xs mt-2 text-iris">Score {w.score.toFixed(1)}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
+      {data.spaceOfWeek?.space && <SpaceOfWeek data={data.spaceOfWeek} />}
+      {data.winners.length > 0 && <Winners winners={data.winners} />}
       <SalesQuestions items={data.salesQuestions} />
-
       <RedFlags />
-
-      <ReviewNudge />
-
-      <section className="mx-auto max-w-7xl px-6 mt-20">
-        <SectionHeader eyebrow="Latest dispatches" title="Fresh from the wire" href="/dispatches" />
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {data.dispatches.slice(0, 9).map((d, i) => (
-            <DispatchCard key={d.id} d={d} featured={i === 0} />
-          ))}
-        </div>
-      </section>
-
+      <ReviewCTA />
+      <Dispatches items={data.dispatches.slice(0, 9)} />
       <NewsletterCTA />
     </div>
   );
 }
 
 function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ x: 50, y: 40 });
-  const [heroQuery, setHeroQuery] = useState("");
-
-  const onMove = (e: React.MouseEvent) => {
-    const r = ref.current?.getBoundingClientRect();
-    if (!r) return;
-    setPos({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
-  };
-
   return (
-    <section
-      ref={ref}
-      onMouseMove={onMove}
-      className="relative overflow-hidden pt-20 pb-20"
-    >
-      <div
-        className="absolute inset-0 -z-10 transition-[background-position] duration-300 ease-out"
-        style={{
-          background: `radial-gradient(600px 400px at ${pos.x}% ${pos.y}%, oklch(0.78 0.14 340 / 0.45), transparent 60%),
-                       radial-gradient(500px 350px at ${100 - pos.x}% ${100 - pos.y}%, oklch(0.75 0.15 220 / 0.40), transparent 60%),
-                       radial-gradient(700px 500px at 50% 0%, oklch(0.68 0.18 295 / 0.25), transparent 65%)`,
-        }}
-      />
-
-      <div className="mx-auto max-w-5xl px-6 text-center relative">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs uppercase tracking-widest text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Live, 70% India, 30% world
+    <section>
+      <div className="section-mist -mt-16 pt-16">
+        <div className={WRAP}>
+          <HeroStage />
         </div>
-        <h1 className="mt-6 font-display text-5xl md:text-7xl leading-[1.05]">
-          Coworking News, Reviews, and Real Talk from <span className="text-iris">Everywhere</span>
-        </h1>
-        <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+      </div>
+      <div className={`${WRAP} mt-10 grid gap-6 border-b border-border pb-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end`}>
+        <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
           Aggregated news, member reviews, weekly winners, and the questions you should actually ask the salesperson before you sign.
         </p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            window.dispatchEvent(new CustomEvent("app:open-search", { detail: { query: heroQuery } }));
-          }}
-          className="mt-8 max-w-xl mx-auto flex items-center gap-2 glass rounded-2xl p-2 relative z-10"
-        >
-          <Search className="h-5 w-5 ml-3 text-muted-foreground" />
-          <Input
-            value={heroQuery}
-            onChange={(e) => {
-              const value = e.target.value;
-              setHeroQuery(value);
-              // Open with live suggestions as soon as typing starts, instead
-              // of waiting for submit; the dialog's own input takes over
-              // from here and keeps updating results as the user keeps typing.
-              if (value.trim()) {
-                window.dispatchEvent(new CustomEvent("app:open-search", { detail: { query: value } }));
-              }
-            }}
-            placeholder="Search 'Awfis', 'Koramangala', 'Bangalore'…"
-            className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-base"
-          />
-          <Button type="submit" className="gradient-iris text-primary-foreground">Search</Button>
-        </form>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild size="lg" className="rounded-full">
+            <Link to="/dispatches">Read the dispatches <ArrowUpRight className="ml-1 h-4 w-4" /></Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="rounded-full">
+            <Link to="/spaces">Browse spaces</Link>
+          </Button>
+        </div>
       </div>
-
     </section>
   );
 }
 
-function SectionHeader({ eyebrow, title, href, icon }: { eyebrow: string; title: string; href?: string; icon?: React.ReactNode }) {
+function SectionHead({ eyebrow, title, href, cta }: { eyebrow: string; title: string; href?: string; cta?: string }) {
   return (
-    <div className="flex items-end justify-between">
-      <div>
-        <div className="inline-flex items-center gap-2 rounded-full gradient-iris px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-[0_0_24px_-6px_var(--iris-2)]">{icon}{eyebrow}</div>
-        <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-muted-foreground">{title}</h2>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 border-b border-foreground pb-4">
+      <div className="min-w-0">
+        <h2 className="font-display text-2xl leading-none sm:text-[2rem]">
+          <span className="acid-dot mr-2 inline-block h-2 w-2 translate-y-[-0.15em] rounded-full" />
+          {eyebrow}
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground sm:text-base">{title}</p>
       </div>
       {href && (
-        <Link to={href} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">View all <ArrowRight className="h-3 w-3" /></Link>
+        <Link to={href} className="shrink-0 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline">
+          {cta ?? "View all"}
+        </Link>
       )}
     </div>
   );
 }
 
-function NewsletterCTA() {
-  const [email, setEmail] = useState("");
-  const mut = useMutation({
-    mutationFn: () => subscribeNewsletter({ data: { email } }),
-    onSuccess: () => { toast.success("You're in. Watch for the Wednesday Dispatch."); setEmail(""); },
-    onError: (e: Error) => toast.error(e.message),
-  });
+const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" | "ac" | "meet"; label: string }[] = [
+  { key: "wifi", label: "Best Wifi" },
+  { key: "community", label: "Best Community" },
+  { key: "clean", label: "Cleanest Spaces" },
+  { key: "support", label: "Best On-Ground Support" },
+  { key: "ac", label: "Most Consistent AC" },
+  { key: "meet", label: "Most Private Meeting Rooms" },
+];
+
+function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboards>> }) {
+  const [active, setActive] = useState(0);
+  const current = LEADERBOARD_CATEGORIES[active];
+  const entries = data[current.key] ?? [];
+
   return (
-    <section className="mx-auto max-w-4xl px-6 mt-24">
-      <div className="glass-strong rounded-3xl p-10 text-center overflow-hidden relative">
-        <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full blur-3xl opacity-40 gradient-iris" />
-        <div className="text-xs uppercase tracking-widest text-iris">The Wednesday Dispatch</div>
-        <h3 className="mt-2 font-display text-3xl md:text-4xl">One email. Every Wednesday. India's coworking week in five minutes.</h3>
-        <form onSubmit={(e) => { e.preventDefault(); mut.mutate(); }} className="mt-6 max-w-md mx-auto flex gap-2">
-          <Input type="email" required placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button type="submit" disabled={mut.isPending} className="gradient-iris text-primary-foreground">Subscribe</Button>
-        </form>
+    <>
+      <SectionHead eyebrow="India leaderboard" title="Pick a category. See who wins." href="/winners" cta="All winners" />
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        {LEADERBOARD_CATEGORIES.map((c, i) => (
+          <button
+            key={c.key}
+            onClick={() => setActive(i)}
+            className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+              i === active
+                ? "border-foreground bg-foreground text-background"
+                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+            }`}
+          >
+            {c.label}
+          </button>
+        ))}
       </div>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        {entries.map((entry) => (
+          <Link
+            key={entry.slug}
+            to="/spaces/$slug"
+            params={{ slug: entry.slug }}
+            className={`group relative overflow-hidden rounded-2xl border border-border p-6 transition-all hover:-translate-y-0.5 hover:border-foreground ${
+              entry.rank === 1 ? "bg-flare text-flare-ink" : "bg-card"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-display text-5xl font-bold leading-none tabular-nums opacity-90">{entry.rank}</span>
+            </div>
+            <div className="mt-8 font-display text-xl leading-tight">{entry.name}</div>
+            <div className={`mt-1 text-xs uppercase tracking-widest ${entry.rank === 1 ? "opacity-70" : "text-muted-foreground"}`}>
+              {entry.cityName}
+            </div>
+          </Link>
+        ))}
+        {entries.length === 0 && (
+          <div className="text-sm text-muted-foreground/60">Not enough data yet</div>
+        )}
+      </div>
+
+      <p className="label mt-6">Based on community reviews and ratings on The Coworking Dispatch. Rankings update as more reviews come in.</p>
+    </>
+  );
+}
+
+function SpaceOfWeek({ data }: { data: any }) {
+  const s = data.space;
+  return (
+    <section className="section-ink mt-24 py-16 sm:py-20">
+      <div className={WRAP}>
+        <SectionHead eyebrow="Space of the week" title="This week's pick" href="/spaces" cta="All spaces" />
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-center">
+          {s.cover_url && (
+            <div className="aspect-[16/11] overflow-hidden rounded-3xl bg-muted">
+              <img src={cardImageUrl(s.cover_url, 900) ?? undefined} alt={s.name} className="h-full w-full object-cover" />
+            </div>
+          )}
+          <div className="max-w-xl">
+            <h3 className="font-display text-4xl leading-[0.95] sm:text-6xl">{s.name}</h3>
+            <div className="label mt-3">{s.city_name}</div>
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{data.note}</p>
+            <Link
+              to="/spaces/$slug"
+              params={{ slug: s.slug }}
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-flare px-5 py-2.5 text-sm font-medium text-flare-ink transition-transform hover:-translate-y-0.5"
+            >
+              Visit the profile <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Winners({ winners }: { winners: any[] }) {
+  return (
+    <section className={`${WRAP} mt-24`}>
+      <SectionHead eyebrow="Weekly winners" title="Five spaces India is talking about" href="/winners" cta="Full leaderboard" />
+      <ul className="mt-2">
+        {winners.map((w) => (
+          <li key={w.rank}>
+            <Link
+              to="/spaces/$slug"
+              params={{ slug: w.space.slug }}
+              className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 border-b border-border py-5 transition-colors hover:bg-accent/50"
+            >
+              <span className={`w-9 font-display text-sm tabular-nums ${w.rank === 1 ? "acid-mark" : "text-muted-foreground"}`}>{String(w.rank).padStart(2, "0")}</span>
+              <div className="flex min-w-0 items-center gap-4">
+                {w.space.cover_url && (
+                  <img src={cardImageUrl(w.space.cover_url, 200) ?? undefined} alt="" loading="lazy" className="hidden h-14 w-20 shrink-0 object-cover rounded-lg sm:block" />
+                )}
+                <div className="min-w-0">
+                  <div className="truncate font-display text-xl acid-underline group-hover:acid-underline-hover sm:text-2xl">{w.space.name}</div>
+                  <div className="label mt-0.5">{w.space.city_name}</div>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-4">
+                <span className="text-sm tabular-nums text-muted-foreground">{w.score.toFixed(1)}</span>
+                <ArrowUpRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -217,27 +228,16 @@ function NewsletterCTA() {
 function SalesQuestions({ items }: { items: { id: string; text: string; category: string | null }[] }) {
   if (!items?.length) return null;
   return (
-    <section className="mx-auto max-w-7xl px-6 mt-20">
-      <SectionHeader
-        eyebrow="Before you sign"
-        icon={<HelpCircle className="h-4 w-4" />}
-        title="Questions to ask the salesperson"
-      />
+    <section className={`${WRAP} mt-24`}>
+      <SectionHead eyebrow="Before you sign" title="Ask the salesperson this" />
       <p className="mt-2 text-sm text-muted-foreground">A checklist to bring to your tour, not a link. Nothing here to click.</p>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mt-2 grid md:grid-cols-2 md:gap-x-12">
         {items.map((q, i) => (
-          <div
-            key={q.id}
-            className="glass rounded-2xl p-5 flex gap-4 cursor-default"
-          >
-            <div className="h-9 w-9 shrink-0 rounded-xl gradient-iris flex items-center justify-center font-display text-primary-foreground">
-              {String(i + 1).padStart(2, "0")}
-            </div>
-            <div>
-              <p className="font-display text-lg leading-snug">{q.text}</p>
-              {q.category && (
-                <div className="mt-1 text-xs uppercase tracking-widest text-iris">{q.category}</div>
-              )}
+          <div key={q.id} className="group flex gap-5 border-b border-border py-5">
+            <span className="font-display text-sm tabular-nums text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
+            <div className="min-w-0">
+              <p className="text-lg leading-snug">{q.text}</p>
+              {q.category && <div className="label mt-1.5">{q.category}</div>}
             </div>
           </div>
         ))}
@@ -256,104 +256,102 @@ const RED_FLAGS = [
   "Contracts have quiet auto-renewal and steep exit fees",
 ];
 
-function ReviewNudge() {
+function RedFlags() {
   return (
-    <section className="mx-auto max-w-6xl px-6 mt-16">
-      <div className="glass-strong rounded-2xl p-6 md:p-8 flex flex-wrap items-center justify-between gap-6">
-        <div className="flex items-start gap-4">
-          <div className="h-10 w-10 shrink-0 rounded-xl gradient-iris flex items-center justify-center">
-            <PenLine className="h-5 w-5 text-primary-foreground" />
-          </div>
+    <section className={`${WRAP} mt-24`}>
+      <div className="rounded-3xl border border-border p-7 sm:p-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
           <div>
-            <div className="text-xs uppercase tracking-widest text-iris">Been to a space this month?</div>
-            <h2 className="mt-1 font-display text-2xl md:text-3xl">Leave a review. It takes under two minutes.</h2>
-            <p className="mt-1 text-sm text-muted-foreground max-w-xl">
-              The more coworkers who weigh in, the more useful this gets for the next person choosing a space.
+            <h2 className="font-display text-2xl leading-none sm:text-[2rem]">
+              <span className="acid-dot mr-2 inline-block h-2 w-2 translate-y-[-0.15em] rounded-full" />
+              Red flags
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Spot two of these? Time to rethink your coworking space.
             </p>
           </div>
+          <ul className="grid gap-x-10 sm:grid-cols-2">
+            {RED_FLAGS.map((f, i) => (
+              <li key={f} className="flex gap-3 border-b border-border py-3 text-sm last:border-0 sm:[&:nth-last-child(2)]:border-0">
+                <span className="acid-mark tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                <span className="leading-snug text-muted-foreground">{f}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <Button asChild className="gradient-iris text-primary-foreground shrink-0">
-          <Link to="/spaces">Find your space →</Link>
+      </div>
+    </section>
+  );
+}
+
+function ReviewCTA() {
+  return (
+    <section className={`${WRAP} mt-20`}>
+      <div className="grid items-center gap-6 border-y border-border py-10 md:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="min-w-0">
+          <h2 className="font-display text-2xl leading-none sm:text-[2rem]">
+            <span className="acid-dot mr-2 inline-block h-2 w-2 translate-y-[-0.15em] rounded-full" />
+            Been to a space this month?
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+            Leave a review. It takes <span className="acid-mark">under two minutes.</span>
+          </p>
+          <p className="mt-3 max-w-xl text-sm text-muted-foreground">
+            The more coworkers who weigh in, the more useful this gets for the next person choosing a space.
+          </p>
+        </div>
+        <Button asChild size="lg" className="rounded-full">
+          <Link to="/spaces">Find your space <ArrowRight className="ml-1 h-4 w-4" /></Link>
         </Button>
       </div>
     </section>
   );
 }
 
-const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" | "ac" | "meet"; label: string }[] = [
-  { key: "wifi", label: "Best Wifi" },
-  { key: "community", label: "Best Community" },
-  { key: "clean", label: "Cleanest Spaces" },
-  { key: "support", label: "Best On-Ground Support" },
-  { key: "ac", label: "Most Consistent AC" },
-  { key: "meet", label: "Most Private Meeting Rooms" },
-];
-
-function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboards>> }) {
+function Dispatches({ items }: { items: any[] }) {
+  if (!items?.length) return null;
   return (
-    <div className="glass-strong rounded-3xl p-6 md:p-10">
-      <div className="inline-flex items-center gap-2 rounded-full gradient-iris px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-[0_0_24px_-6px_var(--iris-2)]">
-        <Trophy className="h-4 w-4" /> India Leaderboard
-      </div>
-      <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold">
-        Who's actually winning in Indian coworking, by category
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-        Top 3 spaces amongst India's coworking crowd, category-wise.
-      </p>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {LEADERBOARD_CATEGORIES.map((c) => (
-          <div key={c.key} className="rounded-2xl bg-background/60 border border-border/60 p-4">
-            <div className="text-xs font-semibold uppercase tracking-wide text-iris">{c.label}</div>
-            <div className="mt-3 space-y-2.5">
-              {(data[c.key] ?? []).map((entry) => (
-                <Link key={entry.slug} to="/spaces/$slug" params={{ slug: entry.slug }} className="flex items-start gap-2.5 group">
-                  <span className="mt-0.5 shrink-0 h-5 w-5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium flex items-center justify-center">
-                    {entry.rank}
-                  </span>
-                  <span className="min-w-0 leading-snug">
-                    <span className="underline decoration-muted-foreground/40 underline-offset-2 group-hover:text-iris group-hover:decoration-iris">
-                      {entry.name}
-                    </span>
-                    <span className="text-muted-foreground">, {entry.cityName}</span>
-                  </span>
-                </Link>
-              ))}
-              {(data[c.key] ?? []).length === 0 && (
-                <div className="text-sm text-muted-foreground/60">Not enough data yet</div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-4 text-[10px] text-muted-foreground/70">
-        *Based on community reviews and ratings on The Coworking Dispatch. Rankings update as more reviews come in.
-      </p>
-    </div>
-  );
-}
-
-function RedFlags() {
-  return (
-    <section className="mx-auto max-w-6xl px-6 mt-16">
-      <div className="glass rounded-2xl p-6 md:p-8 border border-destructive/20">
-        <div className="inline-flex items-center gap-2 rounded-full bg-destructive px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-destructive-foreground">
-          <AlertTriangle className="h-4 w-4" /> Red flags
-        </div>
-        <h2 className="mt-3 font-display text-2xl md:text-3xl text-muted-foreground">Spot two of these? Time to rethink your coworking space</h2>
-        <ul className="mt-5 grid gap-x-6 gap-y-2 md:grid-cols-2 text-sm">
-          {RED_FLAGS.map((f, i) => (
-            <li key={f} className="flex gap-2.5 items-baseline py-1.5 border-b border-border/40 last:border-0 md:[&:nth-last-child(2)]:border-0">
-              <span className="text-xs font-display text-destructive/70 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
-              <span className="text-muted-foreground leading-snug">{f}</span>
-            </li>
-          ))}
-        </ul>
+    <section className={`${WRAP} mt-24`}>
+      <SectionHead eyebrow="Latest dispatches" title="Fresh from the wire" href="/dispatches" />
+      <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((d, i) => <DispatchCard key={d.id} d={d} featured={i === 0} />)}
       </div>
     </section>
   );
 }
 
-
+function NewsletterCTA() {
+  const [email, setEmail] = useState("");
+  const mut = useMutation({
+    mutationFn: () => subscribeNewsletter({ data: { email } }),
+    onSuccess: () => { toast.success("You're in. Watch for the Wednesday Dispatch."); setEmail(""); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <section className={`${WRAP} mt-28 mb-24`}>
+      <div className="mx-auto max-w-4xl rounded-[2rem] bg-flare px-7 py-12 text-flare-ink sm:px-12 sm:py-14">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] lg:items-end">
+          <div className="min-w-0">
+            <h2 className="font-display text-3xl leading-none sm:text-[2.5rem]">The Wednesday Dispatch</h2>
+            <p className="mt-3 max-w-md text-sm opacity-80 sm:text-base">
+              India's coworking week, in five minutes. Every Wednesday.
+            </p>
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); mut.mutate(); }} className="flex gap-2">
+            <Input
+              type="email"
+              required
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-12 rounded-full border-flare-ink/25 bg-background px-5 text-foreground"
+            />
+            <Button type="submit" disabled={mut.isPending} className="h-12 shrink-0 rounded-full bg-flare-ink px-6 text-flare hover:bg-flare-ink/90">
+              Subscribe
+            </Button>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getDispatches } from "@/lib/data.functions";
 import { DispatchCard } from "@/components/site/dispatch-card";
+import { PageHeading } from "@/components/site/page-heading";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
@@ -39,24 +40,24 @@ function DispatchesPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-12">
-      <div className="flex items-end justify-between flex-wrap gap-4">
-        <div>
-          <div className="text-xs uppercase tracking-widest text-iris">The wire</div>
-          <h1 className="mt-1 font-display text-4xl md:text-5xl">Dispatches</h1>
-          <p className="mt-2 text-muted-foreground">Aggregated from hundreds of publishers covering coworking, office space and flexible workspace across India and the world.</p>
-        </div>
-        <div className="inline-flex glass rounded-full p-1">
-          {(["all", "india", "global"] as const).map((r) => (
-            <button
-              key={r}
-              onClick={() => navigate({ to: ".", search: { region: r } })}
-              className={`px-4 py-1.5 rounded-full text-sm capitalize transition-all ${region === r ? "gradient-iris text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              {r === "india" ? "🇮🇳 India" : r === "global" ? "🌏 Global" : "All"}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeading
+        eyebrow="The wire"
+        title="Dispatches"
+        sub="Aggregated from hundreds of publishers covering coworking, office space and flexible workspace across India and the world."
+        right={
+          <div className="inline-flex glass rounded-full p-1">
+            {(["all", "india", "global"] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => navigate({ to: ".", search: { region: r } })}
+                className={`px-4 py-1.5 rounded-full text-sm capitalize transition-all ${region === r ? "bg-flare text-flare-ink" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {r === "india" ? "🇮🇳 India" : r === "global" ? "🌏 Global" : "All"}
+              </button>
+            ))}
+          </div>
+        }
+      />
       <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {data.map((d, i) => <DispatchCard key={d.id} d={d} featured={i === 0 && region !== "global"} />)}
       </div>

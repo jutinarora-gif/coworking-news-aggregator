@@ -19,9 +19,9 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-7xl text-iris">404</h1>
+        <h1 className="font-display text-7xl">404</h1>
         <p className="mt-4 text-muted-foreground">This dispatch never made it to press.</p>
-        <a href="/" className="mt-6 inline-block px-4 py-2 rounded-md gradient-iris text-primary-foreground font-medium">Back to the newsroom</a>
+        <a href="/" className="mt-6 inline-block px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium">Back to the newsroom</a>
       </div>
     </div>
   );
@@ -37,7 +37,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <button
           onClick={() => { router.invalidate(); reset(); }}
-          className="mt-6 px-4 py-2 rounded-md gradient-iris text-primary-foreground font-medium"
+          className="mt-6 px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium"
         >Try again</button>
       </div>
     </div>

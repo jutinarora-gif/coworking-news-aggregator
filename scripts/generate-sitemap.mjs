@@ -24,7 +24,15 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 
 async function main() {
-  const staticUrls = ["", "/dispatches", "/spaces", "/winners", "/questions", "/about", "/contact", "/terms", "/privacy"];
+  const staticUrls = [
+    "", "/dispatches", "/spaces", "/winners", "/questions", "/about", "/contact", "/terms", "/privacy",
+    "/careers", "/guides",
+    "/guides/how-to-choose-a-coworking-space",
+    "/guides/coworking-vs-traditional-office-cost-breakdown",
+    "/guides/gst-registration-virtual-offices-guide",
+    "/guides/getting-your-first-reviews",
+    "/guides/community-management-101",
+  ];
   let dynamicUrls = [];
 
   if (supabaseUrl && supabaseKey) {

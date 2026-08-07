@@ -135,7 +135,7 @@ function ReviewFormPage() {
           </div>
         </div>
 
-        <Button type="submit" disabled={mut.isPending} className="w-full gradient-iris text-primary-foreground">
+        <Button type="submit" disabled={mut.isPending} className="w-full bg-flare text-flare-ink hover:bg-flare/90">
           {mut.isPending ? "Posting…" : "Post review"}
         </Button>
       </form>

@@ -34,7 +34,7 @@ export function RouteProgress() {
   return (
     <div className="fixed top-0 left-0 right-0 z-[100] h-[3px] bg-transparent">
       <div
-        className="h-full gradient-iris transition-[width,opacity] duration-300 ease-out shadow-[0_0_8px_var(--iris-2)]"
+        className="h-full bg-flare transition-[width,opacity] duration-300 ease-out shadow-[0_0_8px_var(--flare)]"
         style={{ width: `${width}%`, opacity: width === 100 ? 0 : 1 }}
       />
     </div>

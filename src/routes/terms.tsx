@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHeading } from "@/components/site/page-heading";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -22,9 +23,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
-      <div className="text-xs uppercase tracking-widest text-iris">Legal</div>
-      <h1 className="mt-1 font-display text-4xl md:text-5xl">Terms and conditions</h1>
-      <p className="mt-3 text-sm text-muted-foreground">Last updated 27 July 2026.</p>
+      <PageHeading eyebrow="Legal" title="Terms and conditions" sub="Last updated 27 July 2026." />
 
       <Section title="1. Using this site">
         <p>
@@ -65,7 +64,7 @@ function TermsPage() {
       <Section title="5. No affiliate relationships">
         <p>
           We don't take payment from coworking operators to rank higher, appear as "Space of the Week", or win a
-          weekly award. Our scoring formula is published on the <a href="/winners" className="text-iris hover:underline">Winners</a> page.
+          weekly award. Our scoring formula is published on the <a href="/winners" className="acid-underline hover:acid-underline-hover font-medium text-foreground">Winners</a> page.
         </p>
       </Section>
 
@@ -82,7 +81,7 @@ function TermsPage() {
 
       <Section title="8. Contact">
         <p>
-          Questions about these terms? Email <a href="mailto:info@coworkingdispatch.com" className="text-iris hover:underline">info@coworkingdispatch.com</a>.
+          Questions about these terms? Email <a href="mailto:info@coworkingdispatch.com" className="acid-underline hover:acid-underline-hover font-medium text-foreground">info@coworkingdispatch.com</a>.
         </p>
       </Section>
     </div>
