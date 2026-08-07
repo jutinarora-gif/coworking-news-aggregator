@@ -209,8 +209,20 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     }),
   );
 
+  // Most RSS feeds have no real cover image, so ingestion pins a random
+  // stock photo from a small pool per article — on a 9-card grid that
+  // means visible repeats. Drop the image on any repeat past the first
+  // so the card falls back to a clean text-only layout instead.
+  const seenCovers = new Set<string>();
+  const dedupedDispatches = mixed.slice(0, 15).map((d) => {
+    if (!d.cover_url) return d;
+    if (seenCovers.has(d.cover_url)) return { ...d, cover_url: null };
+    seenCovers.add(d.cover_url);
+    return d;
+  });
+
   return {
-    dispatches: mixed.slice(0, 15),
+    dispatches: dedupedDispatches,
     spaceOfWeek: sotwSpaceId
       ? { space: spaceById.get(sotwSpaceId) ?? null, note: sotwRows![0].editorial_note }
       : null,

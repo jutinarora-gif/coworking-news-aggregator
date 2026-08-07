@@ -13,7 +13,7 @@ export function DispatchCard({ d, featured = false }: { d: Dispatch; featured?: 
       {d.cover_url && (
         <div className={`relative overflow-hidden ${featured ? "aspect-[16/8]" : "aspect-[16/10]"}`}>
           <img src={cardImageUrl(d.cover_url) ?? undefined} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-background/70 to-transparent" />
           <div className="absolute top-3 left-3 flex gap-2">
             <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium ${d.region === "india" ? "bg-primary/90 text-primary-foreground" : "glass text-foreground"}`}>
               {d.region === "india" ? "🇮🇳 India" : "🌏 Global"}
