@@ -3,8 +3,8 @@ import { Search } from "lucide-react";
 import { SearchDialog } from "./search-dialog";
 
 /**
- * Minimal hero: a warm grey band, one oversized headline with a mint full
- * stop, and a sleek capsule search field.
+ * Minimal hero: a warm grey band, one oversized headline with a mint mark
+ * under the last word, and a sleek capsule search field.
  */
 export function HeroStage() {
   const [open, setOpen] = useState(false);
@@ -17,7 +17,12 @@ export function HeroStage() {
       </div>
 
       <h1 className="mt-8 max-w-[16ch] font-display text-[14vw] font-bold leading-[0.82] tracking-[-0.055em] sm:text-[10vw] lg:text-[7.4vw]">
-        Every space has a story. We're tracking all of them<span className="text-flare">.</span>
+        Every space has a story. We're tracking all of{" "}
+        <span className="relative inline-block">
+          them
+          <span className="absolute inset-x-0 -bottom-[0.06em] h-[0.1em] origin-left animate-[hero-rule_1.1s_cubic-bezier(0.65,0,0.35,1)_forwards] rounded-full bg-flare" />
+        </span>
+        .
       </h1>
 
       <button
