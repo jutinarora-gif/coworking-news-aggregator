@@ -843,6 +843,10 @@ export const submitJobApplication = createServerFn({ method: "POST" })
     phone?: string;
     portfolio_url?: string;
     message?: string;
+    current_ctc?: string;
+    expected_ctc?: string;
+    notice_period?: string;
+    resume_path?: string;
   }) => data)
   .handler(async ({ data }) => {
     const supabase = makePublicClient();
@@ -859,6 +863,10 @@ export const submitJobApplication = createServerFn({ method: "POST" })
       phone: data.phone?.trim() || null,
       portfolio_url: data.portfolio_url?.trim() || null,
       message: data.message?.trim() || null,
+      current_ctc: data.current_ctc?.trim() || null,
+      expected_ctc: data.expected_ctc?.trim() || null,
+      notice_period: data.notice_period?.trim() || null,
+      resume_path: data.resume_path?.trim() || null,
     });
     if (error) throw new Error(error.message);
     return { ok: true };

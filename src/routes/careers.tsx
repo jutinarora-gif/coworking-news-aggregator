@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Briefcase, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { submitJobApplication } from "@/lib/data.functions";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,10 @@ function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; op
   const [phone, setPhone] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [message, setMessage] = useState("");
+  const [currentCtc, setCurrentCtc] = useState("");
+  const [expectedCtc, setExpectedCtc] = useState("");
+  const [noticePeriod, setNoticePeriod] = useState("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   const reset = () => {
     setName("");
@@ -52,13 +57,40 @@ function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; op
     setPhone("");
     setPortfolioUrl("");
     setMessage("");
+    setCurrentCtc("");
+    setExpectedCtc("");
+    setNoticePeriod("");
+    setResumeFile(null);
   };
 
+  const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+
   const mutation = useMutation({
-    mutationFn: () =>
-      submitJobApplication({
-        data: { role: role?.title ?? "", name, email, phone, portfolio_url: portfolioUrl, message },
-      }),
+    mutationFn: async () => {
+      let resumePath: string | undefined;
+      if (resumeFile) {
+        if (resumeFile.size > MAX_RESUME_BYTES) throw new Error("Resume must be under 5 MB.");
+        const ext = resumeFile.name.split(".").pop() || "pdf";
+        const path = `${role?.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("resumes").upload(path, resumeFile);
+        if (uploadError) throw new Error(`Resume upload failed: ${uploadError.message}`);
+        resumePath = path;
+      }
+      return submitJobApplication({
+        data: {
+          role: role?.title ?? "",
+          name,
+          email,
+          phone,
+          portfolio_url: portfolioUrl,
+          message,
+          current_ctc: currentCtc,
+          expected_ctc: expectedCtc,
+          notice_period: noticePeriod,
+          resume_path: resumePath,
+        },
+      });
+    },
     onSuccess: () => {
       toast.success("Application sent", { description: "We read every application ourselves, we'll be in touch." });
       reset();
@@ -76,7 +108,7 @@ function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; op
 
   return (
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Apply: {role?.title}</DialogTitle>
           <DialogDescription>Tell us a bit about yourself. We read every application ourselves.</DialogDescription>
@@ -95,8 +127,31 @@ function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; op
             <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="portfolio">Portfolio / LinkedIn / Resume link (optional)</Label>
+            <Label htmlFor="portfolio">Portfolio / LinkedIn link (optional)</Label>
             <Input id="portfolio" value={portfolioUrl} onChange={(e) => setPortfolioUrl(e.target.value)} placeholder="https://" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="resume">Resume / CV (optional, PDF or DOC, max 5 MB)</Label>
+            <Input
+              id="resume"
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) => setResumeFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="current-ctc">Current CTC (optional)</Label>
+              <Input id="current-ctc" value={currentCtc} onChange={(e) => setCurrentCtc(e.target.value)} placeholder="e.g. 12 LPA" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="expected-ctc">Expected CTC (optional)</Label>
+              <Input id="expected-ctc" value={expectedCtc} onChange={(e) => setExpectedCtc(e.target.value)} placeholder="e.g. 15 LPA" />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="notice-period">Notice period (optional)</Label>
+            <Input id="notice-period" value={noticePeriod} onChange={(e) => setNoticePeriod(e.target.value)} placeholder="e.g. 30 days" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="message">Why this role? (optional)</Label>

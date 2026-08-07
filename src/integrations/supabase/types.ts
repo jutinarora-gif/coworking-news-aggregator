@@ -265,32 +265,44 @@ export type Database = {
       job_applications: {
         Row: {
           created_at: string
+          current_ctc: string | null
           email: string
+          expected_ctc: string | null
           id: string
           message: string | null
           name: string
+          notice_period: string | null
           phone: string | null
           portfolio_url: string | null
+          resume_path: string | null
           role: string
         }
         Insert: {
           created_at?: string
+          current_ctc?: string | null
           email: string
+          expected_ctc?: string | null
           id?: string
           message?: string | null
           name: string
+          notice_period?: string | null
           phone?: string | null
           portfolio_url?: string | null
+          resume_path?: string | null
           role: string
         }
         Update: {
           created_at?: string
+          current_ctc?: string | null
           email?: string
+          expected_ctc?: string | null
           id?: string
           message?: string | null
           name?: string
+          notice_period?: string | null
           phone?: string | null
           portfolio_url?: string | null
+          resume_path?: string | null
           role?: string
         }
         Relationships: []
