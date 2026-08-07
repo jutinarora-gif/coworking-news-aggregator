@@ -55,7 +55,7 @@ function AuthPage() {
     <div className="mx-auto max-w-md px-6 py-20">
       <div className="glass-strong rounded-3xl p-8">
         <div className="text-center">
-          <Logomark className="h-12 w-12 mx-auto text-[15px] shadow-[0_0_32px_-4px_#65e7d1]" />
+          <Logomark className="h-12 w-12 mx-auto text-[15px]" />
           <h1 className="mt-4 font-display text-3xl">{mode === "signin" ? "Welcome back" : "Join the community"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to post reviews and questions." : "Sign up to share your coworking experience."}</p>
         </div>
@@ -71,11 +71,11 @@ function AuthPage() {
         <form onSubmit={submit} className="space-y-3">
           <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
           <div><Label>Password</Label><Input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-          <Button type="submit" disabled={loading} className="w-full gradient-iris text-primary-foreground">{mode === "signin" ? "Sign in" : "Create account"}</Button>
+          <Button type="submit" disabled={loading} className="w-full rounded-full bg-flare text-flare-ink hover:bg-flare/90">{mode === "signin" ? "Sign in" : "Create account"}</Button>
         </form>
         <div className="mt-4 text-center text-sm text-muted-foreground">
           {mode === "signin" ? "New here?" : "Have an account?"}{" "}
-          <button className="text-iris hover:underline" onClick={() => setMode(mode === "signin" ? "signup" : "signin")}>
+          <button className="font-medium text-foreground underline underline-offset-4 decoration-[3px] decoration-[var(--flare)]" onClick={() => setMode(mode === "signin" ? "signup" : "signin")}>
             {mode === "signin" ? "Create an account" : "Sign in"}
           </button>
         </div>

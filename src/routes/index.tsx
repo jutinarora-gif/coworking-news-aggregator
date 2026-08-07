@@ -36,9 +36,15 @@ const WRAP = "mx-auto w-full max-w-[1400px] px-5 sm:px-8";
 function Home() {
   const { data } = useSuspenseQuery(homeQuery);
   const { data: leaderboards } = useSuspenseQuery(leaderboardsQuery);
+  const strip = [
+    data.spaceOfWeek?.space,
+    ...data.winners.map((w) => w.space),
+  ].filter(Boolean).slice(0, 5) as { slug: string; name: string; cover_url: string | null; city_name: string | null }[];
+
   return (
-    <div className="pb-32">
+    <div className="pb-0">
       <Hero />
+      <ImageStrip items={strip} />
       <section id="leaderboard" className={`${WRAP} mt-20 scroll-mt-24`}>
         <Leaderboards data={leaderboards} />
       </section>
@@ -55,9 +61,13 @@ function Home() {
 
 function Hero() {
   return (
-    <section className={`${WRAP} pt-8 sm:pt-12`}>
-      <HeroStage />
-      <div className="mt-8 grid gap-6 border-b border-border pb-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+    <section>
+      <div className="section-mist -mt-16 pt-16">
+        <div className={WRAP}>
+          <HeroStage />
+        </div>
+      </div>
+      <div className={`${WRAP} mt-10 grid gap-6 border-b border-border pb-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end`}>
         <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
           Aggregated news, member reviews, weekly winners, and the questions you should actually ask the salesperson before you sign.
         </p>
@@ -74,12 +84,44 @@ function Hero() {
   );
 }
 
+function ImageStrip({ items }: { items: { slug: string; name: string; cover_url: string | null; city_name: string | null }[] }) {
+  if (!items.length) return null;
+  return (
+    <section className={`${WRAP} mt-12`}>
+      <SectionHead eyebrow="Talk of the week" title="Five spaces people are talking about" href="/spaces" cta="All spaces" />
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-6">
+        {items.map((s, i) => (
+          <Link
+            key={s.slug}
+            to="/spaces/$slug"
+            params={{ slug: s.slug }}
+            className={`group relative overflow-hidden rounded-2xl bg-muted ${i === 0 ? "col-span-2 aspect-[16/10]" : "aspect-[4/5]"}`}
+          >
+            {s.cover_url && (
+              <img
+                src={cardImageUrl(s.cover_url, 400) ?? undefined}
+                alt={s.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              />
+            )}
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-foreground/70 to-transparent p-3">
+              <span className="truncate text-xs font-medium text-background">{s.name}</span>
+              <span className="shrink-0 text-[10px] uppercase tracking-widest text-background/70">{s.city_name}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function SectionHead({ eyebrow, title, href, cta }: { eyebrow: string; title: string; href?: string; cta?: string }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 border-b border-foreground pb-4">
       <div className="min-w-0">
         <h2 className="font-display text-2xl leading-none sm:text-[2rem]">
-          <span className="mr-2 inline-block h-2 w-2 translate-y-[-0.15em] bg-foreground ring-2 ring-flare" />
+          <span className="acid-dot mr-2 inline-block h-2 w-2 translate-y-[-0.15em] rounded-full" />
           {eyebrow}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground sm:text-base">{title}</p>
@@ -103,39 +145,54 @@ const LEADERBOARD_CATEGORIES: { key: "wifi" | "community" | "clean" | "support" 
 ];
 
 function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboards>> }) {
+  const [active, setActive] = useState(0);
+  const current = LEADERBOARD_CATEGORIES[active];
+  const entries = data[current.key] ?? [];
+
   return (
     <>
-      <SectionHead eyebrow="India leaderboard" title="Who's actually winning, by category" href="/winners" cta="All winners" />
-      <div className="mt-8 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-        {LEADERBOARD_CATEGORIES.map((c) => (
-          <div key={c.key}>
-            <div className="flex items-center gap-2 border-b border-foreground pb-2">
-              <span className="h-2 w-2 acid-dot" />
-              <h3 className="font-display text-lg">{c.label}</h3>
-            </div>
-            <ol className="mt-1">
-              {(data[c.key] ?? []).map((entry) => (
-                <li key={entry.slug}>
-                  <Link
-                    to="/spaces/$slug"
-                    params={{ slug: entry.slug }}
-                    className="group grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-3 border-b border-border py-3"
-                  >
-                    <span className={`font-display text-sm tabular-nums ${entry.rank === 1 ? "bg-flare px-1 text-flare-ink" : "text-muted-foreground"}`}>{entry.rank}</span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium acid-underline group-hover:acid-underline-hover">{entry.name}</span>
-                      <span className="label">{entry.cityName}</span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-              {(data[c.key] ?? []).length === 0 && (
-                <li className="py-3 text-sm text-muted-foreground/60">Not enough data yet</li>
-              )}
-            </ol>
-          </div>
+      <SectionHead eyebrow="India leaderboard" title="Pick a category. See who wins." href="/winners" cta="All winners" />
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        {LEADERBOARD_CATEGORIES.map((c, i) => (
+          <button
+            key={c.key}
+            onClick={() => setActive(i)}
+            className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+              i === active
+                ? "border-foreground bg-foreground text-background"
+                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+            }`}
+          >
+            {c.label}
+          </button>
         ))}
       </div>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        {entries.map((entry) => (
+          <Link
+            key={entry.slug}
+            to="/spaces/$slug"
+            params={{ slug: entry.slug }}
+            className={`group relative overflow-hidden rounded-2xl border border-border p-6 transition-all hover:-translate-y-0.5 hover:border-foreground ${
+              entry.rank === 1 ? "bg-flare text-flare-ink" : "bg-card"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-display text-5xl font-bold leading-none tabular-nums opacity-90">{entry.rank}</span>
+            </div>
+            <div className="mt-8 font-display text-xl leading-tight">{entry.name}</div>
+            <div className={`mt-1 text-xs uppercase tracking-widest ${entry.rank === 1 ? "opacity-70" : "text-muted-foreground"}`}>
+              {entry.cityName}
+            </div>
+          </Link>
+        ))}
+        {entries.length === 0 && (
+          <div className="text-sm text-muted-foreground/60">Not enough data yet</div>
+        )}
+      </div>
+
       <p className="label mt-6">Based on community reviews and ratings on The Coworking Dispatch. Rankings update as more reviews come in.</p>
     </>
   );
@@ -144,25 +201,27 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
 function SpaceOfWeek({ data }: { data: any }) {
   const s = data.space;
   return (
-    <section className={`${WRAP} mt-24`}>
-      <SectionHead eyebrow="Space of the week" title="This week's pick" href="/spaces" cta="All spaces" />
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-center">
-        {s.cover_url && (
-          <div className="aspect-[16/11] overflow-hidden bg-muted">
-            <img src={cardImageUrl(s.cover_url, 900) ?? undefined} alt={s.name} className="h-full w-full object-cover" />
+    <section className="section-ink mt-24 py-16 sm:py-20">
+      <div className={WRAP}>
+        <SectionHead eyebrow="Space of the week" title="This week's pick" href="/spaces" cta="All spaces" />
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-center">
+          {s.cover_url && (
+            <div className="aspect-[16/11] overflow-hidden rounded-3xl bg-muted">
+              <img src={cardImageUrl(s.cover_url, 900) ?? undefined} alt={s.name} className="h-full w-full object-cover" />
+            </div>
+          )}
+          <div className="max-w-xl">
+            <h3 className="font-display text-4xl leading-[0.95] sm:text-6xl">{s.name}</h3>
+            <div className="label mt-3">{s.city_name}</div>
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{data.note}</p>
+            <Link
+              to="/spaces/$slug"
+              params={{ slug: s.slug }}
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-flare px-5 py-2.5 text-sm font-medium text-flare-ink transition-transform hover:-translate-y-0.5"
+            >
+              Visit the profile <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
-        )}
-        <div className="max-w-xl">
-          <h3 className="font-display text-4xl leading-[0.95] sm:text-6xl">{s.name}</h3>
-          <div className="label mt-3">{s.city_name}</div>
-          <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{data.note}</p>
-          <Link
-            to="/spaces/$slug"
-            params={{ slug: s.slug }}
-            className="mt-8 inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium"
-          >
-            Visit the profile <ArrowUpRight className="h-4 w-4" />
-          </Link>
         </div>
       </div>
     </section>
@@ -181,10 +240,10 @@ function Winners({ winners }: { winners: any[] }) {
               params={{ slug: w.space.slug }}
               className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 border-b border-border py-5 transition-colors hover:bg-accent/50"
             >
-              <span className={`w-9 font-display text-sm tabular-nums ${w.rank === 1 ? "bg-flare px-1 text-flare-ink" : "text-muted-foreground"}`}>{String(w.rank).padStart(2, "0")}</span>
+              <span className={`w-9 font-display text-sm tabular-nums ${w.rank === 1 ? "acid-mark" : "text-muted-foreground"}`}>{String(w.rank).padStart(2, "0")}</span>
               <div className="flex min-w-0 items-center gap-4">
                 {w.space.cover_url && (
-                  <img src={cardImageUrl(w.space.cover_url, 200) ?? undefined} alt="" loading="lazy" className="hidden h-14 w-20 shrink-0 object-cover sm:block" />
+                  <img src={cardImageUrl(w.space.cover_url, 200) ?? undefined} alt="" loading="lazy" className="hidden h-14 w-20 shrink-0 object-cover rounded-lg sm:block" />
                 )}
                 <div className="min-w-0">
                   <div className="truncate font-display text-xl acid-underline group-hover:acid-underline-hover sm:text-2xl">{w.space.name}</div>
@@ -237,11 +296,11 @@ const RED_FLAGS = [
 function RedFlags() {
   return (
     <section className={`${WRAP} mt-24`}>
-      <div className="border border-border bg-card p-7 sm:p-10">
+      <div className="rounded-3xl border border-border p-7 sm:p-10">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
           <div>
             <h2 className="font-display text-2xl leading-none sm:text-[2rem]">
-              <span className="mr-2 inline-block h-2 w-2 translate-y-[-0.15em] bg-foreground ring-2 ring-flare" />
+              <span className="acid-dot mr-2 inline-block h-2 w-2 translate-y-[-0.15em] rounded-full" />
               Red flags
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -251,7 +310,7 @@ function RedFlags() {
           <ul className="grid gap-x-10 sm:grid-cols-2">
             {RED_FLAGS.map((f, i) => (
               <li key={f} className="flex gap-3 border-b border-border py-3 text-sm last:border-0 sm:[&:nth-last-child(2)]:border-0">
-                <span className="bg-flare px-1 tabular-nums text-flare-ink">{String(i + 1).padStart(2, "0")}</span>
+                <span className="acid-mark tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                 <span className="leading-snug text-muted-foreground">{f}</span>
               </li>
             ))}
@@ -268,7 +327,7 @@ function ReviewCTA() {
       <div className="grid items-center gap-6 border-y border-border py-10 md:grid-cols-[minmax(0,1fr)_auto]">
         <div className="min-w-0">
           <h2 className="font-display text-2xl leading-none sm:text-[2rem]">
-            <span className="mr-2 inline-block h-2 w-2 translate-y-[-0.15em] bg-foreground ring-2 ring-flare" />
+            <span className="acid-dot mr-2 inline-block h-2 w-2 translate-y-[-0.15em] rounded-full" />
             Been to a space this month?
           </h2>
           <p className="mt-3 text-sm text-muted-foreground sm:text-base">
@@ -306,15 +365,12 @@ function NewsletterCTA() {
     onError: (e: Error) => toast.error(e.message),
   });
   return (
-    <section className={`${WRAP} mt-28`}>
-      <div className="border border-border bg-foreground p-10 text-background sm:p-16">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-end">
+    <section className={`${WRAP} mt-28 mb-24`}>
+      <div className="mx-auto max-w-4xl rounded-[2rem] bg-flare px-7 py-12 text-flare-ink sm:px-12 sm:py-14">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] lg:items-end">
           <div className="min-w-0">
-            <h2 className="font-display text-2xl leading-none text-background sm:text-[2rem]">
-              <span className="mr-2 inline-block h-2 w-2 translate-y-[-0.15em] bg-foreground ring-2 ring-flare" />
-              The Wednesday Dispatch
-            </h2>
-            <p className="mt-3 max-w-md text-sm text-background/70 sm:text-base">
+            <h2 className="font-display text-3xl leading-none sm:text-[2.5rem]">The Wednesday Dispatch</h2>
+            <p className="mt-3 max-w-md text-sm opacity-80 sm:text-base">
               India's coworking week, in five minutes. Every Wednesday.
             </p>
           </div>
@@ -325,9 +381,9 @@ function NewsletterCTA() {
               placeholder="you@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12 rounded-none border-background/30 bg-transparent text-background placeholder:text-background/50"
+              className="h-12 rounded-full border-flare-ink/25 bg-background px-5 text-foreground"
             />
-            <Button type="submit" disabled={mut.isPending} className="h-12 rounded-none bg-flare px-6 text-flare-ink hover:bg-flare/85">
+            <Button type="submit" disabled={mut.isPending} className="h-12 shrink-0 rounded-full bg-flare-ink px-6 text-flare hover:bg-flare-ink/90">
               Subscribe
             </Button>
           </form>

@@ -18,7 +18,7 @@ export function SpaceCard({ s }: { s: any }) {
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-display text-xl group-hover:text-iris transition-colors">{s.name}</h3>
+            <h3 className="font-display text-xl group-hover:text-muted-foreground transition-colors">{s.name}</h3>
             {s.city_name && (
               <div className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
                 <MapPin className="h-3 w-3" />{s.city_name}

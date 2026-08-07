@@ -1,14 +1,12 @@
 import { cn } from "@/lib/utils";
 
 // Single source of truth for the brand mark so header/footer/anywhere else
-// can't drift into different sizes or corner radii over time. Solid mint
-// square with "TCD" instead of the gradient squircle - renders identically
-// everywhere (email clients included), no gradient-rendering risk.
+// can't drift into different sizes or corner radii over time.
 export function Logomark({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-[28%] bg-[#65e7d1] flex items-center justify-center font-display font-extrabold tracking-wide text-[#0f4a3f]",
+        "rounded-xl bg-foreground flex items-center justify-center font-display font-bold tracking-[-0.05em] text-background transition-colors duration-300 group-hover:bg-flare group-hover:text-flare-ink",
         className,
       )}
     >

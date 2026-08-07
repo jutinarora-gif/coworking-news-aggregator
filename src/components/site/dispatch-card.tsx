@@ -18,7 +18,7 @@ export function DispatchCard({ d, featured = false }: { d: Dispatch; featured?: 
             <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium ${d.region === "india" ? "bg-primary/90 text-primary-foreground" : "glass text-foreground"}`}>
               {d.region === "india" ? "🇮🇳 India" : "🌏 Global"}
             </span>
-            {d.is_featured && <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider glass-strong text-iris">Featured</span>}
+            {d.is_featured && <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider bg-flare text-flare-ink">Featured</span>}
           </div>
         </div>
       )}
@@ -28,7 +28,7 @@ export function DispatchCard({ d, featured = false }: { d: Dispatch; featured?: 
           <span>·</span>
           <span>{formatDistanceToNow(new Date(d.ingested_at), { addSuffix: true })}</span>
         </div>
-        <h3 className={`mt-2 font-display leading-snug group-hover:text-iris transition-colors ${featured ? "text-2xl md:text-3xl" : "text-lg"}`}>
+        <h3 className={`mt-2 font-display leading-snug group-hover:text-muted-foreground transition-colors ${featured ? "text-2xl md:text-3xl" : "text-lg"}`}>
           {d.title}
         </h3>
         {d.excerpt && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{d.excerpt}</p>}

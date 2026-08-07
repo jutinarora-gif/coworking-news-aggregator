@@ -6,9 +6,9 @@ export function Footer() {
     <footer className="mt-24 border-t border-border/40">
       <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <Logomark className="h-6 w-6 text-[8px]" />
-            <span className="font-display text-lg">The Coworking Dispatch</span>
+          <div className="flex items-center gap-2.5">
+            <Logomark className="h-9 w-9 shrink-0 text-[13px]" />
+            <span className="font-display text-sm font-semibold tracking-[-0.02em]">The Coworking Dispatch</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
             The Coworking Dispatch aggregates coworking industry news, hosts member reviews of coworking
