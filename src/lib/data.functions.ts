@@ -834,3 +834,32 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
     if (error && !error.message.toLowerCase().includes("duplicate")) throw new Error(error.message);
     return { ok: true };
   });
+
+export const submitJobApplication = createServerFn({ method: "POST" })
+  .inputValidator((data: {
+    role: string;
+    name: string;
+    email: string;
+    phone?: string;
+    portfolio_url?: string;
+    message?: string;
+  }) => data)
+  .handler(async ({ data }) => {
+    const supabase = makePublicClient();
+    const name = data.name.trim();
+    const email = data.email.trim().toLowerCase();
+    if (!name || name.length < 2) throw new Error("Please enter your name.");
+    if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 320) throw new Error("Please enter a valid email.");
+    if (!data.role?.trim()) throw new Error("Missing role.");
+
+    const { error } = await supabase.from("job_applications").insert({
+      role: data.role.trim(),
+      name,
+      email,
+      phone: data.phone?.trim() || null,
+      portfolio_url: data.portfolio_url?.trim() || null,
+      message: data.message?.trim() || null,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
