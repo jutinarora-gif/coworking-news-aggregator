@@ -23,7 +23,7 @@ function AdminSpacesPage() {
   const approve = useMutation({
     mutationFn: (space_id: string) => approveFn({ data: { space_id } }),
     onSuccess: () => {
-      toast.success("Approved — now live.");
+      toast.success("Approved, now live.");
       queryClient.invalidateQueries({ queryKey: ["pending-spaces"] });
     },
     onError: (e: Error) => toast.error(e.message),

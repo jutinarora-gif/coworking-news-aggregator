@@ -64,7 +64,7 @@ function SubmitSpacePage() {
       <div className="text-xs uppercase tracking-widest text-iris">Submit a space</div>
       <h1 className="mt-1 font-display text-4xl md:text-5xl">List a coworking space</h1>
       <p className="mt-3 text-muted-foreground">
-        Know a space we're missing? Fill this in and we'll review it. Once approved, it's listed automatically —
+        Know a space we're missing? Fill this in and we'll review it. Once approved, it's listed automatically,
         no extra step on your end.
       </p>
 

@@ -37,7 +37,7 @@ function WinnersPage() {
       </div>
       <h1 className="mt-1 font-display text-4xl md:text-5xl">Best value</h1>
       <p className="mt-3 text-lg text-muted-foreground max-w-2xl">
-        No reviews, no opinions, no paid placement — just arithmetic on price and amenities, compared against
+        No reviews, no opinions, no paid placement, just arithmetic on price and amenities, compared against
         other spaces in the same city.
       </p>
       {weekStart && (
@@ -57,7 +57,7 @@ function WinnersPage() {
             <div>
               <div className="font-display text-lg">65% · Price, within the city</div>
               <p className="mt-1 text-sm text-muted-foreground">
-                How this space's hot-desk price compares to every other space in the same city — cheapest
+                How this space's hot-desk price compares to every other space in the same city: cheapest
                 scores highest. A space is never compared to a different city's price level.
               </p>
             </div>
@@ -75,7 +75,7 @@ function WinnersPage() {
         </div>
         <p className="mt-6 text-xs text-muted-foreground border-t border-border/40 pt-4 flex items-start gap-2">
           <MapPinned className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-          Only cities with at least 3 listed spaces are ranked — a single space has no local peers to be
+          Only cities with at least 3 listed spaces are ranked. A single space has no local peers to be
           better value than. Recomputed weekly straight from the directory. No editorial input, no paid
           placement, no reviews required.
         </p>
@@ -101,7 +101,7 @@ function WinnersPage() {
                 <div className="mt-4 pt-4 border-t border-border/30 grid grid-cols-2 gap-3 text-center">
                   <div>
                     <div className="font-display text-lg">
-                      {w.breakdown.price_from != null ? `${w.breakdown.currency === "INR" ? "₹" : "$"}${w.breakdown.price_from.toLocaleString()}` : "—"}
+                      {w.breakdown.price_from != null ? `${w.breakdown.currency === "INR" ? "₹" : "$"}${w.breakdown.price_from.toLocaleString()}` : "N/A"}
                     </div>
                     <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Hot desk / mo</div>
                   </div>

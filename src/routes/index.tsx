@@ -184,7 +184,7 @@ function SpaceOfWeek({ data }: { data: any }) {
             <h3 className="font-display text-4xl leading-[0.95] sm:text-6xl">{s.name}</h3>
             <div className="label mt-3">{s.city_name}</div>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{data.note}</p>
-            <p className="mt-3 text-xs uppercase tracking-widest text-muted-foreground">Picked by the TCD team — not a review average.</p>
+            <p className="mt-3 text-xs uppercase tracking-widest text-muted-foreground">Picked by the TCD team, not a review average.</p>
             <Link
               to="/spaces/$slug"
               params={{ slug: s.slug }}

@@ -798,7 +798,7 @@ export const submitQuestion = createServerFn({ method: "POST" })
     const { supabase, userId, claims } = context;
 
     if (!data.title?.trim() || data.title.trim().length < 10) {
-      throw new Error("Give your question a bit more detail — at least 10 characters.");
+      throw new Error("Give your question a bit more detail, at least 10 characters.");
     }
 
     let { data: profile } = await supabase
@@ -879,7 +879,7 @@ export const submitSpace = createServerFn({ method: "POST" })
       throw new Error("Please select a city.");
     }
     if (!data.description?.trim() || data.description.trim().length < 20) {
-      throw new Error("Description needs at least 20 characters — give people a real sense of the place.");
+      throw new Error("Description needs at least 20 characters, give people a real sense of the place.");
     }
 
     const { data: city } = await supabase.from("cities").select("name").eq("id", data.city_id).maybeSingle();

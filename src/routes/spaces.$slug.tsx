@@ -219,7 +219,7 @@ function SpacePage() {
             </div>
             {reviews.length === 0 && (
               <p className="mt-4 text-sm text-muted-foreground">
-                No reviews yet. We don't invent them — real ones will appear here as coworkers add them.
+                No reviews yet. We don't invent them, real ones will appear here as coworkers add them.
               </p>
             )}
             <div className="mt-6 space-y-4">
