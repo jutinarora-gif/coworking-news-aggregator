@@ -208,6 +208,42 @@
   --input: color-mix(in oklab, var(--mist) 78%, black);
 }
 
+/* Budget slider (price intelligence) */
+.budget-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  outline: none;
+}
+.budget-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  width: 28px;
+  border-radius: 999px;
+  background: var(--flare);
+  border: 2px solid var(--foreground);
+  cursor: grab;
+  transition: transform 150ms ease;
+}
+.budget-range:active::-webkit-slider-thumb {
+  transform: scale(1.08);
+  cursor: grabbing;
+}
+.budget-range::-moz-range-thumb {
+  height: 24px;
+  width: 24px;
+  border-radius: 999px;
+  background: var(--flare);
+  border: 2px solid var(--foreground);
+  cursor: grab;
+}
+.budget-range:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--flare) 60%, transparent);
+}
+
 /* emphasis: a filled mint block carrying near-black ink type. */
 @utility acid-mark {
   background-color: var(--flare);

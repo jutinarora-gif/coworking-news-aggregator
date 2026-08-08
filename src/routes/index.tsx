@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useMutation } from "@tanstack/react-query";
-import { getHomeData, getLeaderboards, subscribeNewsletter } from "@/lib/data.functions";
+import { getHomeData, getLeaderboards, getHomePriceStats, subscribeNewsletter } from "@/lib/data.functions";
 import { HeroStage } from "@/components/site/hero-stage";
+import { PriceShowstopper } from "@/components/site/price-showstopper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { canonicalLink } from "@/lib/seo";
@@ -13,6 +14,7 @@ import { cardImageUrl } from "@/lib/utils";
 
 const homeQuery = queryOptions({ queryKey: ["home"], queryFn: () => getHomeData() });
 const leaderboardsQuery = queryOptions({ queryKey: ["leaderboards"], queryFn: () => getLeaderboards() });
+const priceStatsQuery = queryOptions({ queryKey: ["home-price-stats"], queryFn: () => getHomePriceStats(), staleTime: 5 * 60 * 1000 });
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/")({
     Promise.all([
       context.queryClient.ensureQueryData(homeQuery),
       context.queryClient.ensureQueryData(leaderboardsQuery),
+      context.queryClient.ensureQueryData(priceStatsQuery),
     ]),
   component: Home,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
@@ -38,10 +41,12 @@ const WRAP = "mx-auto w-full max-w-[1400px] px-5 sm:px-8";
 function Home() {
   const { data } = useSuspenseQuery(homeQuery);
   const { data: leaderboards } = useSuspenseQuery(leaderboardsQuery);
+  const { data: priceStats } = useSuspenseQuery(priceStatsQuery);
 
   return (
     <div className="pb-0">
       <Hero />
+      {priceStats && <PriceShowstopper stats={priceStats} />}
       <section id="leaderboard" className={`${WRAP} mt-20 scroll-mt-24`}>
         <Leaderboards data={leaderboards} />
       </section>

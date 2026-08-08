@@ -362,6 +362,57 @@ export const getPriceIntel = createServerFn({ method: "GET" }).handler(async () 
   return bands;
 });
 
+export type HomePriceStats = {
+  cities: { name: string; region: "india" | "global" | null; median: number; min: number; max: number; count: number }[];
+  newest: SpaceCard[];
+  lastUpdated: string | null;
+};
+
+export const getHomePriceStats = createServerFn({ method: "GET" }).handler(async (): Promise<HomePriceStats> => {
+  const supabase = makePublicClient();
+  const { byCity, cityMap } = await fetchCityPricing(supabase);
+
+  const MIN_SAMPLE = 2;
+  const cities = Array.from(byCity.entries())
+    .filter(([, list]) => list.length >= MIN_SAMPLE)
+    .map(([cityId, list]) => {
+      const prices = list.map((s) => s.price_from).sort((a, b) => a - b);
+      const c = cityMap.get(cityId);
+      return {
+        name: c?.name ?? "Unknown",
+        region: (c?.region as "india" | "global" | null) ?? null,
+        median: median(prices)!,
+        min: prices[0],
+        max: prices[prices.length - 1],
+        count: prices.length,
+      };
+    })
+    .sort((a, b) => b.count - a.count);
+
+  const { data: newestRows } = await supabase
+    .from("spaces")
+    .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id")
+    .eq("is_published", true)
+    .not("price_from", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(5);
+  const newest: SpaceCard[] = (newestRows ?? []).map((s) => ({
+    id: s.id,
+    slug: s.slug,
+    name: s.name,
+    cover_url: s.cover_url,
+    description: s.description,
+    price_from: s.price_from,
+    currency: s.currency,
+    vibe_tags: s.vibe_tags ?? [],
+    city_name: cityMap.get(s.city_id ?? "")?.name ?? null,
+  }));
+
+  // No verified_at column on spaces yet - "last checked" stays hidden
+  // (the UI already handles null) rather than fabricate a date.
+  return { cities, newest, lastUpdated: null };
+});
+
 export const getSpace = createServerFn({ method: "GET" })
   .inputValidator((data: { slug: string }) => data)
   .handler(async ({ data }) => {
@@ -374,7 +425,7 @@ export const getSpace = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!space) return null;
 
-    const [{ data: reviews }, { data: cityRow }, { data: salesQs }, { data: questions }, cityPricing] = await Promise.all([
+    const [{ data: reviews }, { data: cityRow }, { data: salesQs }, { data: questions }, { data: sameCityRaw }] = await Promise.all([
       supabase
         .from("reviews")
         .select("id,rating_overall,rating_wifi,rating_quiet,rating_community,rating_coffee,rating_value,title,body,pros,cons,photos,created_at,profile_id")
@@ -398,22 +449,46 @@ export const getSpace = createServerFn({ method: "GET" })
         .eq("is_hidden", false)
         .order("created_at", { ascending: false })
         .limit(10),
-      fetchCityPricing(supabase),
+      space.city_id
+        ? supabase
+            .from("spaces")
+            .select("id,slug,name,price_from,currency")
+            .eq("city_id", space.city_id)
+            .eq("is_published", true)
+            .not("price_from", "is", null)
+        : Promise.resolve({ data: [] as { id: string; slug: string; name: string; price_from: number; currency: string }[] }),
     ]);
 
-    let priceContext: { median: number; count: number; rank: number; cheaperThan: number; pctVsMedian: number } | null = null;
+    let priceContext: {
+      median: number;
+      min: number;
+      max: number;
+      count: number;
+      rank: number;
+      cheaperThan: number;
+      pctVsMedian: number;
+      sameCity: { slug: string; name: string; price_from: number; currency: string }[];
+    } | null = null;
     if (space.price_from != null && space.city_id) {
-      const cityPrices = (cityPricing.byCity.get(space.city_id) ?? []).map((s) => s.price_from).sort((a, b) => a - b);
+      const sameCity = (sameCityRaw ?? []).filter((s): s is typeof s & { price_from: number } => s.price_from != null);
+      const cityPrices = sameCity.map((s) => s.price_from).sort((a, b) => a - b);
       if (cityPrices.length >= 2) {
         const med = median(cityPrices)!;
         const rank = cityPrices.filter((p) => p < space.price_from!).length + 1;
         const cheaperThan = cityPrices.filter((p) => p > space.price_from!).length;
         priceContext = {
           median: med,
+          min: cityPrices[0],
+          max: cityPrices[cityPrices.length - 1],
           count: cityPrices.length,
           rank,
           cheaperThan,
           pctVsMedian: Number((((space.price_from - med) / med) * 100).toFixed(0)),
+          sameCity: sameCity
+            .filter((s) => s.id !== space.id)
+            .sort((a, b) => a.price_from - b.price_from)
+            .slice(0, 5)
+            .map((s) => ({ slug: s.slug, name: s.name, price_from: s.price_from, currency: s.currency })),
         };
       }
     }

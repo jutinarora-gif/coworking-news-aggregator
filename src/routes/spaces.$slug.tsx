@@ -114,22 +114,51 @@ function SpacePage() {
                   <span className="text-muted-foreground">/mo</span>
                 </div>
               )}
-              {priceContext && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  That's{" "}
-                  <span className="font-medium text-foreground">
-                    {priceContext.pctVsMedian === 0 ? "right at" : `${Math.abs(priceContext.pctVsMedian)}% ${priceContext.pctVsMedian < 0 ? "below" : "above"}`}
-                  </span>{" "}
-                  the {space.city_name} median ({space.currency === "INR" ? "₹" : "$"}{priceContext.median.toLocaleString()}) across {priceContext.count} listed spaces,
-                  and the {ordinal(priceContext.rank)} cheapest{priceContext.cheaperThan > 0 ? ` — cheaper than ${priceContext.cheaperThan} of ${priceContext.count}` : ""}.
-                </p>
-              )}
               {space.amenities && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {(space.amenities as string[]).map((a) => <span key={a} className="text-xs px-2 py-1 rounded-md bg-muted">{a}</span>)}
                 </div>
               )}
               <TrustLine className="mt-5 pt-4 border-t border-border/40" />
+            </section>
+          )}
+
+          {priceContext && space.price_from && (
+            <section className="glass rounded-2xl p-6">
+              <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" /><IndianRupee className="h-3.5 w-3.5" />Price in context</div>
+              <div className="mt-4 grid gap-6 sm:grid-cols-2">
+                <div>
+                  <div className="font-display text-4xl">{space.currency === "INR" ? "₹" : "$"}{space.price_from.toLocaleString()}</div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    That's{" "}
+                    <span className={`font-medium ${priceContext.pctVsMedian < 0 ? "text-flare" : "text-foreground"}`}>
+                      {priceContext.pctVsMedian === 0 ? "right at" : `${priceContext.pctVsMedian > 0 ? "+" : ""}${priceContext.pctVsMedian}%`}
+                    </span>{" "}
+                    {priceContext.pctVsMedian !== 0 && (priceContext.pctVsMedian < 0 ? "below" : "above")} the {space.city_name} median across {priceContext.count} listed spaces.
+                  </p>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Median</span><span className="font-medium">{space.currency === "INR" ? "₹" : "$"}{Math.round(priceContext.median).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Range</span><span className="font-medium">{space.currency === "INR" ? "₹" : "$"}{priceContext.min.toLocaleString()} – {space.currency === "INR" ? "₹" : "$"}{priceContext.max.toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Rank</span><span className="font-medium">{ordinal(priceContext.rank)} cheapest of {priceContext.count}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Spaces pricier</span><span className="font-medium">{priceContext.cheaperThan}</span></div>
+                </div>
+              </div>
+              {priceContext.sameCity.length > 0 && (
+                <div className="mt-6 border-t border-border pt-6">
+                  <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Also in {space.city_name}</h4>
+                  <ul className="mt-3 space-y-2">
+                    {priceContext.sameCity.map((s) => (
+                      <li key={s.slug}>
+                        <Link to="/spaces/$slug" params={{ slug: s.slug }} className="group flex items-center justify-between rounded-xl p-2 hover:bg-accent/50">
+                          <span className="font-medium group-hover:text-muted-foreground transition-colors">{s.name}</span>
+                          <span className="text-sm tabular-nums">{s.currency === "INR" ? "₹" : "$"}{s.price_from.toLocaleString()}<span className="text-muted-foreground text-xs">/mo</span></span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </section>
           )}
 
