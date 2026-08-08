@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "The Coworking Dispatch , India-first coworking news & reviews" },
-      { name: "description", content: "News, member reviews, Space of the Week, weekly winners, and a community Q&A for India's coworking scene." },
+      { name: "description", content: "News, real prices, an Editor's Choice pick, weekly winners, and a community Q&A for India's coworking scene." },
       { property: "og:title", content: "The Coworking Dispatch" },
       { property: "og:description", content: "India-first coworking news & community." },
     ],
@@ -168,7 +168,7 @@ function SpaceOfWeek({ data }: { data: any }) {
   return (
     <section className="section-ink mt-24 py-16 sm:py-20">
       <div className={WRAP}>
-        <SectionHead eyebrow="Space of the week" title="This week's pick" href="/spaces" cta="All spaces" />
+        <SectionHead eyebrow="Editor's choice" title="This week's pick" href="/spaces" cta="All spaces" />
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-center">
           {s.cover_url && (
             <div className="aspect-[16/11] overflow-hidden rounded-3xl bg-muted">
@@ -179,6 +179,7 @@ function SpaceOfWeek({ data }: { data: any }) {
             <h3 className="font-display text-4xl leading-[0.95] sm:text-6xl">{s.name}</h3>
             <div className="label mt-3">{s.city_name}</div>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{data.note}</p>
+            <p className="mt-3 text-xs uppercase tracking-widest text-muted-foreground">Picked by the TCD team — not a review average.</p>
             <Link
               to="/spaces/$slug"
               params={{ slug: s.slug }}
