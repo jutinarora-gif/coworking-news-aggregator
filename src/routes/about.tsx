@@ -47,7 +47,7 @@ function AboutPage() {
           <Trophy className="h-5 w-5" />
           <h2 className="mt-3 font-display text-xl">A transparent ranking</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Our weekly winners aren't paid placements. The formula is <Link to="/winners" className="acid-underline hover:acid-underline-hover font-medium text-foreground">published in full</Link>, and only spaces scoring 80+ qualify.
+            Our weekly <Link to="/winners" className="acid-underline hover:acid-underline-hover font-medium text-foreground">Best Value ranking</Link> isn't paid placement and doesn't need reviews — it's arithmetic on price and amenities against same-city peers, formula published in full.
           </p>
         </div>
         <div className="glass rounded-2xl p-6 hover-glow hover:hover-glow-hover">

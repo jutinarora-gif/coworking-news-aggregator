@@ -407,43 +407,26 @@ export const getWinners = createServerFn({ method: "GET" }).handler(async () => 
         .order("rank", { ascending: true })
     : { data: [] as { space_id: string; rank: number; score: number; week_start: string }[] };
   const spaceIds = Array.from(new Set((winners ?? []).map((w) => w.space_id)));
-  const [{ data: spaces }, { data: cities }, { data: reviews }] = await Promise.all([
+  const [{ data: spaces }, { data: cities }] = await Promise.all([
     spaceIds.length
-      ? supabase.from("spaces").select("id,slug,name,cover_url,city_id,vibe_tags").in("id", spaceIds)
+      ? supabase.from("spaces").select("id,slug,name,cover_url,city_id,vibe_tags,price_from,currency,amenities").in("id", spaceIds)
       : Promise.resolve({ data: [] as any[] }),
     supabase.from("cities").select("id,name"),
-    spaceIds.length
-      ? supabase.from("reviews").select("space_id,rating_overall").in("space_id", spaceIds).eq("is_hidden", false)
-      : Promise.resolve({ data: [] as any[] }),
   ]);
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
   const spaceMap = new Map((spaces ?? []).map((s) => [s.id, { ...s, city_name: cityMap.get(s.city_id ?? "") ?? null }]));
 
-  const reviewsBySpace = new Map<string, number[]>();
-  (reviews ?? []).forEach((r) => {
-    const arr = reviewsBySpace.get(r.space_id) ?? [];
-    arr.push(Number(r.rating_overall));
-    reviewsBySpace.set(r.space_id, arr);
-  });
-
   return (winners ?? [])
     .map((w) => {
-      const ratings = reviewsBySpace.get(w.space_id) ?? [];
-      const reviewCount = ratings.length;
-      const avgRating = reviewCount ? ratings.reduce((a, b) => a + b, 0) / reviewCount : 0;
-      const fiveStarPct = reviewCount ? ratings.filter((r) => r >= 4.5).length / reviewCount : 0;
+      const space = spaceMap.get(w.space_id) ?? null;
       return {
         week_start: w.week_start,
         rank: w.rank,
         score: Number(w.score),
-        space: spaceMap.get(w.space_id) ?? null,
-        breakdown: {
-          ratingComponent: Number(((avgRating / 5) * 60).toFixed(1)),
-          volumeComponent: Number(((Math.min(reviewCount, 30) / 30) * 25).toFixed(1)),
-          fiveStarComponent: Number((fiveStarPct * 15).toFixed(1)),
-          avgRating: Number(avgRating.toFixed(1)),
-          reviewCount,
-        },
+        space,
+        breakdown: space
+          ? { price_from: space.price_from, currency: space.currency, amenity_count: (space.amenities as string[] | null)?.length ?? 0 }
+          : null,
       };
     })
     .filter((w) => w.space);

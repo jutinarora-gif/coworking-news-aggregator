@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "The Coworking Dispatch , India-first coworking news & reviews" },
-      { name: "description", content: "News, real prices, an Editor's Choice pick, weekly winners, and a community Q&A for India's coworking scene." },
+      { name: "description", content: "News, real prices, an Editor's Choice pick, a weekly best-value ranking, and a community Q&A for India's coworking scene." },
       { property: "og:title", content: "The Coworking Dispatch" },
       { property: "og:description", content: "India-first coworking news & community." },
     ],
@@ -66,7 +66,7 @@ function Hero() {
       </div>
       <div className={`${WRAP} mt-10 grid gap-6 border-b border-border pb-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end`}>
         <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
-          Aggregated news, member reviews, weekly winners, and the questions you should actually ask the salesperson before you sign.
+          Aggregated news, real prices, a weekly best-value ranking, and the questions you should actually ask the salesperson before you sign.
         </p>
         <div className="flex flex-wrap gap-3">
           <Button asChild size="lg" className="rounded-full">
@@ -197,7 +197,7 @@ function SpaceOfWeek({ data }: { data: any }) {
 function Winners({ winners }: { winners: any[] }) {
   return (
     <section className={`${WRAP} mt-24`}>
-      <SectionHead eyebrow="Weekly winners" title="Five spaces India is talking about" href="/winners" cta="Full leaderboard" />
+      <SectionHead eyebrow="Best value" title="Five spaces worth a look this week" href="/winners" cta="Full leaderboard" />
       <ul className="mt-2">
         {winners.map((w) => (
           <li key={w.rank}>
@@ -224,6 +224,7 @@ function Winners({ winners }: { winners: any[] }) {
           </li>
         ))}
       </ul>
+      <p className="label mt-4">Ranked by price and amenities against same-city peers, not reviews. Full formula on the leaderboard.</p>
     </section>
   );
 }
