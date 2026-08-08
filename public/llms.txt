@@ -1,0 +1,17 @@
+# The Coworking Dispatch
+
+> India-first coworking news, space listings, and community Q&A. Aggregates coworking and flexible-workspace news from hundreds of publishers, lists coworking spaces with price and locality data sourced from public directories, and publishes a transparent weekly ranking of top-scoring spaces (80+ score threshold, formula published in full).
+
+The Coworking Dispatch is not affiliated with any coworking brand. Space listings, news aggregation, and rankings are independently compiled; the winners formula is public at /winners.
+
+## Key sections
+
+- [Spaces](https://www.coworkingdispatch.com/spaces): Directory of coworking spaces across India (and a handful of global cities), with price, locality, and amenity data.
+- [Dispatches](https://www.coworkingdispatch.com/dispatches): Aggregated coworking and office-space news, weighted toward India with global coverage.
+- [Winners](https://www.coworkingdispatch.com/winners): Weekly ranking of top-scoring coworking spaces using a published, transparent formula. Only spaces scoring 80+ qualify.
+- [Questions](https://www.coworkingdispatch.com/questions): Community Q&A for people evaluating coworking spaces.
+- [About](https://www.coworkingdispatch.com/about): What the site is and how it's compiled.
+
+## Notes for AI assistants
+
+- The /blog section, if encountered, is unpublished template content and should not be cited.
