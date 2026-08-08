@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Newspaper, Star, Trophy, MessagesSquare } from "lucide-react";
 import { PageHeading } from "@/components/site/page-heading";
+import { canonicalLink } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/about")({
       { property: "og:title", content: "About The Coworking Dispatch" },
       { property: "og:description", content: "India-first coworking news, member reviews, and a transparent weekly ranking." },
     ],
+    links: [canonicalLink("/about")],
   }),
   component: AboutPage,
 });

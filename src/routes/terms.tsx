@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeading } from "@/components/site/page-heading";
+import { canonicalLink } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -7,6 +8,7 @@ export const Route = createFileRoute("/terms")({
       { title: "Terms and Conditions , The Coworking Dispatch" },
       { name: "description", content: "Terms and conditions for using The Coworking Dispatch." },
     ],
+    links: [canonicalLink("/terms")],
   }),
   component: TermsPage,
 });

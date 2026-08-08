@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Briefcase, ArrowRight, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { submitJobApplication } from "@/lib/data.functions";
+import { canonicalLink } from "@/lib/seo";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeading } from "@/components/site/page-heading";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/careers")({
       { property: "og:title", content: "Careers at The Coworking Dispatch" },
       { property: "og:description", content: "Open roles at The Coworking Dispatch." },
     ],
+    links: [canonicalLink("/careers")],
   }),
   component: CareersPage,
 });

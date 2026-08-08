@@ -4,6 +4,7 @@ import { getSpaces } from "@/lib/data.functions";
 import { SpaceCard } from "@/components/site/space-card";
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { canonicalLink } from "@/lib/seo";
 import { Search, ChevronsUpDown, Check, MapPin } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -58,6 +59,7 @@ export const Route = createFileRoute("/spaces/")({
       { property: "og:title", content: "Coworking Spaces across India" },
       { property: "og:description", content: "Member reviews. Structured ratings. Real spaces." },
     ],
+    links: [canonicalLink("/spaces")],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q),
   component: SpacesPage,

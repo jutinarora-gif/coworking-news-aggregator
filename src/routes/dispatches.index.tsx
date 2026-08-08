@@ -4,6 +4,7 @@ import { getDispatches } from "@/lib/data.functions";
 import { DispatchCard } from "@/components/site/dispatch-card";
 import { PageHeading } from "@/components/site/page-heading";
 import { z } from "zod";
+import { canonicalLink } from "@/lib/seo";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
 
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/dispatches/")({
       { property: "og:title", content: "Dispatches , Coworking news, India-first" },
       { property: "og:description", content: "Aggregated coworking news from India and around the world." },
     ],
+    links: [canonicalLink("/dispatches")],
   }),
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => ({ region: search.region }),

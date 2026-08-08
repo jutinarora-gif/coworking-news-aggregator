@@ -4,6 +4,7 @@ import { getHomeData, getLeaderboards, subscribeNewsletter } from "@/lib/data.fu
 import { HeroStage } from "@/components/site/hero-stage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { canonicalLink } from "@/lib/seo";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "The Coworking Dispatch" },
       { property: "og:description", content: "India-first coworking news & community." },
     ],
+    links: [canonicalLink("/")],
   }),
   loader: ({ context }) =>
     Promise.all([

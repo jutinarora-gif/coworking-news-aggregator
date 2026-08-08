@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
 import { PageHeading } from "@/components/site/page-heading";
+import { canonicalLink } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact The Coworking Dispatch" },
       { property: "og:description", content: "Get in touch with The Coworking Dispatch team." },
     ],
+    links: [canonicalLink("/contact")],
   }),
   component: ContactPage,
 });

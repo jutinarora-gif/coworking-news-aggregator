@@ -4,6 +4,7 @@ import { getQuestions } from "@/lib/data.functions";
 import { MessagesSquare, Sparkles, CornerDownRight, BadgeCheck, ChevronDown, MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useMemo, useRef, useState } from "react";
+import { canonicalLink } from "@/lib/seo";
 
 const q = queryOptions({ queryKey: ["questions"], queryFn: () => getQuestions() });
 
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/questions")({
       { property: "og:title", content: "Coworking Q&A and AMAs" },
       { property: "og:description", content: "Ask coworkers and founders. Practical answers, no affiliate links." },
     ],
+    links: [canonicalLink("/questions")],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q),
   component: QuestionsPage,

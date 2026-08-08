@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getWinners } from "@/lib/data.functions";
 import { Trophy, Star, Users, Sparkles } from "lucide-react";
 import { cardImageUrl } from "@/lib/utils";
+import { canonicalLink } from "@/lib/seo";
 
 const q = queryOptions({ queryKey: ["winners"], queryFn: () => getWinners() });
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/winners")({
       { property: "og:title", content: "Top Coworking Spaces in India" },
       { property: "og:description", content: "Ranked by a transparent, published scoring formula. Only spaces scoring 80+ make the list." },
     ],
+    links: [canonicalLink("/winners")],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q),
   component: WinnersPage,

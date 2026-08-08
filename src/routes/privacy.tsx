@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeading } from "@/components/site/page-heading";
+import { canonicalLink } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -7,6 +8,7 @@ export const Route = createFileRoute("/privacy")({
       { title: "Privacy Policy , The Coworking Dispatch" },
       { name: "description", content: "How The Coworking Dispatch collects, uses, and protects your data." },
     ],
+    links: [canonicalLink("/privacy")],
   }),
   component: PrivacyPage,
 });
