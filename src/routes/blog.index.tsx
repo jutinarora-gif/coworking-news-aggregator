@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, Clock, Mail } from "lucide-react";
 import { PageHeading } from "@/components/site/page-heading";
 import { Button } from "@/components/ui/button";
+import { canonicalLink } from "@/lib/seo";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/blog/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [canonicalLink("/blog")],
   }),
   component: BlogIndexPage,
 });

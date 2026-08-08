@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Clock, Mail } from "lucide-react";
 import { PageHeading } from "@/components/site/page-heading";
 import { Button } from "@/components/ui/button";
+import { canonicalLink } from "@/lib/seo";
 
 type Post = {
   slug: string;
@@ -90,6 +91,7 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
+      links: [canonicalLink(`/blog/${params.slug}`)],
     };
   },
   loader: ({ params }) => {
