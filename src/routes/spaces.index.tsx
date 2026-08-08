@@ -1,72 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getSpaces, getPriceIntel } from "@/lib/data.functions";
+import { getSpaces } from "@/lib/data.functions";
 import { SpaceCard } from "@/components/site/space-card";
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { canonicalLink } from "@/lib/seo";
-import { Search, ChevronsUpDown, Check, MapPin, IndianRupee } from "lucide-react";
+import { Search, ChevronsUpDown, Check, MapPin } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/site/page-heading";
 import { cn } from "@/lib/utils";
-
-const priceIntelQuery = queryOptions({ queryKey: ["price-intel"], queryFn: () => getPriceIntel() });
-
-function fmtPrice(currency: string, n: number) {
-  return `${currency === "INR" ? "₹" : "$"}${n.toLocaleString()}`;
-}
-
-function PriceBands() {
-  const { data: allBands } = useSuspenseQuery(priceIntelQuery);
-  const [expanded, setExpanded] = useState(false);
-  // A shared axis only makes sense within one currency - mixing raw INR and
-  // USD/EUR/SGD numbers on one bar scale would visually imply a comparison
-  // that isn't real without a currency conversion we're not going to fake.
-  const data = allBands.filter((b) => b.currency === "INR");
-  const globalMax = data.length ? Math.max(...data.map((b) => b.max)) : 0;
-  const shown = expanded ? data : data.slice(0, 8);
-
-  if (!data.length) return null;
-
-  return (
-    <section className="mt-8 glass rounded-2xl p-6">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-        <span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" />
-        <IndianRupee className="h-3.5 w-3.5" />Price intelligence
-      </div>
-      <h2 className="mt-1 font-display text-2xl">What a hot desk actually costs, by city</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Median, and the full range, from the spaces listed on this site — not asking prices, listed prices. India only; global cities price in local currency and aren't shown on this shared scale.
-      </p>
-      <div className="mt-6 space-y-4">
-        {shown.map((b) => (
-          <div key={b.city_name}>
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="font-medium">{b.city_name}</span>
-              <span className="text-xs text-muted-foreground">
-                {fmtPrice(b.currency, b.min)} – {fmtPrice(b.currency, b.max)} · median {fmtPrice(b.currency, b.median)} · {b.count} spaces
-              </span>
-            </div>
-            <div className="mt-1.5 relative h-2 rounded-full bg-muted">
-              <div
-                className="absolute h-2 rounded-full bg-foreground/25"
-                style={{ left: `${(b.min / globalMax) * 100}%`, width: `${((b.max - b.min) / globalMax) * 100}%` }}
-              />
-              <div className="absolute top-1/2 h-3 w-1 -translate-y-1/2 rounded-full bg-flare" style={{ left: `${(b.median / globalMax) * 100}%` }} />
-            </div>
-          </div>
-        ))}
-      </div>
-      {data.length > 8 && (
-        <button onClick={() => setExpanded((v) => !v)} className="mt-4 text-sm font-medium hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">
-          {expanded ? "Show fewer cities" : `Show all ${data.length} cities`}
-        </button>
-      )}
-    </section>
-  );
-}
 
 function CityFilter({ cities, value, onChange }: { cities: { name: string; count: number }[]; value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -117,11 +61,7 @@ export const Route = createFileRoute("/spaces/")({
     ],
     links: [canonicalLink("/spaces")],
   }),
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(q),
-      context.queryClient.ensureQueryData(priceIntelQuery),
-    ]),
+  loader: ({ context }) => context.queryClient.ensureQueryData(q),
   component: SpacesPage,
   errorComponent: ({ error }) => <div className="p-8">{error.message}</div>,
 });
@@ -157,8 +97,6 @@ function SpacesPage() {
         title="Coworking spaces"
         sub={`${data.length} spaces, with real prices, amenities, and locations`}
       />
-
-      <PriceBands />
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <div className="glass rounded-full px-4 flex items-center flex-1 min-w-[240px] focus-within:border-flare transition-colors">

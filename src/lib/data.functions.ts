@@ -318,7 +318,7 @@ function median(sorted: number[]) {
   return n % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-// Shared by getPriceIntel (city price bands) and getSpace's per-space "price
+// Shared by getHomePriceStats (city medians) and getSpace's per-space "price
 // in context" callout - both need the same per-city priced-space list, so
 // this is computed once from the same query shape rather than duplicated.
 async function fetchCityPricing(supabase: ReturnType<typeof makePublicClient>) {
@@ -336,31 +336,6 @@ async function fetchCityPricing(supabase: ReturnType<typeof makePublicClient>) {
   });
   return { byCity, cityMap };
 }
-
-export const getPriceIntel = createServerFn({ method: "GET" }).handler(async () => {
-  const supabase = makePublicClient();
-  const { byCity, cityMap } = await fetchCityPricing(supabase);
-
-  const MIN_SAMPLE = 2;
-  const bands = Array.from(byCity.entries())
-    .filter(([, list]) => list.length >= MIN_SAMPLE)
-    .map(([cityId, list]) => {
-      const prices = list.map((s) => s.price_from).sort((a, b) => a - b);
-      const c = cityMap.get(cityId);
-      return {
-        city_name: c?.name ?? "Unknown",
-        city_region: c?.region ?? null,
-        currency: list[0].currency,
-        count: prices.length,
-        min: prices[0],
-        max: prices[prices.length - 1],
-        median: median(prices)!,
-      };
-    })
-    .sort((a, b) => b.count - a.count);
-
-  return bands;
-});
 
 export type HomePriceStats = {
   cities: { name: string; region: "india" | "global" | null; median: number; min: number; max: number; count: number }[];
