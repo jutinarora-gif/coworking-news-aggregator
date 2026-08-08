@@ -116,7 +116,7 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
 
   return (
     <>
-      <SectionHead eyebrow="India leaderboard" title="Pick a category. See who wins." href="/winners" cta="All winners" />
+      <SectionHead eyebrow="Editor's picks" title="Pick a category. See who wins." href="/winners" cta="All winners" />
 
       <div className="mt-6 flex flex-wrap gap-2">
         {LEADERBOARD_CATEGORIES.map((c, i) => (
@@ -158,7 +158,7 @@ function Leaderboards({ data }: { data: Awaited<ReturnType<typeof getLeaderboard
         )}
       </div>
 
-      <p className="label mt-6">Based on community reviews and ratings on The Coworking Dispatch. Rankings update as more reviews come in.</p>
+      <p className="label mt-6">Hand-picked by the TCD team, not derived from reviews. We'll switch to review-based rankings once there's enough real volume to rank fairly.</p>
     </>
   );
 }
