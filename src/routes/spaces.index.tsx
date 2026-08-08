@@ -95,7 +95,7 @@ function SpacesPage() {
       <PageHeading
         eyebrow="The directory"
         title="Coworking spaces"
-        sub={`${data.length} spaces, with real prices, amenities, and locations`}
+        sub={`${filtered.length} spaces, with real prices, amenities, and locations`}
       />
 
       <div className="mt-8 flex flex-wrap items-center gap-3">

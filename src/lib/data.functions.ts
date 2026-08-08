@@ -338,20 +338,42 @@ async function fetchCityPricing(supabase: ReturnType<typeof makePublicClient>) {
 }
 
 export type HomePriceStats = {
-  cities: { name: string; region: "india" | "global" | null; median: number; min: number; max: number; count: number }[];
+  cities: {
+    name: string;
+    region: "india" | "global" | null;
+    median: number;
+    min: number;
+    max: number;
+    count: number;
+    spaces: { slug: string; name: string; cover_url: string | null; price_from: number; currency: string }[];
+  }[];
   newest: SpaceCard[];
   lastUpdated: string | null;
 };
 
 export const getHomePriceStats = createServerFn({ method: "GET" }).handler(async (): Promise<HomePriceStats> => {
   const supabase = makePublicClient();
-  const { byCity, cityMap } = await fetchCityPricing(supabase);
+  const { data: pricedSpaces } = await supabase
+    .from("spaces")
+    .select("id,slug,name,cover_url,price_from,currency,city_id")
+    .eq("is_published", true)
+    .not("price_from", "is", null);
+  const { cityMap } = await fetchCityPricing(supabase);
+
+  const byCity = new Map<string, { slug: string; name: string; cover_url: string | null; price_from: number; currency: string }[]>();
+  (pricedSpaces ?? []).forEach((s) => {
+    if (!s.city_id || s.price_from == null) return;
+    const list = byCity.get(s.city_id) ?? [];
+    list.push({ slug: s.slug, name: s.name, cover_url: s.cover_url, price_from: s.price_from, currency: s.currency });
+    byCity.set(s.city_id, list);
+  });
 
   const MIN_SAMPLE = 2;
   const cities = Array.from(byCity.entries())
     .filter(([, list]) => list.length >= MIN_SAMPLE)
     .map(([cityId, list]) => {
-      const prices = list.map((s) => s.price_from).sort((a, b) => a - b);
+      const spaces = [...list].sort((a, b) => a.price_from - b.price_from);
+      const prices = spaces.map((s) => s.price_from);
       const c = cityMap.get(cityId);
       return {
         name: c?.name ?? "Unknown",
@@ -360,6 +382,7 @@ export const getHomePriceStats = createServerFn({ method: "GET" }).handler(async
         min: prices[0],
         max: prices[prices.length - 1],
         count: prices.length,
+        spaces,
       };
     })
     .sort((a, b) => b.count - a.count);
@@ -531,10 +554,15 @@ export const getWinners = createServerFn({ method: "GET" }).handler(async () => 
     spaceIds.length
       ? supabase.from("spaces").select("id,slug,name,cover_url,city_id,vibe_tags,price_from,currency,amenities").in("id", spaceIds)
       : Promise.resolve({ data: [] as any[] }),
-    supabase.from("cities").select("id,name"),
+    supabase.from("cities").select("id,name,region"),
   ]);
-  const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
-  const spaceMap = new Map((spaces ?? []).map((s) => [s.id, { ...s, city_name: cityMap.get(s.city_id ?? "") ?? null }]));
+  const cityMap = new Map((cities ?? []).map((c) => [c.id, c]));
+  const spaceMap = new Map(
+    (spaces ?? []).map((s) => {
+      const c = cityMap.get(s.city_id ?? "");
+      return [s.id, { ...s, city_name: c?.name ?? null, city_region: c?.region ?? null }];
+    }),
+  );
 
   return (winners ?? [])
     .map((w) => {

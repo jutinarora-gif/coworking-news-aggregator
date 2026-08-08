@@ -21,6 +21,40 @@ function verdict(budget: number, c: CityStat) {
   return `Well above the ${c.name} median. Make them justify the gap.`;
 }
 
+function BudgetMatches({ city, budget }: { city: CityStat; budget: number }) {
+  const matches = city.spaces.filter((s) => s.price_from <= budget).slice(0, 4);
+
+  return (
+    <div className="mt-8 border-t border-border/60 pt-8">
+      <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+        {matches.length > 0 ? `Fits your budget in ${city.name}` : `Nothing in ${city.name} fits yet`}
+      </div>
+      {matches.length > 0 ? (
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {matches.map((s) => (
+            <Link
+              key={s.slug}
+              to="/spaces/$slug"
+              params={{ slug: s.slug }}
+              className="group rounded-2xl border border-border/60 bg-background/40 p-4 transition-all hover:border-foreground hover:bg-background"
+            >
+              <div className="truncate font-display text-sm leading-tight">{s.name}</div>
+              <div className="mt-3 font-display text-lg leading-none">
+                {inr(s.price_from)}
+                <span className="text-xs text-muted-foreground">/mo</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-muted-foreground">
+          The cheapest space we track in {city.name} is {inr(city.min)}/mo. Raise the slider to see options.
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function PriceShowstopper({ stats }: { stats: HomePriceStats }) {
   const cities = useMemo(
     () => stats.cities.filter((c) => c.region === "india").sort((a, b) => b.median - a.median),
@@ -191,6 +225,8 @@ export function PriceShowstopper({ stats }: { stats: HomePriceStats }) {
                 </Link>
               </div>
             </div>
+
+            <BudgetMatches city={city} budget={budget} />
           </div>
         )}
 

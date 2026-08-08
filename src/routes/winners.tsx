@@ -4,6 +4,7 @@ import { getWinners } from "@/lib/data.functions";
 import { IndianRupee, Layers, MapPinned } from "lucide-react";
 import { cardImageUrl } from "@/lib/utils";
 import { canonicalLink } from "@/lib/seo";
+import { useState } from "react";
 
 const q = queryOptions({ queryKey: ["winners"], queryFn: () => getWinners() });
 
@@ -26,8 +27,10 @@ export const Route = createFileRoute("/winners")({
 });
 
 function WinnersPage() {
-  const { data } = useSuspenseQuery(q);
-  const weekStart = data[0]?.week_start;
+  const { data: all } = useSuspenseQuery(q);
+  const [region, setRegion] = useState<"india" | "global">("india");
+  const data = all.filter((w) => (w.space?.city_region ?? "india") === region);
+  const weekStart = all[0]?.week_start;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
@@ -35,7 +38,24 @@ function WinnersPage() {
         <span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" />
         <IndianRupee className="h-3.5 w-3.5" />Price intelligence
       </div>
-      <h1 className="mt-1 font-display text-4xl md:text-5xl">Best value</h1>
+      <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
+        <h1 className="font-display text-4xl md:text-5xl">Best value</h1>
+        <div className="inline-flex rounded-full border border-border/70 p-1">
+          {([["india", "India"], ["global", "Rest of world"]] as const).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setRegion(key)}
+              aria-pressed={region === key}
+              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
+                region === key ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
       <p className="mt-3 text-lg text-muted-foreground max-w-2xl">
         No reviews, no opinions, no paid placement, just arithmetic on price and amenities, compared against
         other spaces in the same city.

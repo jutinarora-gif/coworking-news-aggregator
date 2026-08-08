@@ -48,12 +48,13 @@ function percentileScores(values) {
 }
 
 async function main() {
-  const { data: spaces, error } = await supabase
-    .from("spaces")
-    .select("id,price_from,amenities,city_id")
-    .eq("is_published", true)
-    .not("price_from", "is", null);
+  const [{ data: spaces, error }, { data: cities, error: citiesError }] = await Promise.all([
+    supabase.from("spaces").select("id,price_from,amenities,city_id").eq("is_published", true).not("price_from", "is", null),
+    supabase.from("cities").select("id,region"),
+  ]);
   if (error) throw error;
+  if (citiesError) throw citiesError;
+  const regionByCity = new Map((cities ?? []).map((c) => [c.id, c.region]));
 
   const byCity = new Map();
   for (const s of spaces) {
@@ -62,8 +63,13 @@ async function main() {
     byCity.set(s.city_id, list);
   }
 
-  const scored = [];
-  for (const [, citySpaces] of byCity) {
+  // Scored per-region rather than one global top N: ranking India and
+  // global spaces against each other in one list would let a handful of
+  // very cheap global spaces (small samples, thin markets) crowd out
+  // India spaces entirely - the site defaults to an India view, which
+  // needs its own top N, not whatever survives a mixed cut.
+  const scoredByRegion = new Map();
+  for (const [cityId, citySpaces] of byCity) {
     if (citySpaces.length < MIN_CITY_SAMPLE) continue;
 
     // Cheapest should score highest, so invert price before ranking:
@@ -71,14 +77,14 @@ async function main() {
     const pricePercentiles = percentileScores(citySpaces.map((s) => -s.price_from));
     const amenityPercentiles = percentileScores(citySpaces.map((s) => (s.amenities ?? []).length));
 
+    const region = regionByCity.get(cityId) ?? "global";
+    const list = scoredByRegion.get(region) ?? [];
     citySpaces.forEach((s, i) => {
       const value_score = PRICE_WEIGHT * pricePercentiles[i] + AMENITY_WEIGHT * amenityPercentiles[i];
-      scored.push({ space_id: s.id, value_score });
+      list.push({ space_id: s.id, value_score });
     });
+    scoredByRegion.set(region, list);
   }
-
-  scored.sort((a, b) => b.value_score - a.value_score);
-  const top = scored.slice(0, TOP_N);
 
   // Monday of the current week, UTC.
   const now = new Date();
@@ -87,20 +93,28 @@ async function main() {
   const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diffToMonday));
   const week_start = monday.toISOString().slice(0, 10);
 
-  const rows = top.map((w, i) => ({
-    week_start,
-    space_id: w.space_id,
-    rank: i + 1,
-    score: Number(w.value_score.toFixed(1)),
-  }));
+  const rows = [];
+  let totalEligible = 0;
+  for (const [region, list] of scoredByRegion) {
+    totalEligible += list.length;
+    list.sort((a, b) => b.value_score - a.value_score);
+    list.slice(0, TOP_N).forEach((w, i) => {
+      rows.push({
+        week_start,
+        space_id: w.space_id,
+        rank: i + 1,
+        score: Number(w.value_score.toFixed(1)),
+      });
+    });
+  }
 
   const { error: upsertError } = await supabase
     .from("weekly_winners")
     .upsert(rows, { onConflict: "week_start,space_id" });
   if (upsertError) throw upsertError;
 
-  console.log(`Computed value scores for ${scored.length} eligible spaces across ${byCity.size} cities.`);
-  console.log(`Wrote top ${rows.length} for week_start=${week_start}.`);
+  console.log(`Computed value scores for ${totalEligible} eligible spaces across ${byCity.size} cities.`);
+  console.log(`Wrote ${rows.length} rows (top ${TOP_N} per region) for week_start=${week_start}.`);
   console.table(rows.slice(0, 10));
 }
 
