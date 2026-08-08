@@ -28,6 +28,7 @@ import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as SpacesIndexRouteImport } from './routes/spaces.index'
 import { Route as SpacesSlugRouteImport } from './routes/spaces.$slug'
 import { Route as AuthenticatedAdminSpacesRouteImport } from './routes/_authenticated/admin.spaces'
+import { Route as AuthenticatedQuestionsAskRouteImport } from './routes/_authenticated/questions.ask'
 import { Route as AuthenticatedReviewSlugRouteImport } from './routes/_authenticated/review.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -126,6 +127,12 @@ const AuthenticatedAdminSpacesRoute =
     path: '/admin/spaces',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedQuestionsAskRoute =
+  AuthenticatedQuestionsAskRouteImport.update({
+    id: '/questions/ask',
+    path: '/questions/ask',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReviewSlugRoute = AuthenticatedReviewSlugRouteImport.update({
   id: '/review/$slug',
   path: '/review/$slug',
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/guides/': typeof GuidesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
   '/admin/spaces': typeof AuthenticatedAdminSpacesRoute
+  '/questions/ask': typeof AuthenticatedQuestionsAskRoute
   '/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRoutesByTo {
@@ -172,6 +180,7 @@ export interface FileRoutesByTo {
   '/guides': typeof GuidesIndexRoute
   '/spaces': typeof SpacesIndexRoute
   '/admin/spaces': typeof AuthenticatedAdminSpacesRoute
+  '/questions/ask': typeof AuthenticatedQuestionsAskRoute
   '/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRoutesById {
@@ -195,6 +204,7 @@ export interface FileRoutesById {
   '/guides/': typeof GuidesIndexRoute
   '/spaces/': typeof SpacesIndexRoute
   '/_authenticated/admin/spaces': typeof AuthenticatedAdminSpacesRoute
+  '/_authenticated/questions/ask': typeof AuthenticatedQuestionsAskRoute
   '/_authenticated/review/$slug': typeof AuthenticatedReviewSlugRoute
 }
 export interface FileRouteTypes {
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/spaces/'
     | '/admin/spaces'
+    | '/questions/ask'
     | '/review/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/guides'
     | '/spaces'
     | '/admin/spaces'
+    | '/questions/ask'
     | '/review/$slug'
   id:
     | '__root__'
@@ -261,6 +273,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/spaces/'
     | '/_authenticated/admin/spaces'
+    | '/_authenticated/questions/ask'
     | '/_authenticated/review/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -418,6 +431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSpacesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/questions/ask': {
+      id: '/_authenticated/questions/ask'
+      path: '/questions/ask'
+      fullPath: '/questions/ask'
+      preLoaderRoute: typeof AuthenticatedQuestionsAskRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/review/$slug': {
       id: '/_authenticated/review/$slug'
       path: '/review/$slug'
@@ -432,6 +452,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedSubmitSpaceRoute: typeof AuthenticatedSubmitSpaceRoute
   AuthenticatedAdminSpacesRoute: typeof AuthenticatedAdminSpacesRoute
+  AuthenticatedQuestionsAskRoute: typeof AuthenticatedQuestionsAskRoute
   AuthenticatedReviewSlugRoute: typeof AuthenticatedReviewSlugRoute
 }
 
@@ -439,6 +460,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedSubmitSpaceRoute: AuthenticatedSubmitSpaceRoute,
   AuthenticatedAdminSpacesRoute: AuthenticatedAdminSpacesRoute,
+  AuthenticatedQuestionsAskRoute: AuthenticatedQuestionsAskRoute,
   AuthenticatedReviewSlugRoute: AuthenticatedReviewSlugRoute,
 }
 

@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getQuestions } from "@/lib/data.functions";
-import { MessagesSquare, Sparkles, CornerDownRight, BadgeCheck, ChevronDown, MapPin } from "lucide-react";
+import { MessagesSquare, Sparkles, CornerDownRight, BadgeCheck, ChevronDown, MapPin, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useMemo, useRef, useState } from "react";
 import { canonicalLink } from "@/lib/seo";
+import { Button } from "@/components/ui/button";
 
 const q = queryOptions({ queryKey: ["questions"], queryFn: () => getQuestions() });
 
@@ -53,9 +54,16 @@ function QuestionsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" /><MessagesSquare className="h-3.5 w-3.5" />Community</div>
-      <h1 className="mt-1 font-display text-4xl md:text-5xl">Questions & AMAs</h1>
-      <p className="mt-2 text-muted-foreground">Ask, answer, compare notes. No affiliate links.</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" /><MessagesSquare className="h-3.5 w-3.5" />Community</div>
+          <h1 className="mt-1 font-display text-4xl md:text-5xl">Questions & AMAs</h1>
+          <p className="mt-2 text-muted-foreground">Ask, answer, compare notes. No affiliate links.</p>
+        </div>
+        <Button asChild variant="mint" className="shrink-0">
+          <Link to="/questions/ask"><Plus className="h-4 w-4" />Ask a question</Link>
+        </Button>
+      </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground">
@@ -166,7 +174,7 @@ function QuestionItem({ qq }: { qq: any }) {
             </div>
           )}
           {qq.answers.length === 0 && (
-            <div className="mt-3 text-xs text-muted-foreground">No answers yet. Be the first.</div>
+            <div className="mt-3 text-xs text-muted-foreground">No answers yet.</div>
           )}
         </div>
       )}

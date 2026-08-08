@@ -791,6 +791,57 @@ export const submitReview = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const submitQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { title: string; body?: string; space_id?: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId, claims } = context;
+
+    if (!data.title?.trim() || data.title.trim().length < 10) {
+      throw new Error("Give your question a bit more detail — at least 10 characters.");
+    }
+
+    let { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("auth_user_id", userId)
+      .maybeSingle();
+
+    if (!profile) {
+      const { data: created, error: createError } = await supabase
+        .from("profiles")
+        .insert({ auth_user_id: userId, display_name: "Coworker" })
+        .select("id")
+        .single();
+      if (createError) throw new Error(createError.message);
+      profile = created;
+    }
+
+    const { data: inserted, error } = await supabase
+      .from("questions")
+      .insert({
+        profile_id: profile.id,
+        title: data.title.trim(),
+        body: data.body?.trim() || null,
+        space_id: data.space_id || null,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    const space = data.space_id
+      ? (await supabase.from("spaces").select("name").eq("id", data.space_id).maybeSingle()).data
+      : null;
+    void notifyTeam("New question asked", {
+      Title: data.title.trim(),
+      Space: space?.name,
+      Asker: (claims as { email?: string })?.email ?? userId,
+      Link: "https://www.coworkingdispatch.com/questions",
+    });
+
+    return { ok: true, id: inserted.id };
+  });
+
 export const getCities = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
   const { data } = await supabase.from("cities").select("id,name,region").order("name");
