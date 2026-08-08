@@ -10,7 +10,7 @@ import { Logomark } from "./logomark";
 const nav = [
   { to: "/dispatches", label: "Dispatches", icon: Newspaper },
   { to: "/spaces", label: "Spaces", icon: Building2 },
-  { to: "/winners", label: "Winners of the Week", icon: Trophy },
+  { to: "/winners", label: "Best Value", icon: Trophy },
   { to: "/questions", label: "Q&A", icon: MessagesSquare },
   { to: "/guides", label: "Guides", icon: BookOpen },
 ];
