@@ -11,6 +11,12 @@ import { TrustLine } from "@/components/site/trust-line";
 
 type ReviewSort = "newest" | "oldest" | "highest" | "lowest";
 
+function ordinal(n: number) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
+}
+
 function sortReviews(reviews: any[], sort: ReviewSort) {
   const copy = [...reviews];
   switch (sort) {
@@ -62,7 +68,7 @@ function SpacePage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(q(slug));
   if (!data) return null;
-  const { space, reviews, agg, salesQuestions } = data;
+  const { space, reviews, agg, priceContext, salesQuestions } = data;
   const [sort, setSort] = useState<ReviewSort>("newest");
   const sortedReviews = useMemo(() => sortReviews(reviews, sort), [reviews, sort]);
   return (
@@ -107,6 +113,16 @@ function SpacePage() {
                   <span className="font-medium text-lg">{space.currency === "INR" ? "₹" : "$"}{space.price_from.toLocaleString()}</span>
                   <span className="text-muted-foreground">/mo</span>
                 </div>
+              )}
+              {priceContext && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  That's{" "}
+                  <span className="font-medium text-foreground">
+                    {priceContext.pctVsMedian === 0 ? "right at" : `${Math.abs(priceContext.pctVsMedian)}% ${priceContext.pctVsMedian < 0 ? "below" : "above"}`}
+                  </span>{" "}
+                  the {space.city_name} median ({space.currency === "INR" ? "₹" : "$"}{priceContext.median.toLocaleString()}) across {priceContext.count} listed spaces,
+                  and the {ordinal(priceContext.rank)} cheapest{priceContext.cheaperThan > 0 ? ` — cheaper than ${priceContext.cheaperThan} of ${priceContext.count}` : ""}.
+                </p>
               )}
               {space.amenities && (
                 <div className="mt-4 flex flex-wrap gap-2">

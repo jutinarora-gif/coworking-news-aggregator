@@ -311,6 +311,57 @@ export const getSpaces = createServerFn({ method: "GET" }).handler(async () => {
   });
 });
 
+function median(sorted: number[]) {
+  const n = sorted.length;
+  if (!n) return null;
+  const mid = Math.floor(n / 2);
+  return n % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+// Shared by getPriceIntel (city price bands) and getSpace's per-space "price
+// in context" callout - both need the same per-city priced-space list, so
+// this is computed once from the same query shape rather than duplicated.
+async function fetchCityPricing(supabase: ReturnType<typeof makePublicClient>) {
+  const [{ data: spaces }, { data: cities }] = await Promise.all([
+    supabase.from("spaces").select("id,price_from,currency,city_id").eq("is_published", true).not("price_from", "is", null),
+    supabase.from("cities").select("id,name,region"),
+  ]);
+  const cityMap = new Map((cities ?? []).map((c) => [c.id, c]));
+  const byCity = new Map<string, { id: string; price_from: number; currency: string }[]>();
+  (spaces ?? []).forEach((s) => {
+    if (!s.city_id) return;
+    const list = byCity.get(s.city_id) ?? [];
+    list.push({ id: s.id, price_from: s.price_from!, currency: s.currency });
+    byCity.set(s.city_id, list);
+  });
+  return { byCity, cityMap };
+}
+
+export const getPriceIntel = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = makePublicClient();
+  const { byCity, cityMap } = await fetchCityPricing(supabase);
+
+  const MIN_SAMPLE = 2;
+  const bands = Array.from(byCity.entries())
+    .filter(([, list]) => list.length >= MIN_SAMPLE)
+    .map(([cityId, list]) => {
+      const prices = list.map((s) => s.price_from).sort((a, b) => a - b);
+      const c = cityMap.get(cityId);
+      return {
+        city_name: c?.name ?? "Unknown",
+        city_region: c?.region ?? null,
+        currency: list[0].currency,
+        count: prices.length,
+        min: prices[0],
+        max: prices[prices.length - 1],
+        median: median(prices)!,
+      };
+    })
+    .sort((a, b) => b.count - a.count);
+
+  return bands;
+});
+
 export const getSpace = createServerFn({ method: "GET" })
   .inputValidator((data: { slug: string }) => data)
   .handler(async ({ data }) => {
@@ -323,7 +374,7 @@ export const getSpace = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!space) return null;
 
-    const [{ data: reviews }, { data: cityRow }, { data: salesQs }, { data: questions }] = await Promise.all([
+    const [{ data: reviews }, { data: cityRow }, { data: salesQs }, { data: questions }, cityPricing] = await Promise.all([
       supabase
         .from("reviews")
         .select("id,rating_overall,rating_wifi,rating_quiet,rating_community,rating_coffee,rating_value,title,body,pros,cons,photos,created_at,profile_id")
@@ -347,7 +398,25 @@ export const getSpace = createServerFn({ method: "GET" })
         .eq("is_hidden", false)
         .order("created_at", { ascending: false })
         .limit(10),
+      fetchCityPricing(supabase),
     ]);
+
+    let priceContext: { median: number; count: number; rank: number; cheaperThan: number; pctVsMedian: number } | null = null;
+    if (space.price_from != null && space.city_id) {
+      const cityPrices = (cityPricing.byCity.get(space.city_id) ?? []).map((s) => s.price_from).sort((a, b) => a - b);
+      if (cityPrices.length >= 2) {
+        const med = median(cityPrices)!;
+        const rank = cityPrices.filter((p) => p < space.price_from!).length + 1;
+        const cheaperThan = cityPrices.filter((p) => p > space.price_from!).length;
+        priceContext = {
+          median: med,
+          count: cityPrices.length,
+          rank,
+          cheaperThan,
+          pctVsMedian: Number((((space.price_from - med) / med) * 100).toFixed(0)),
+        };
+      }
+    }
 
     const profileIds = Array.from(new Set([
       ...(reviews ?? []).map((r) => r.profile_id),
@@ -375,6 +444,7 @@ export const getSpace = createServerFn({ method: "GET" })
       space: { ...space, city_name: cityRow?.name ?? null, city_region: cityRow?.region ?? null },
       reviews: revList.map((r) => ({ ...r, author: profMap.get(r.profile_id) ?? null })),
       agg,
+      priceContext,
       salesQuestions: salesQs ?? [],
       questions: (questions ?? []).map((q) => ({ ...q, author: profMap.get(q.profile_id) ?? null })),
     };
