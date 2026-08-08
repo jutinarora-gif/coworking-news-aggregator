@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { notifyTeam } from "@/lib/notify";
 
 // Built once per warm lambda instance instead of per request, so repeat
 // invocations on the same instance can reuse the underlying HTTP connection
@@ -678,7 +679,7 @@ export const submitReview = createServerFn({ method: "POST" })
     cons?: string;
   }) => data)
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
 
     if (!data.body?.trim() || data.body.trim().length < 20) {
       throw new Error("Reviews need at least 20 characters. Give it a sentence or two.");
@@ -718,6 +719,16 @@ export const submitReview = createServerFn({ method: "POST" })
       cons: data.cons ?? null,
     });
     if (error) throw new Error(error.message);
+
+    const { data: space } = await supabase.from("spaces").select("name,slug").eq("id", data.space_id).maybeSingle();
+    void notifyTeam("New review submitted", {
+      Space: space?.name ?? data.space_id,
+      Rating: `${data.rating_overall}/5`,
+      Reviewer: (claims as { email?: string })?.email ?? userId,
+      Body: data.body.trim(),
+      Link: space?.slug ? `https://www.coworkingdispatch.com/spaces/${space.slug}` : undefined,
+    });
+
     return { ok: true };
   });
 
@@ -749,7 +760,7 @@ export const submitSpace = createServerFn({ method: "POST" })
     vibe_tags?: string[];
   }) => data)
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
 
     if (!data.name?.trim() || data.name.trim().length < 2) {
       throw new Error("Space name is required.");
@@ -785,6 +796,14 @@ export const submitSpace = createServerFn({ method: "POST" })
       submitted_by: userId,
     });
     if (error) throw new Error(error.message);
+
+    void notifyTeam("New space submitted", {
+      Name: data.name.trim(),
+      City: city?.name,
+      "Submitted by": (claims as { email?: string })?.email ?? userId,
+      Description: data.description.trim(),
+    });
+
     return { ok: true, slug };
   });
 
@@ -853,6 +872,13 @@ export const rejectSpace = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const notifySignup = createServerFn({ method: "POST" })
+  .inputValidator((data: { email: string }) => data)
+  .handler(async ({ data }) => {
+    void notifyTeam("New account signup", { Email: data.email.trim().toLowerCase() });
+    return { ok: true };
+  });
+
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .inputValidator((data: { email: string }) => data)
   .handler(async ({ data }) => {
@@ -863,6 +889,7 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
     }
     const { error } = await supabase.from("newsletter_subscribers").insert({ email, source: "web" });
     if (error && !error.message.toLowerCase().includes("duplicate")) throw new Error(error.message);
+    void notifyTeam("New newsletter signup", { Email: email });
     return { ok: true };
   });
 
@@ -886,6 +913,9 @@ export const submitJobApplication = createServerFn({ method: "POST" })
     if (!name || name.length < 2) throw new Error("Please enter your name.");
     if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 320) throw new Error("Please enter a valid email.");
     if (!data.role?.trim()) throw new Error("Missing role.");
+    if (!data.current_ctc?.trim()) throw new Error("Please enter your current CTC.");
+    if (!data.expected_ctc?.trim()) throw new Error("Please enter your expected CTC.");
+    if (!data.notice_period?.trim()) throw new Error("Please enter your notice period.");
 
     const { error } = await supabase.from("job_applications").insert({
       role: data.role.trim(),
@@ -900,5 +930,17 @@ export const submitJobApplication = createServerFn({ method: "POST" })
       resume_path: data.resume_path?.trim() || null,
     });
     if (error) throw new Error(error.message);
+
+    void notifyTeam("New job application", {
+      Role: data.role.trim(),
+      Name: name,
+      Email: email,
+      Phone: data.phone?.trim(),
+      "Current CTC": data.current_ctc?.trim(),
+      "Expected CTC": data.expected_ctc?.trim(),
+      "Notice period": data.notice_period?.trim(),
+      Portfolio: data.portfolio_url?.trim(),
+    });
+
     return { ok: true };
   });

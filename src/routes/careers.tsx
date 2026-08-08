@@ -145,17 +145,17 @@ function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; op
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="current-ctc">Current CTC (optional)</Label>
-              <Input id="current-ctc" value={currentCtc} onChange={(e) => setCurrentCtc(e.target.value)} placeholder="e.g. 12 LPA" />
+              <Label htmlFor="current-ctc">Current CTC</Label>
+              <Input id="current-ctc" value={currentCtc} onChange={(e) => setCurrentCtc(e.target.value)} placeholder="e.g. 12 LPA" required />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="expected-ctc">Expected CTC (optional)</Label>
-              <Input id="expected-ctc" value={expectedCtc} onChange={(e) => setExpectedCtc(e.target.value)} placeholder="e.g. 15 LPA" />
+              <Label htmlFor="expected-ctc">Expected CTC</Label>
+              <Input id="expected-ctc" value={expectedCtc} onChange={(e) => setExpectedCtc(e.target.value)} placeholder="e.g. 15 LPA" required />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="notice-period">Notice period (optional)</Label>
-            <Input id="notice-period" value={noticePeriod} onChange={(e) => setNoticePeriod(e.target.value)} placeholder="e.g. 30 days" />
+            <Label htmlFor="notice-period">Notice period</Label>
+            <Input id="notice-period" value={noticePeriod} onChange={(e) => setNoticePeriod(e.target.value)} placeholder="e.g. 30 days" required />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="message">Why this role? (optional)</Label>

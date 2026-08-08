@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Logomark } from "@/components/site/logomark";
+import { notifySignup } from "@/lib/data.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in , The Coworking Dispatch" }, { name: "description", content: "Sign in to post reviews and join the coworking community." }] }),
@@ -30,6 +31,7 @@ function AuthPage() {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
         if (error) throw error;
+        void notifySignup({ data: { email } });
         toast.success("Welcome. Check your inbox to confirm.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
