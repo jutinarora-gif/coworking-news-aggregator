@@ -83,8 +83,6 @@ export type SpaceCard = {
   currency: string;
   vibe_tags: string[];
   city_name: string | null;
-  avg_rating: number | null;
-  review_count: number;
 };
 
 const DISPATCH_COLS = "id,slug,title,excerpt,cover_url,source_url,source_name,region,feed_id,tags,published_at,ingested_at,is_featured";
@@ -161,16 +159,10 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     ]),
   );
 
-  const [{ data: spaces }, { data: reviewAgg }] = await Promise.all([
-    supabase
-      .from("spaces")
-      .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id")
-      .in("id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]),
-    supabase
-      .from("reviews")
-      .select("space_id,rating_overall")
-      .in("space_id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]),
-  ]);
+  const { data: spaces } = await supabase
+    .from("spaces")
+    .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id")
+    .in("id", spaceIds.length ? spaceIds : ["00000000-0000-0000-0000-000000000000"]);
 
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c.name]));
   const cityRegionMap = new Map((cities ?? []).map((c) => [c.id, c.region]));
@@ -189,16 +181,8 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     })
     .slice(0, 5);
 
-  const aggMap = new Map<string, { sum: number; n: number }>();
-  (reviewAgg ?? []).forEach((r) => {
-    const cur = aggMap.get(r.space_id) ?? { sum: 0, n: 0 };
-    cur.sum += Number(r.rating_overall);
-    cur.n += 1;
-    aggMap.set(r.space_id, cur);
-  });
   const spaceById = new Map(
     (spaces ?? []).map((s) => {
-      const agg = aggMap.get(s.id);
       const card: SpaceCard = {
         id: s.id,
         slug: s.slug,
@@ -209,8 +193,6 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
         currency: s.currency,
         vibe_tags: s.vibe_tags ?? [],
         city_name: cityMap.get(s.city_id ?? "") ?? null,
-        avg_rating: agg ? Number((agg.sum / agg.n).toFixed(1)) : null,
-        review_count: agg?.n ?? 0,
       };
       return [s.id, card];
     }),
@@ -300,41 +282,17 @@ export const getCityStats = createServerFn({ method: "GET" }).handler(async () =
 
 export const getSpaces = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = makePublicClient();
-  const [{ data: spaces }, { data: cities }, { data: statsRows, error: statsErr }] = await Promise.all([
+  const [{ data: spaces }, { data: cities }] = await Promise.all([
     supabase
       .from("spaces")
       .select("id,slug,name,cover_url,description,price_from,currency,vibe_tags,city_id,lat,lng")
       .eq("is_published", true)
       .order("name"),
     supabase.from("cities").select("id,name,region"),
-    // Precomputed view (space_id, avg_rating, review_count) avoids pulling
-    // every review row just to average them client-side on the busiest page.
-    supabase.from("space_review_stats").select("space_id,avg_rating,review_count"),
   ]);
   const cityMap = new Map((cities ?? []).map((c) => [c.id, c]));
 
-  let aggMap: Map<string, { avg: number; n: number }>;
-  if (statsErr || !statsRows) {
-    // Falls back to a live aggregate if the view hasn't been created yet.
-    const { data: reviewAgg } = await supabase.from("reviews").select("space_id,rating_overall");
-    const sumMap = new Map<string, { sum: number; n: number }>();
-    (reviewAgg ?? []).forEach((r) => {
-      const cur = sumMap.get(r.space_id) ?? { sum: 0, n: 0 };
-      cur.sum += Number(r.rating_overall);
-      cur.n += 1;
-      sumMap.set(r.space_id, cur);
-    });
-    aggMap = new Map(Array.from(sumMap.entries()).map(([id, v]) => [id, { avg: v.sum / v.n, n: v.n }]));
-  } else {
-    aggMap = new Map(
-      statsRows
-        .filter((r): r is { space_id: string; avg_rating: number; review_count: number } => r.space_id !== null)
-        .map((r) => [r.space_id, { avg: Number(r.avg_rating), n: r.review_count }]),
-    );
-  }
-
   return (spaces ?? []).map((s) => {
-    const agg = aggMap.get(s.id);
     const c = cityMap.get(s.city_id ?? "");
     return {
       id: s.id,
@@ -349,8 +307,6 @@ export const getSpaces = createServerFn({ method: "GET" }).handler(async () => {
       city_region: c?.region ?? null,
       lat: s.lat,
       lng: s.lng,
-      avg_rating: agg ? Number(agg.avg.toFixed(1)) : null,
-      review_count: agg?.n ?? 0,
     };
   });
 });

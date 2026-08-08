@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Star, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { cardImageUrl } from "@/lib/utils";
 
 export function SpaceCard({ s }: { s: any }) {
@@ -15,22 +15,11 @@ export function SpaceCard({ s }: { s: any }) {
         </div>
       )}
       <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="font-display text-xl group-hover:text-muted-foreground transition-colors">{s.name}</h3>
-            {s.city_name && (
-              <div className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
-                <MapPin className="h-3 w-3" />{s.city_name}
-              </div>
-            )}
-          </div>
-          {s.avg_rating != null && (
-            <div className="text-right shrink-0">
-              <div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg glass">
-                <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-                <span className="text-sm font-medium">{s.avg_rating}</span>
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-1">{s.review_count} reviews</div>
+        <div>
+          <h3 className="font-display text-xl group-hover:text-muted-foreground transition-colors">{s.name}</h3>
+          {s.city_name && (
+            <div className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
+              <MapPin className="h-3 w-3" />{s.city_name}
             </div>
           )}
         </div>

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Logomark } from "./logomark";
+import { TrustLine } from "./trust-line";
 
 export function Footer() {
   return (
@@ -43,8 +44,13 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground">
-        © 2026 The Coworking Dispatch · Made in India, by coworkers, for coworkers.
+      <div className="border-t border-border/40 py-6">
+        <div className="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <TrustLine />
+          <div className="text-xs text-muted-foreground text-center sm:text-right">
+            © 2026 The Coworking Dispatch · Made in India, by coworkers, for coworkers.
+          </div>
+        </div>
       </div>
     </footer>
   );

@@ -7,6 +7,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TrustLine } from "@/components/site/trust-line";
 
 type ReviewSort = "newest" | "oldest" | "highest" | "lowest";
 
@@ -112,6 +113,7 @@ function SpacePage() {
                   {(space.amenities as string[]).map((a) => <span key={a} className="text-xs px-2 py-1 rounded-md bg-muted">{a}</span>)}
                 </div>
               )}
+              <TrustLine className="mt-5 pt-4 border-t border-border/40" />
             </section>
           )}
 
@@ -152,7 +154,7 @@ function SpacePage() {
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2"><span className="acid-dot inline-block h-1.5 w-1.5 rounded-full" />What coworkers say</div>
-                <h2 className="font-display text-3xl mt-1">{reviews.length} reviews</h2>
+                <h2 className="font-display text-3xl mt-1">{reviews.length > 0 ? `${reviews.length} reviews` : "No reviews yet"}</h2>
               </div>
               <div className="flex items-center gap-2">
                 {reviews.length > 1 && (
@@ -171,6 +173,11 @@ function SpacePage() {
                 </Button>
               </div>
             </div>
+            {reviews.length === 0 && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                No reviews yet. We don't invent them — real ones will appear here as coworkers add them.
+              </p>
+            )}
             <div className="mt-6 space-y-4">
               {sortedReviews.slice(0, 30).map((r: any) => (
                 <div key={r.id} className="glass rounded-2xl p-5">

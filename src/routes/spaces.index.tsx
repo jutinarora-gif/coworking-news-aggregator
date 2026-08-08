@@ -55,9 +55,9 @@ export const Route = createFileRoute("/spaces/")({
   head: () => ({
     meta: [
       { title: "Coworking Spaces , The Coworking Dispatch" },
-      { name: "description", content: "Browse India's coworking spaces with member reviews and structured ratings." },
+      { name: "description", content: "Browse India's coworking spaces with real prices, amenities, and locations." },
       { property: "og:title", content: "Coworking Spaces across India" },
-      { property: "og:description", content: "Member reviews. Structured ratings. Real spaces." },
+      { property: "og:description", content: "Real prices. Real locations. No paid placement." },
     ],
     links: [canonicalLink("/spaces")],
   }),
@@ -95,7 +95,7 @@ function SpacesPage() {
       <PageHeading
         eyebrow="The directory"
         title="Coworking spaces"
-        sub={`${data.length} spaces · ${data.reduce((s, x) => s + x.review_count, 0)} member reviews and ratings`}
+        sub={`${data.length} spaces, with real prices, amenities, and locations`}
       />
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
