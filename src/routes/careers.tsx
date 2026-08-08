@@ -33,15 +33,15 @@ export const Route = createFileRoute("/careers")({
   component: CareersPage,
 });
 
-type Role = { title: string; salary: string; blurb: string };
+type Role = { title: string; salary: string; location: string; type: string; blurb: string };
 
 const ROLES: Role[] = [
-  { title: "Content Lead", salary: "15-18 LPA", blurb: "Own the editorial calendar, dispatch quality, and the voice behind our news coverage and guides." },
-  { title: "SEO Manager", salary: "12-14 LPA", blurb: "Own organic strategy across spaces, dispatches, and guides, from technical SEO to content structure." },
-  { title: "SEO Executive", salary: "8-10 LPA", blurb: "Execute on-page and off-page SEO work, keyword research, and reporting under the SEO Manager." },
-  { title: "Graphics Designer", salary: "12-14 LPA", blurb: "Design visual assets across the site, social, and email, and help keep the brand consistent as it grows." },
-  { title: "SDE III", salary: "12-14 LPA", blurb: "Senior engineer on the core platform, owning features end to end across the stack." },
-  { title: "Talent Acquisition Manager", salary: "10-12 LPA", blurb: "Own hiring for the growing team, from sourcing to closing, across tech and non-tech roles." },
+  { title: "Content Lead", salary: "15-18 LPA", location: "Gurgaon", type: "Full-time", blurb: "Own the editorial calendar, dispatch quality, and the voice behind our news coverage and guides." },
+  { title: "SEO Manager", salary: "12-14 LPA", location: "Gurgaon", type: "Full-time", blurb: "Own organic strategy across spaces, dispatches, and guides, from technical SEO to content structure." },
+  { title: "SEO Executive", salary: "8-10 LPA", location: "Gurgaon", type: "Full-time", blurb: "Execute on-page and off-page SEO work, keyword research, and reporting under the SEO Manager." },
+  { title: "Graphics Designer", salary: "12-14 LPA", location: "Gurgaon", type: "Full-time", blurb: "Design visual assets across the site, social, and email, and help keep the brand consistent as it grows." },
+  { title: "SDE III", salary: "12-14 LPA", location: "Gurgaon", type: "Full-time", blurb: "Senior engineer on the core platform, owning features end to end across the stack." },
+  { title: "Talent Acquisition Manager", salary: "10-12 LPA", location: "Gurgaon", type: "Full-time", blurb: "Own hiring for the growing team, from sourcing to closing, across tech and non-tech roles." },
 ];
 
 function ApplicationDialog({ role, open, onOpenChange }: { role: Role | null; open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -177,7 +177,9 @@ function RoleCard({ role, onApply }: { role: Role; onApply: (role: Role) => void
   return (
     <li className="glass rounded-2xl p-5 hover-glow hover:hover-glow-hover flex flex-col">
       <div className="font-display text-lg leading-tight">{role.title}</div>
-      <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">{role.salary}</div>
+      <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
+        {role.salary} · {role.location} · {role.type}
+      </div>
       <p className="mt-3 text-sm text-muted-foreground flex-1">{role.blurb}</p>
       <button
         onClick={() => onApply(role)}
