@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PlayRouteImport } from './routes/play'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as QuestionsRouteImport } from './routes/questions'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -58,6 +59,11 @@ const CareersRoute = CareersRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayRoute = PlayRouteImport.update({
+  id: '/play',
+  path: '/play',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
+  '/play': typeof PlayRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
+  '/play': typeof PlayRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
+  '/play': typeof PlayRoute
   '/privacy': typeof PrivacyRoute
   '/questions': typeof QuestionsRoute
   '/terms': typeof TermsRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/contact'
+    | '/play'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/contact'
+    | '/play'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/contact'
+    | '/play'
     | '/privacy'
     | '/questions'
     | '/terms'
@@ -284,6 +296,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CareersRoute: typeof CareersRoute
   ContactRoute: typeof ContactRoute
+  PlayRoute: typeof PlayRoute
   PrivacyRoute: typeof PrivacyRoute
   QuestionsRoute: typeof QuestionsRoute
   TermsRoute: typeof TermsRoute
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play': {
+      id: '/play'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof PlayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CareersRoute: CareersRoute,
   ContactRoute: ContactRoute,
+  PlayRoute: PlayRoute,
   PrivacyRoute: PrivacyRoute,
   QuestionsRoute: QuestionsRoute,
   TermsRoute: TermsRoute,

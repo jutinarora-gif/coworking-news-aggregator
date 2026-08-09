@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery, useMutation } from "@tanstack/react-que
 import { getHomeData, getLeaderboards, getHomePriceStats, subscribeNewsletter } from "@/lib/data.functions";
 import { HeroStage } from "@/components/site/hero-stage";
 import { PriceShowstopper } from "@/components/site/price-showstopper";
+import { DeskHopTeaser } from "@/components/site/desk-hop-teaser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { canonicalLink } from "@/lib/seo";
@@ -57,6 +58,9 @@ function Home() {
       <ReviewCTA />
       <Dispatches items={data.dispatches.slice(0, 9)} />
       <NewsletterCTA />
+      <section className={`${WRAP} mt-16`}>
+        <DeskHopTeaser />
+      </section>
     </div>
   );
 }
