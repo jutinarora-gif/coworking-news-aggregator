@@ -66,6 +66,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
     scripts: [
+      {
+        // Visit ?noga=1 once to opt this browser out of GA4 permanently
+        // (persisted in localStorage, survives IP changes); ?noga=0 opts
+        // back in. Must run before gtag.js loads - the official
+        // window['ga-disable-<ID>'] flag is what gtag.js checks before
+        // sending any hit.
+        children: `
+          (function() {
+            try {
+              var params = new URLSearchParams(window.location.search);
+              if (params.has('noga')) {
+                if (params.get('noga') === '1') localStorage.setItem('ga_optout', '1');
+                else localStorage.removeItem('ga_optout');
+              }
+              if (localStorage.getItem('ga_optout') === '1') {
+                window['ga-disable-G-GEGYHX6D2H'] = true;
+              }
+            } catch (e) {}
+          })();
+        `,
+      },
       { src: "https://www.googletagmanager.com/gtag/js?id=G-GEGYHX6D2H", async: true },
       {
         children: `
