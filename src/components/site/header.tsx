@@ -13,8 +13,12 @@ const nav = [
   { to: "/winners", label: "Best Value", icon: Trophy },
   { to: "/questions", label: "Q&A", icon: MessagesSquare },
   { to: "/guides", label: "Guides", icon: BookOpen },
-  { to: "/blog", label: "Blog", icon: PenSquare },
-  { to: "/play", label: "Play", icon: Gamepad2 },
+  ...(import.meta.env.DEV
+    ? [
+        { to: "/blog", label: "Blog", icon: PenSquare },
+        { to: "/play", label: "Play", icon: Gamepad2 },
+      ]
+    : []),
 ];
 
 export function Header() {
