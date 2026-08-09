@@ -1,10 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BookOpen, Clock, Mail } from "lucide-react";
 import { PageHeading } from "@/components/site/page-heading";
 import { Button } from "@/components/ui/button";
 import { canonicalLink } from "@/lib/seo";
 
 export const Route = createFileRoute("/blog/")({
+  beforeLoad: () => {
+    if (!import.meta.env.DEV) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: "Blog , The Coworking Dispatch" },

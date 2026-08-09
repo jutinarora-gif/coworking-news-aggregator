@@ -24,7 +24,9 @@ export function Footer() {
             <li><Link to="/winners" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Best Value</Link></li>
             <li><Link to="/questions" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Q&A</Link></li>
             <li><Link to="/guides" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Guides</Link></li>
-            <li><Link to="/blog" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Blog</Link></li>
+            {import.meta.env.DEV && (
+              <li><Link to="/blog" className="hover:text-foreground hover:underline hover:decoration-[var(--flare)] hover:decoration-2 hover:underline-offset-4">Blog</Link></li>
+            )}
           </ul>
         </div>
         <div>

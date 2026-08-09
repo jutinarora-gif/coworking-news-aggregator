@@ -80,6 +80,9 @@ const posts: Post[] = [
 ];
 
 export const Route = createFileRoute("/blog/$slug")({
+  beforeLoad: () => {
+    if (!import.meta.env.DEV) throw notFound();
+  },
   head: ({ params }) => {
     const post = posts.find((p) => p.slug === params.slug);
     return {

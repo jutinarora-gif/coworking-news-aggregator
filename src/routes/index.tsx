@@ -58,9 +58,11 @@ function Home() {
       <ReviewCTA />
       <Dispatches items={data.dispatches.slice(0, 9)} />
       <NewsletterCTA />
-      <section className={`${WRAP} mt-16`}>
-        <DeskHopTeaser />
-      </section>
+      {import.meta.env.DEV && (
+        <section className={`${WRAP} mt-16`}>
+          <DeskHopTeaser />
+        </section>
+      )}
     </div>
   );
 }

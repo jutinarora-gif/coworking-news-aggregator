@@ -1,10 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Gamepad2 } from "lucide-react";
 import { PageHeading } from "@/components/site/page-heading";
 import { DeskHopGame } from "@/components/site/desk-hop-game";
 import { canonicalLink } from "@/lib/seo";
 
 export const Route = createFileRoute("/play")({
+  beforeLoad: () => {
+    if (!import.meta.env.DEV) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: "Desk Hop , The Coworking Dispatch" },
