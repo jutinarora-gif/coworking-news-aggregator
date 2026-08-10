@@ -60,7 +60,13 @@ export const Route = createFileRoute("/spaces/$slug")({
     };
   },
   component: SpacePage,
-  notFoundComponent: () => <div className="p-16 text-center">Space not found</div>,
+  notFoundComponent: () => (
+    <div className="p-16 text-center">
+      <div className="font-display text-2xl">Looks like this page hit a Dead Zone.</div>
+      <p className="mt-2 text-sm text-muted-foreground">We can't find this space. It may have been delisted, or the wifi just dropped.</p>
+      <Link to="/spaces" className="mt-5 inline-block px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium">Back to all spaces</Link>
+    </div>
+  ),
   errorComponent: ({ error }) => <div className="p-8">{error.message}</div>,
 });
 
@@ -78,7 +84,7 @@ function SpacePage() {
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-6 pb-8">
           <Link to="/spaces" className="text-xs text-muted-foreground hover:text-primary inline-flex items-center gap-1"><ArrowLeft className="h-3 w-3" />All spaces</Link>
           <div className="flex flex-wrap items-end justify-between gap-4 mt-3">
-            <div>
+            <div className="glass rounded-2xl px-5 py-4 max-w-full">
               <h1 className="font-display text-4xl md:text-6xl">{space.name}</h1>
               <div className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4" />{space.city_name} · {space.address}

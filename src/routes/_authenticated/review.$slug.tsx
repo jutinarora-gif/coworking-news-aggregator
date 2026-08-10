@@ -22,7 +22,13 @@ export const Route = createFileRoute("/_authenticated/review/$slug")({
     meta: [{ title: loaderData ? `Review ${loaderData.space.name} , The Coworking Dispatch` : "Leave a review" }],
   }),
   component: ReviewFormPage,
-  notFoundComponent: () => <div className="p-16 text-center">Space not found</div>,
+  notFoundComponent: () => (
+    <div className="p-16 text-center">
+      <div className="font-display text-2xl">Looks like this page hit a Dead Zone.</div>
+      <p className="mt-2 text-sm text-muted-foreground">Can't find a space to review here. It may have been delisted.</p>
+      <Link to="/spaces" className="mt-5 inline-block px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium">Back to all spaces</Link>
+    </div>
+  ),
 });
 
 const SUB_RATINGS = [

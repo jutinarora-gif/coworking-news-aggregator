@@ -23,7 +23,13 @@ export const Route = createFileRoute("/dispatches/$slug")({
     links: loaderData?.source_url ? [{ rel: "canonical", href: loaderData.source_url }] : [],
   }),
   component: DispatchPage,
-  notFoundComponent: () => <div className="p-16 text-center">Dispatch not found</div>,
+  notFoundComponent: () => (
+    <div className="p-16 text-center">
+      <div className="font-display text-2xl">This one got spiked before it went to print.</div>
+      <p className="mt-2 text-sm text-muted-foreground">The dispatch you're after doesn't exist, or got pulled after publishing.</p>
+      <Link to="/dispatches" className="mt-5 inline-block px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium">Back to Dispatches</Link>
+    </div>
+  ),
   errorComponent: ({ error }) => <div className="p-8">{error.message}</div>,
 });
 

@@ -20,7 +20,7 @@ function NotFoundComponent() {
     <div className="flex min-h-[70vh] items-center justify-center px-4">
       <div className="max-w-md text-center">
         <h1 className="font-display text-7xl">404</h1>
-        <p className="mt-4 text-muted-foreground">This dispatch never made it to press.</p>
+        <p className="mt-4 text-muted-foreground">The Jam got this one. Page's stuck somewhere it shouldn't be.</p>
         <a href="/" className="mt-6 inline-block px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium">Back to the newsroom</a>
       </div>
     </div>

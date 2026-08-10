@@ -22,7 +22,13 @@ export const Route = createFileRoute("/guides/$slug")({
     links: loaderData ? [{ rel: "canonical", href: `https://www.coworkingdispatch.com/guides/${loaderData.slug}` }] : [],
   }),
   component: GuidePage,
-  notFoundComponent: () => <div className="p-16 text-center">Guide not found</div>,
+  notFoundComponent: () => (
+    <div className="p-16 text-center">
+      <div className="font-display text-2xl">This guide wandered off on a coffee run.</div>
+      <p className="mt-2 text-sm text-muted-foreground">We can't find that guide. It may have moved, or never came back from the pantry.</p>
+      <Link to="/guides" className="mt-5 inline-block px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium">Back to Guides</Link>
+    </div>
+  ),
 });
 
 function GuidePage() {
