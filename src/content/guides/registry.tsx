@@ -4,6 +4,12 @@ import costBreakdownGuide from "./coworking-vs-traditional-office-cost-breakdown
 import gstGuide from "./gst-registration-virtual-offices-guide";
 import firstReviewsGuide from "./getting-your-first-reviews";
 import communityManagementGuide from "./community-management-101";
+import redFlagsGuide from "./red-flags-before-you-sign-a-coworking-contract";
+import etiquetteGuide from "./coworking-etiquette-unwritten-rules";
+import pricingGuide from "./pricing-your-coworking-space";
+import complaintsGuide from "./what-members-actually-complain-about";
+import marketingGuide from "./marketing-your-space-without-paid-ads";
+import badReviewGuide from "./handling-a-bad-review-the-right-way";
 
 // Every planned guide, written or not, so the /guides index can list the
 // full lineup consistently. Guides not yet written just render as "Coming
@@ -24,7 +30,19 @@ export const ALL_GUIDES_META: GuideMeta[] = [
 
 // Guides that actually have written content. Add each new guide module here
 // once it's written.
-const WRITTEN: GuideModule[] = [howToChooseGuide, costBreakdownGuide, gstGuide, firstReviewsGuide, communityManagementGuide];
+const WRITTEN: GuideModule[] = [
+  howToChooseGuide,
+  costBreakdownGuide,
+  gstGuide,
+  firstReviewsGuide,
+  communityManagementGuide,
+  redFlagsGuide,
+  etiquetteGuide,
+  pricingGuide,
+  complaintsGuide,
+  marketingGuide,
+  badReviewGuide,
+];
 
 export const WRITTEN_GUIDES: Map<string, GuideModule> = new Map(WRITTEN.map((g) => [g.slug, g]));
 
