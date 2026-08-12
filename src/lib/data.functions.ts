@@ -595,34 +595,34 @@ export type Leaderboards = Record<
 // space to be statistically meaningful.
 const CURATED_LEADERBOARD: Record<keyof Leaderboards, string[]> = {
   wifi: [
-    "wework-embassy-galaxy-business-park-sector-62-noida",
-    "awfis-prestige-technology-park-marathahalli-bangalore",
-    "devx-vastrapur-ahmedabad",
+    "wellwork-mpm-corporate-house-gachibowli-hyderabad",
+    "u-s-coworking-dwarka-delhi",
+    "smartworks-corporate-park-sector-125-noida",
   ],
   community: [
-    "wework-berger-delhi-one-sector-16-noida",
-    "91springboard-bkc-kalina-bandra-kurla-complex-mumbai",
-    "innov8-clc-sector-44-gurugram",
+    "urbanvault-esares-building-koramangala-bangalore",
+    "karma-workspaces-shivarth-the-ace-ahmedabad",
+    "ikeva-my-home-hub-hitec-city-hyderabad",
   ],
   clean: [
-    "smartworks-paradigm-malad-west-mumbai",
-    "indiqube-palmyra-saidapet-chennai",
-    "sentient-thaltej-ahmedabad",
+    "one-day-coworking-labs-gachibowli-hyderabad",
+    "g-k-surekha-pitampura-delhi",
+    "nukleus-bhutani-cyberpark-sector-62-noida",
   ],
   support: [
-    "cowrks-worldmark-aerocity-delhi-ncr",
-    "regus-south-tower-nungambakkam-chennai",
-    "office-culture-mansarovar-jaipur",
+    "awfis-sector-39-sector-39-gurugram",
+    "golden-glory-sector-8-noida",
+    "isprout-sreshtha-marvel-gachibowli-hyderabad",
   ],
   ac: [
-    "akasa-corenthum-sector-62-noida",
-    "innov8-graphix-tower-sector-62-noida",
-    "ignite-edc-innovation-hub-panaji-goa",
+    "table-space-dlf-cyber-city-dlf-cyber-city-gurugram",
+    "avanta-business-centre-barakhamba-barakhamba-delhi",
+    "lorven-smart-spaces-gachibowli-hyderabad",
   ],
   meet: [
-    "91springboard-hitec-city-hitec-city-hyderabad",
-    "smartworks-golden-millenium-vasanth-nagar-bangalore",
-    "5b-colab-vishwabharti-society-ahmedabad",
+    "indesk-hitec-city-hyderabad",
+    "kowo-workspaces-panaji-goa",
+    "connecthq-sector-8-noida",
   ],
 };
 
