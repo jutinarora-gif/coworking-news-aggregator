@@ -88,7 +88,7 @@ export function PriceShowstopper({ stats }: { stats: HomePriceStats }) {
   const newest = stats.newest.filter((s) => cities.some((c) => c.name === s.city_name));
 
   return (
-    <section className="section-mist py-16 sm:py-20">
+    <section id="price-intelligence" className="section-mist py-16 sm:py-20 scroll-mt-24">
       <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
         <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
           <span className="acid-dot inline-block h-2 w-2 rounded-full" />
