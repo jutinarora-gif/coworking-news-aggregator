@@ -3,110 +3,44 @@ import { ArrowLeft, Clock, Mail } from "lucide-react";
 import { PageHeading } from "@/components/site/page-heading";
 import { Button } from "@/components/ui/button";
 import { canonicalLink } from "@/lib/seo";
-
-type Post = {
-  slug: string;
-  title: string;
-  category: string;
-  date: string;
-  read: string;
-  excerpt: string;
-  featured?: boolean;
-  image: string;
-};
-
-const posts: Post[] = [
-  {
-    slug: "the-real-cost-of-a-hot-desk-in-bengaluru",
-    title: "The real cost of a hot desk in Bengaluru",
-    category: "Economics",
-    date: "Aug 4, 2026",
-    read: "8 min",
-    excerpt:
-      "Listed price is the opening bid. We added up lock ins, printing, meeting room credits and the coffee upsell across 12 spaces to find what a desk actually costs a founder per month.",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    slug: "community-is-a-feature-not-a-poster",
-    title: "Community is a feature, not a poster",
-    category: "Culture",
-    date: "Jul 29, 2026",
-    read: "6 min",
-    excerpt:
-      "Every space sells community. Only a handful staff it. Here is how to tell the difference in one walkthrough, before you sign anything.",
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    slug: "wifi-that-survives-a-demo-day",
-    title: "Wifi that survives a demo day",
-    category: "Field notes",
-    date: "Jul 22, 2026",
-    read: "5 min",
-    excerpt:
-      "We ran speed tests at peak hours across Mumbai and Gurugram. The gap between the marketing number and the 4pm number is the whole story.",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    slug: "why-tier-two-cities-are-winning-the-flex-race",
-    title: "Why tier two cities are winning the flex race",
-    category: "India desk",
-    date: "Jul 15, 2026",
-    read: "9 min",
-    excerpt:
-      "Indore, Kochi and Jaipur are adding desks faster than they are adding traffic. Operators there are building for locals, not for headlines.",
-    image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    slug: "the-quiet-floor-problem",
-    title: "The quiet floor problem",
-    category: "Design",
-    date: "Jul 8, 2026",
-    read: "4 min",
-    excerpt:
-      "Open plans sell tours and ruin afternoons. A short argument for acoustic zoning, and the three spaces that already got it right.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    slug: "what-global-operators-keep-getting-wrong-in-india",
-    title: "What global operators keep getting wrong in India",
-    category: "Global",
-    date: "Jul 1, 2026",
-    read: "7 min",
-    excerpt:
-      "Imported playbooks, imported pricing, imported furniture. The 30 percent of the world we cover has plenty to learn from the 70 percent.",
-    image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1600&q=80",
-  },
-];
+import { getPost, ALL_POSTS_META, WRITTEN_POSTS } from "@/content/blog/registry";
 
 export const Route = createFileRoute("/blog/$slug")({
-  beforeLoad: () => {
-    if (!import.meta.env.DEV) throw notFound();
+  loader: ({ params }) => {
+    const post = getPost(params.slug);
+    if (!post) throw notFound();
+    const { title, category, date, read, excerpt, metaDescription, image, slug } = post;
+    const related = ALL_POSTS_META.filter((p) => p.slug !== slug && WRITTEN_POSTS.has(p.slug)).slice(0, 2);
+    return { meta: { title, category, date, read, excerpt, metaDescription, image, slug }, related };
   },
-  head: ({ params }) => {
-    const post = posts.find((p) => p.slug === params.slug);
+  head: ({ loaderData }) => {
+    const post = loaderData?.meta;
     return {
       meta: [
         { title: post ? `${post.title} , The Coworking Dispatch` : "Post , The Coworking Dispatch" },
-        { name: "description", content: post?.excerpt ?? "A long read from The Coworking Dispatch." },
+        { name: "description", content: post?.metaDescription ?? "A long read from The Coworking Dispatch." },
         { property: "og:title", content: post?.title ?? "The Coworking Dispatch" },
-        { property: "og:description", content: post?.excerpt ?? "" },
+        { property: "og:description", content: post?.metaDescription ?? "" },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [canonicalLink(`/blog/${params.slug}`)],
+      links: post ? [canonicalLink(`/blog/${post.slug}`)] : [],
     };
   },
-  loader: ({ params }) => {
-    const post = posts.find((p) => p.slug === params.slug);
-    if (!post) throw notFound();
-    return { post, related: posts.filter((p) => p.slug !== post.slug).slice(0, 2) };
-  },
   component: BlogPostPage,
+  notFoundComponent: () => (
+    <div className="p-16 text-center">
+      <div className="font-display text-2xl">This one got spiked before it went to print.</div>
+      <p className="mt-2 text-sm text-muted-foreground">We can't find that post. It may not be written yet.</p>
+      <Link to="/blog" className="mt-5 inline-block px-5 py-2.5 rounded-full bg-flare text-flare-ink font-medium">Back to Blog</Link>
+    </div>
+  ),
 });
 
 function BlogPostPage() {
-  const { post, related } = Route.useLoaderData() as { post: Post; related: Post[] };
+  const { meta, related } = Route.useLoaderData();
+  const post = getPost(meta.slug)!;
+  const Body = post.Body;
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
@@ -134,31 +68,7 @@ function BlogPostPage() {
       </figure>
 
       <article className="prose prose-lg mt-12 max-w-none">
-        <p className="font-display text-xl leading-relaxed">
-          This is a template paragraph. Replace it with the actual story body. The design keeps the reader focused:
-          warm paper background, near-black ink, and a single mint accent for category tags, pull quotes, and links.
-        </p>
-
-        <h2 className="font-display text-2xl">A section heading in the article</h2>
-        <p>
-          Use this route as a blueprint. Duplicate it for each long read, swap the slug, title, image, and body copy.
-          The layout is built to scale from a 4 minute field note to a 4,000 word investigation.
-        </p>
-
-        <blockquote className="border-l-4 border-flare pl-5 font-display text-2xl italic leading-snug text-foreground">
-          "Pull quotes can sit inside a mint left border. They break the rhythm without breaking the design."
-        </blockquote>
-
-        <p>
-          Keep paragraphs short. Use subheadings generously. The Coworking Dispatch reads best when it feels like a
-          printed magazine that happens to scroll.
-        </p>
-
-        <h2 className="font-display text-2xl">Another section heading</h2>
-        <p>
-          Add more sections, embed images, charts, or member quotes. The container is max-w-3xl so the line length
-          stays comfortable on every screen.
-        </p>
+        <Body />
       </article>
 
       <div className="mt-12 flex items-center gap-4 border-t border-border pt-8">
@@ -175,7 +85,7 @@ function BlogPostPage() {
         <section className="mt-16">
           <PageHeading eyebrow="Read next" title="More long reads" sub="" />
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {related.map((p: Post) => (
+            {related.map((p) => (
               <Link
                 key={p.slug}
                 to="/blog/$slug"

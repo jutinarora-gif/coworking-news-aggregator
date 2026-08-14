@@ -32,6 +32,14 @@ async function main() {
     "/guides/gst-registration-virtual-offices-guide",
     "/guides/getting-your-first-reviews",
     "/guides/community-management-101",
+    "/guides/red-flags-before-you-sign-a-coworking-contract",
+    "/guides/coworking-etiquette-unwritten-rules",
+    "/guides/pricing-your-coworking-space",
+    "/guides/what-members-actually-complain-about",
+    "/guides/marketing-your-space-without-paid-ads",
+    "/guides/handling-a-bad-review-the-right-way",
+    "/blog",
+    "/blog/6-coworking-red-flags-we-see-again-and-again",
   ];
   let dynamicUrls = [];
 
