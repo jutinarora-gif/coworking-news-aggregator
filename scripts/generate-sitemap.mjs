@@ -40,6 +40,7 @@ async function main() {
     "/guides/handling-a-bad-review-the-right-way",
     "/blog",
     "/blog/6-coworking-red-flags-we-see-again-and-again",
+    "/blog/monthly-coworking-membership-can-you-cancel-anytime",
   ];
   let dynamicUrls = [];
 
