@@ -91,7 +91,56 @@ function slugify(s) {
     .slice(0, 90);
 }
 
-async function ingestFeed(feed) {
+const STOPWORDS = new Set([
+  "a", "an", "the", "and", "or", "but", "of", "in", "on", "at", "to", "for",
+  "with", "is", "are", "was", "were", "be", "as", "by", "from", "its", "it",
+  "this", "that", "after", "into", "amid", "over", "up", "out", "new",
+]);
+
+// The same story routinely shows up on multiple wires with a reworded
+// headline (Google News search feed vs. a publisher's own feed, etc.).
+// Titles are still compared as a cheap, dependency-free proxy for "same
+// story" — Jaccard overlap on significant words survives most rewording.
+function titleTokens(title) {
+  return new Set(
+    (title || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length > 2 && !STOPWORDS.has(w))
+  );
+}
+
+function jaccardSimilarity(a, b) {
+  if (a.size === 0 || b.size === 0) return 0;
+  let intersection = 0;
+  for (const w of a) if (b.has(w)) intersection++;
+  const union = a.size + b.size - intersection;
+  return intersection / union;
+}
+
+const DUPLICATE_SIMILARITY_THRESHOLD = 0.6;
+const DUPLICATE_LOOKBACK_DAYS = 10;
+
+async function loadRecentTitleTokens(supabase) {
+  const since = new Date(Date.now() - DUPLICATE_LOOKBACK_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("dispatches")
+    .select("title, published_at")
+    .gte("published_at", since);
+  if (error) {
+    console.error("  could not load recent titles for dedup check:", error.message);
+    return [];
+  }
+  return (data ?? []).map((d) => titleTokens(d.title));
+}
+
+function isDuplicateStory(title, recentTitleTokens) {
+  const tokens = titleTokens(title);
+  return recentTitleTokens.some((existing) => jaccardSimilarity(tokens, existing) >= DUPLICATE_SIMILARITY_THRESHOLD);
+}
+
+async function ingestFeed(feed, recentTitleTokens) {
   try {
     const parsed = await parser.parseURL(feed.url);
     const items = parsed.items ?? [];
@@ -131,6 +180,11 @@ async function ingestFeed(feed) {
         : { title: item.title?.trim() || "Untitled", publisher: feed.name };
       const title = stripEmDash(rawTitle);
       const sourceName = isGoogleNews ? publisher : feed.name;
+
+      if (isDuplicateStory(title, recentTitleTokens)) {
+        skipped++;
+        continue;
+      }
       const slug = slugify(`${title}-${publisher}`);
       const excerpt = stripEmDash((item.contentSnippet || item.summary || "").slice(0, 280));
 
@@ -157,6 +211,7 @@ async function ingestFeed(feed) {
         console.error(`  insert error for "${title}":`, insErr.message);
         continue;
       }
+      recentTitleTokens.push(titleTokens(title));
       inserted++;
     }
 
@@ -165,7 +220,7 @@ async function ingestFeed(feed) {
       .update({ last_polled_at: new Date().toISOString(), last_status: "ok" })
       .eq("id", feed.id);
 
-    console.log(`${feed.name}: ${inserted} inserted, ${skipped} skipped (irrelevant), ${items.length} total items`);
+    console.log(`${feed.name}: ${inserted} inserted, ${skipped} skipped (irrelevant/duplicate), ${items.length} total items`);
   } catch (err) {
     console.error(`${feed.name}: FAILED — ${err.message}`);
     await supabase
@@ -188,8 +243,9 @@ async function main() {
   }
 
   console.log(`Polling ${feeds.length} feeds...`);
+  const recentTitleTokens = await loadRecentTitleTokens(supabase);
   for (const feed of feeds) {
-    await ingestFeed(feed);
+    await ingestFeed(feed, recentTitleTokens);
   }
   console.log("Done.");
 }
