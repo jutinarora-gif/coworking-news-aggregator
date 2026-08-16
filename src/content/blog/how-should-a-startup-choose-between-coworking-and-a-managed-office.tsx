@@ -127,7 +127,7 @@ export const meta = {
     "Most founders decide this on price per desk. It should come down to how uncertain your next 18 months actually are, here's the framework and a scoring checklist.",
   metaDescription:
     "Most founders decide on price per desk. Here's the funding-certainty framework to use instead, plus a scoring checklist.",
-  image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=80",
+  image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=80",
 } as const;
 
 const post: BlogModule = { ...meta, Body };
