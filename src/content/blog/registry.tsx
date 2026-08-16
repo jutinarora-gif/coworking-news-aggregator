@@ -1,12 +1,14 @@
 import type { BlogMeta, BlogModule } from "./types";
 import redFlagsPost from "./6-coworking-red-flags-we-see-again-and-again";
 import cancelMembershipPost from "./monthly-coworking-membership-can-you-cancel-anytime";
+import coworkingVsManagedPost from "./how-should-a-startup-choose-between-coworking-and-a-managed-office";
 
 // Every planned post, written or not, so /blog can list the full lineup
 // consistently. Posts not yet written render as "Coming soon" cards until
 // their entry is added to WRITTEN below. Order here is newest-first --
 // index 0 is the featured lead card on /blog.
 export const ALL_POSTS_META: BlogMeta[] = [
+  { ...coworkingVsManagedPost },
   { ...cancelMembershipPost },
   { ...redFlagsPost },
   {
@@ -73,7 +75,7 @@ export const ALL_POSTS_META: BlogMeta[] = [
 
 // Posts that actually have written content. Add each new post module here
 // once it's written.
-const WRITTEN: BlogModule[] = [cancelMembershipPost, redFlagsPost];
+const WRITTEN: BlogModule[] = [coworkingVsManagedPost, cancelMembershipPost, redFlagsPost];
 
 export const WRITTEN_POSTS: Map<string, BlogModule> = new Map(WRITTEN.map((p) => [p.slug, p]));
 

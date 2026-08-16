@@ -51,6 +51,43 @@ export function Steps({ items }: { items: ReactNode[] }) {
   );
 }
 
+export function Table({ head, rows }: { head: string[]; rows: string[][] }) {
+  return (
+    <div className="mt-4 overflow-x-auto rounded-2xl border border-border">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-muted/50">
+            {head.map((h, i) => (
+              <th key={i} className="border-b border-border px-4 py-3 text-left font-display font-medium">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} className={i !== rows.length - 1 ? "border-b border-border" : undefined}>
+              {row.map((cell, j) => (
+                <td key={j} className="px-4 py-3 align-top text-muted-foreground">
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function InlineLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <Link to={to} className="underline decoration-flare decoration-2 underline-offset-4 text-foreground hover:text-flare-ink transition-colors">
+      {children}
+    </Link>
+  );
+}
+
 export function RelatedLink({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link to={to} className="mt-8 flex items-center justify-between gap-2 rounded-2xl bg-flare p-5 text-flare-ink transition-transform hover:-translate-y-0.5">
