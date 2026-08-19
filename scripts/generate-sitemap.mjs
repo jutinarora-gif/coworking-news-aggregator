@@ -47,13 +47,36 @@ async function main() {
 
   if (supabaseUrl && supabaseKey) {
     const supabase = createClient(supabaseUrl, supabaseKey);
-    const [{ data: dispatches }, { data: spaces }] = await Promise.all([
-      supabase.from("dispatches").select("slug").eq("is_hidden", false),
-      supabase.from("spaces").select("slug").eq("is_published", true),
+    // PostgREST caps an unbounded select() at 1000 rows, so paginate through
+    // everything rather than silently truncating the sitemap.
+    async function fetchAllSlugs(table, filterColumn, filterValue) {
+      const pageSize = 1000;
+      let from = 0;
+      const slugs = [];
+      while (true) {
+        const { data, error } = await supabase
+          .from(table)
+          .select("slug")
+          .eq(filterColumn, filterValue)
+          .range(from, from + pageSize - 1);
+        if (error) {
+          console.error(`[sitemap] Failed to fetch ${table}:`, error.message);
+          break;
+        }
+        slugs.push(...(data ?? []).map((r) => r.slug));
+        if (!data || data.length < pageSize) break;
+        from += pageSize;
+      }
+      return slugs;
+    }
+
+    const [dispatchSlugs, spaceSlugs] = await Promise.all([
+      fetchAllSlugs("dispatches", "is_hidden", false),
+      fetchAllSlugs("spaces", "is_published", true),
     ]);
     dynamicUrls = [
-      ...(dispatches ?? []).map((d) => `/dispatches/${d.slug}`),
-      ...(spaces ?? []).map((s) => `/spaces/${s.slug}`),
+      ...dispatchSlugs.map((slug) => `/dispatches/${slug}`),
+      ...spaceSlugs.map((slug) => `/spaces/${slug}`),
     ];
   } else {
     console.warn("[sitemap] Missing SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY, generating static-only sitemap");
