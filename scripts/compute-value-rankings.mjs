@@ -31,6 +31,22 @@ const AMENITY_WEIGHT = 0.35;
 const MIN_CITY_SAMPLE = 3;
 const TOP_N = 20;
 
+// A flat top-N by raw score lets whichever city happens to have the most
+// listings (currently NCR + Hyderabad, from the bulk import) dominate the
+// whole India board, since more listings means more shots at a near-100
+// percentile. Cap how many slots any single city can take so the board
+// actually reflects "all over India," not just wherever we scraped deepest.
+const MAX_PER_CITY = 3;
+
+// Pure price-percentile ranking structurally never surfaces recognizable
+// chains (they rarely undercut small unbranded operators on price), which
+// undermines trust in a board full of unfamiliar names. Reserve a couple of
+// slots for known multi-city brands if any place well enough within their
+// own city to be defensible, without letting them skip the queue entirely.
+const KNOWN_BRANDS = ["wework", "91springboard", "awfis", "indiqube", "smartworks", "bhive", "cowrks", "regus", "spaces", "incuspaze"];
+const MIN_BRAND_SLOTS = 2;
+const isKnownBrand = (name) => KNOWN_BRANDS.some((b) => name.toLowerCase().includes(b));
+
 function percentileScores(values) {
   // Higher raw value -> higher percentile. Ties get the *average* of the
   // ranks they span (the standard "average rank" method), not the top of
@@ -49,7 +65,7 @@ function percentileScores(values) {
 
 async function main() {
   const [{ data: spaces, error }, { data: cities, error: citiesError }] = await Promise.all([
-    supabase.from("spaces").select("id,price_from,amenities,city_id").eq("is_published", true).not("price_from", "is", null),
+    supabase.from("spaces").select("id,name,price_from,amenities,city_id").eq("is_published", true).not("price_from", "is", null),
     supabase.from("cities").select("id,region"),
   ]);
   if (error) throw error;
@@ -81,9 +97,50 @@ async function main() {
     const list = scoredByRegion.get(region) ?? [];
     citySpaces.forEach((s, i) => {
       const value_score = PRICE_WEIGHT * pricePercentiles[i] + AMENITY_WEIGHT * amenityPercentiles[i];
-      list.push({ space_id: s.id, value_score });
+      list.push({ space_id: s.id, city_id: cityId, is_brand: isKnownBrand(s.name), value_score });
     });
     scoredByRegion.set(region, list);
+  }
+
+  // Selects up to TOP_N entries from a score-sorted list, in three passes
+  // that all share one running per-city tally so the cap is never violated:
+  //   1. Reserve up to MIN_BRAND_SLOTS for the best-scoring known brands.
+  //   2. Fill the rest by score, respecting the per-city cap.
+  //   3. If slots remain (cap made the board short of topN), fill ignoring
+  //      the cap so the board never ends up smaller than topN.
+  function selectTopN(sorted, topN) {
+    const cityCounts = new Map();
+    const picked = [];
+    const pickedIds = new Set();
+
+    function tryAdd(w, respectCap) {
+      if (pickedIds.has(w.space_id)) return false;
+      const cityCount = cityCounts.get(w.city_id) ?? 0;
+      if (respectCap && cityCount >= MAX_PER_CITY) return false;
+      picked.push(w);
+      pickedIds.add(w.space_id);
+      cityCounts.set(w.city_id, cityCount + 1);
+      return true;
+    }
+
+    let brandCount = 0;
+    for (const w of sorted) {
+      if (brandCount >= MIN_BRAND_SLOTS) break;
+      if (!w.is_brand) continue;
+      if (tryAdd(w, true)) brandCount++;
+    }
+
+    for (const w of sorted) {
+      if (picked.length >= topN) break;
+      tryAdd(w, true);
+    }
+
+    for (const w of sorted) {
+      if (picked.length >= topN) break;
+      tryAdd(w, false);
+    }
+
+    return picked.sort((a, b) => b.value_score - a.value_score);
   }
 
   // Monday of the current week, UTC.
@@ -98,7 +155,7 @@ async function main() {
   for (const [region, list] of scoredByRegion) {
     totalEligible += list.length;
     list.sort((a, b) => b.value_score - a.value_score);
-    list.slice(0, TOP_N).forEach((w, i) => {
+    selectTopN(list, TOP_N).forEach((w, i) => {
       rows.push({
         week_start,
         space_id: w.space_id,
@@ -107,6 +164,13 @@ async function main() {
       });
     });
   }
+
+  // Clear this week's existing rows first - an upsert alone leaves stale
+  // rows behind for any space_id that drops out of this run's top N (e.g.
+  // unpublished, or simply outscored), since upsert only touches rows for
+  // space_ids present in the new payload.
+  const { error: deleteError } = await supabase.from("weekly_winners").delete().eq("week_start", week_start);
+  if (deleteError) throw deleteError;
 
   const { error: upsertError } = await supabase
     .from("weekly_winners")
