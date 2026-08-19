@@ -88,6 +88,19 @@ export function InlineLink({ to, children }: { to: string; children: ReactNode }
   );
 }
 
+export function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline decoration-flare decoration-2 underline-offset-4 text-foreground hover:text-flare-ink transition-colors"
+    >
+      {children}
+    </a>
+  );
+}
+
 export function RelatedLink({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link to={to} className="mt-8 flex items-center justify-between gap-2 rounded-2xl bg-flare p-5 text-flare-ink transition-transform hover:-translate-y-0.5">
