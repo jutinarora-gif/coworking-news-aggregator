@@ -70,14 +70,12 @@ async function main() {
       return slugs;
     }
 
-    const [dispatchSlugs, spaceSlugs] = await Promise.all([
-      fetchAllSlugs("dispatches", "is_hidden", false),
-      fetchAllSlugs("spaces", "is_published", true),
-    ]);
-    dynamicUrls = [
-      ...dispatchSlugs.map((slug) => `/dispatches/${slug}`),
-      ...spaceSlugs.map((slug) => `/spaces/${slug}`),
-    ];
+    // Individual dispatch pages are noindexed (thin, aggregated wire
+    // content) -- leaving them out of the sitemap keeps it aligned with
+    // what's actually indexable. The /dispatches hub page itself is still
+    // indexable and listed in staticUrls above.
+    const spaceSlugs = await fetchAllSlugs("spaces", "is_published", true);
+    dynamicUrls = spaceSlugs.map((slug) => `/spaces/${slug}`);
   } else {
     console.warn("[sitemap] Missing SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY, generating static-only sitemap");
   }

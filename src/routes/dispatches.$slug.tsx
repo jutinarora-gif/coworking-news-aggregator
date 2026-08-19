@@ -19,6 +19,10 @@ export const Route = createFileRoute("/dispatches/$slug")({
       { property: "og:title", content: loaderData.title },
       { property: "og:description", content: loaderData.excerpt ?? "" },
       ...(loaderData.cover_url ? [{ property: "og:image", content: loaderData.cover_url }, { name: "twitter:image", content: loaderData.cover_url }] : []),
+      // Aggregated wire content, not original reporting -- keep these on-site
+      // for readers but out of Google's index so a large volume of thin,
+      // syndicated pages doesn't drag down trust for the rest of the site.
+      { name: "robots", content: "noindex, follow" },
     ] : [{ title: "Dispatch" }],
     links: loaderData?.source_url ? [{ rel: "canonical", href: loaderData.source_url }] : [],
   }),
