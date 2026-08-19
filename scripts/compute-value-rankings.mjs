@@ -66,11 +66,21 @@ function percentileScores(values) {
 async function main() {
   const [{ data: spaces, error }, { data: cities, error: citiesError }] = await Promise.all([
     supabase.from("spaces").select("id,name,price_from,amenities,city_id").eq("is_published", true).not("price_from", "is", null),
-    supabase.from("cities").select("id,region"),
+    supabase.from("cities").select("id,name,region"),
   ]);
   if (error) throw error;
   if (citiesError) throw citiesError;
   const regionByCity = new Map((cities ?? []).map((c) => [c.id, c.region]));
+
+  // Delhi, Gurugram, and Noida are three separate "cities" in the data but
+  // one metro commercially - capping each individually still let NCR take
+  // 9 of 20 slots and crowd the top ranks (where the homepage's "top 5"
+  // widget draws from) even though no single city broke its own cap. Group
+  // them under one key so the cap applies to the metro, not each borough.
+  const NCR_CITIES = new Set(["Delhi", "Gurugram", "Noida"]);
+  const capGroupByCity = new Map(
+    (cities ?? []).map((c) => [c.id, NCR_CITIES.has(c.name) ? "NCR" : c.id]),
+  );
 
   const byCity = new Map();
   for (const s of spaces) {
@@ -97,7 +107,7 @@ async function main() {
     const list = scoredByRegion.get(region) ?? [];
     citySpaces.forEach((s, i) => {
       const value_score = PRICE_WEIGHT * pricePercentiles[i] + AMENITY_WEIGHT * amenityPercentiles[i];
-      list.push({ space_id: s.id, city_id: cityId, is_brand: isKnownBrand(s.name), value_score });
+      list.push({ space_id: s.id, cap_group: capGroupByCity.get(cityId) ?? cityId, is_brand: isKnownBrand(s.name), value_score });
     });
     scoredByRegion.set(region, list);
   }
@@ -115,11 +125,11 @@ async function main() {
 
     function tryAdd(w, respectCap) {
       if (pickedIds.has(w.space_id)) return false;
-      const cityCount = cityCounts.get(w.city_id) ?? 0;
+      const cityCount = cityCounts.get(w.cap_group) ?? 0;
       if (respectCap && cityCount >= MAX_PER_CITY) return false;
       picked.push(w);
       pickedIds.add(w.space_id);
-      cityCounts.set(w.city_id, cityCount + 1);
+      cityCounts.set(w.cap_group, cityCount + 1);
       return true;
     }
 
