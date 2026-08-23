@@ -119,6 +119,11 @@ function jaccardSimilarity(a, b) {
   return intersection / union;
 }
 
+// Matches MAX_ARTICLE_AGE_DAYS in src/lib/data.functions.ts (the homepage's
+// own freshness gate) - no reason to store what that gate would filter out
+// anyway.
+const MAX_ARTICLE_AGE_DAYS = 14;
+
 const DUPLICATE_SIMILARITY_THRESHOLD = 0.6;
 const DUPLICATE_LOOKBACK_DAYS = 10;
 
@@ -162,9 +167,16 @@ async function ingestFeed(feed, recentTitleTokens) {
         continue;
       }
 
-      // Older articles are still ingested and kept on /dispatches for SEO
-      // breadth — the 2-week freshness rule is enforced only on the homepage
-      // feed (see maxArticleAgeCutoff() in data.functions.ts), not here.
+      // Google News search feeds routinely resurface old archival articles
+      // that happen to match the query, not actual news - skip anything
+      // whose own publish date is stale rather than storing it. (Dispatch
+      // pages are noindexed anyway, so there's no SEO-breadth reason to
+      // keep them around the way there used to be.)
+      const publishedAt = item.isoDate || item.pubDate;
+      if (publishedAt && new Date(publishedAt) < new Date(Date.now() - MAX_ARTICLE_AGE_DAYS * 24 * 60 * 60 * 1000)) {
+        skipped++;
+        continue;
+      }
 
       const { data: existing } = await supabase
         .from("dispatches")
