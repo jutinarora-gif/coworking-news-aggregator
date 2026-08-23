@@ -5,16 +5,25 @@ import coworkingVsManagedPost from "./how-should-a-startup-choose-between-cowork
 import bestForStartupTeamPost from "./best-coworking-space-for-a-startup-team-in-india";
 import noidaPricingPost from "./we-priced-5-noida-coworking-spaces-against-what-you-actually-get";
 
+// Spreading a full BlogModule (`{ ...post }`) carries its Body component
+// function along with the meta fields - TypeScript's BlogMeta[] annotation
+// doesn't strip it at runtime. Any post detail page that returns another
+// post's entry from ALL_POSTS_META as loader data (e.g. "related posts")
+// then tries to serialize that function during SSR dehydration, which
+// fails silently and breaks hydration for the whole page. Strip Body here
+// so only plain, serializable meta ever lands in this array.
+const stripBody = ({ Body, ...meta }: BlogModule): BlogMeta => meta;
+
 // Every planned post, written or not, so /blog can list the full lineup
 // consistently. Posts not yet written render as "Coming soon" cards until
 // their entry is added to WRITTEN below. Order here is newest-first --
 // index 0 is the featured lead card on /blog.
 export const ALL_POSTS_META: BlogMeta[] = [
-  { ...noidaPricingPost },
-  { ...bestForStartupTeamPost },
-  { ...coworkingVsManagedPost },
-  { ...cancelMembershipPost },
-  { ...redFlagsPost },
+  stripBody(noidaPricingPost),
+  stripBody(bestForStartupTeamPost),
+  stripBody(coworkingVsManagedPost),
+  stripBody(cancelMembershipPost),
+  stripBody(redFlagsPost),
   {
     slug: "the-real-cost-of-a-hot-desk-in-bengaluru",
     title: "The real cost of a hot desk in Bengaluru",
