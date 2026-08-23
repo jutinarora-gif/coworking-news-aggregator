@@ -101,6 +101,25 @@ export function ExternalLink({ href, children }: { href: string; children: React
   );
 }
 
+export function Spec({ price, gets }: { price: ReactNode; gets: ReactNode }) {
+  return (
+    <p className="mt-3">
+      <strong className="text-foreground">Price:</strong> {price}
+      <br />
+      <strong className="text-foreground">What you get for it:</strong> {gets}
+    </p>
+  );
+}
+
+export function ProfileLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <Link to={to} className="mt-4 inline-flex items-center gap-1.5 font-medium text-foreground hover:text-flare-ink transition-colors">
+      {children}
+      <ArrowRight className="h-3.5 w-3.5" />
+    </Link>
+  );
+}
+
 export function RelatedLink({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link to={to} className="mt-8 flex items-center justify-between gap-2 rounded-2xl bg-flare p-5 text-flare-ink transition-transform hover:-translate-y-0.5">

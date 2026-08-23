@@ -43,6 +43,7 @@ async function main() {
     "/blog/monthly-coworking-membership-can-you-cancel-anytime",
     "/blog/how-should-a-startup-choose-between-coworking-and-a-managed-office",
     "/blog/best-coworking-space-for-a-startup-team-in-india",
+    "/blog/we-priced-5-noida-coworking-spaces-against-what-you-actually-get",
   ];
   let dynamicUrls = [];
 
