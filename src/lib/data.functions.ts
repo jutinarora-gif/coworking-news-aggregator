@@ -595,34 +595,34 @@ export type Leaderboards = Record<
 // space to be statistically meaningful.
 const CURATED_LEADERBOARD: Record<keyof Leaderboards, string[]> = {
   wifi: [
-    "wellwork-mpm-corporate-house-gachibowli-hyderabad",
-    "u-s-coworking-dwarka-delhi",
-    "smartworks-corporate-park-sector-125-noida",
+    "regus-knowledge-centre-sector-126-noida",
+    "smartworks-gwal-pahari-gwal-pahari-gurugram",
+    "ikeva-ilabs-centre-hitec-city-hyderabad",
   ],
   community: [
-    "urbanvault-esares-building-koramangala-bangalore",
-    "karma-workspaces-shivarth-the-ace-ahmedabad",
-    "ikeva-my-home-hub-hitec-city-hyderabad",
+    "awfis-lorven-tiara-kondapur-hyderabad",
+    "connecthq-sector-8-noida",
+    "91springboard-panaji-goa",
   ],
   clean: [
-    "one-day-coworking-labs-gachibowli-hyderabad",
-    "g-k-surekha-pitampura-delhi",
-    "nukleus-bhutani-cyberpark-sector-62-noida",
+    "awfis-sector-20-sector-20-gurugram",
+    "91springboard-bhutani-62-avenue-sector-62-noida",
+    "the-headquarters-pride-hitec-city-hyderabad",
   ],
   support: [
-    "awfis-sector-39-sector-39-gurugram",
-    "golden-glory-sector-8-noida",
-    "isprout-sreshtha-marvel-gachibowli-hyderabad",
+    "u-s-coworking-dwarka-delhi",
+    "myworx-sector-4-noida",
+    "redbrick-offices-salarpuria-hitec-city-hyderabad",
   ],
   ac: [
-    "table-space-dlf-cyber-city-dlf-cyber-city-gurugram",
-    "avanta-business-centre-barakhamba-barakhamba-delhi",
-    "lorven-smart-spaces-gachibowli-hyderabad",
+    "indesk-hitec-city-hyderabad",
+    "nukleus-sector-142-sector-142-noida",
+    "inferno-coworking-laxmi-nagar-delhi",
   ],
   meet: [
-    "indesk-hitec-city-hyderabad",
-    "kowo-workspaces-panaji-goa",
-    "connecthq-sector-8-noida",
+    "wisdomlab-verna-goa",
+    "bhive-platinum-indiranagar-indiranagar-bangalore",
+    "akasa-coworking-bidhan-nagar-kolkata",
   ],
 };
 
